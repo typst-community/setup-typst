@@ -1,0 +1,18 @@
+name: Setup Typst
+author: yusancky
+description: Setup Typst in GitHub Actions
+inputs:
+  token:
+    description: The token used to authenticate when fetching Typst distributions. When running this action on github.com, the default value is sufficient. When running on GHES, you can pass a personal access token for github.com if you are experiencing rate limiting.
+    default: ${{ github.server_url == 'https://github.com' && github.token || '' }}
+  version:
+    description: Exact version of Typst to use. Uses the latest if unset.
+outputs:
+  path:
+    description: The absolute path to the Typst executable.
+runs:
+  using: node16
+  main: index.js
+branding:
+  color: green
+  icon: download
