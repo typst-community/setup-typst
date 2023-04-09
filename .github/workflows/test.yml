@@ -1,0 +1,25 @@
+name: Test
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        run: npm install
+      - name: Run script
+        run: node index.js
+      - name: Compile Typst file
+        run: ${{ steps.setup-typst.outputs.path }} compile example.typ
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: example.pdf
+          path: example.pdf
