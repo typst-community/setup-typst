@@ -29,6 +29,7 @@ async function main() {
     }
 
     const url = `https://github.com/typst/typst/releases/download/${version}/typst-x86_64-pc-windows-msvc.zip`;
+    const downloadPath = `typst.zip`;
 
     const options = {
       headers: {
