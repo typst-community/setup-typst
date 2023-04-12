@@ -8,7 +8,7 @@ async function main() {
   try {
     const token = core.getInput('token');
     
-    const versionFilePath = path.join(__dirname, 'version.json');
+    const versionFilePath = path.join(__dirname, 'typst_version.json');
     let version;
     
     if (core.getInput('version')) {
