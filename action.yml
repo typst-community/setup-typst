@@ -22,10 +22,13 @@ runs:
         token: ${{ inputs.token }}
     - name: Unzip Typst
       run: 7z x typst-x86_64-pc-windows-msvc.zip -oc:\typst typst.exe -r
+      shell: bash
     - name: Delete zip
       run: del typst-x86_64-pc-windows-msvc.zip
+      shell: bash
     - name: Output Typst path
       run: echo "c:\typst" >> $GITHUB_PATH
+      shell: bash
 branding:
   color: blue
   icon: download
