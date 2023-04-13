@@ -7,9 +7,6 @@ inputs:
     default: ${{ github.server_url == 'https://github.com' && github.token || '' }}
   version:
     description: Exact version of Typst to use.
-outputs:
-  path:
-    description: The absolute path to the Typst executable.
 runs:
   using: composite
   steps:
@@ -26,7 +23,7 @@ runs:
     - name: Delete zip
       run: rm -f typst-x86_64-pc-windows-msvc.zip
       shell: bash
-    - name: Output Typst path
+    - name: Add system path
       run: echo "c:\typst\typst-x86_64-pc-windows-msvc" >> $GITHUB_PATH
       shell: bash
 branding:
