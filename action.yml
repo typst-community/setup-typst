@@ -1,6 +1,6 @@
 name: Setup Typst
 author: yusancky
-description: Setup Typst in GitHub Actions
+description: A cross-OS Actions for installing Typst
 
 inputs:
   token:
@@ -64,5 +64,5 @@ runs:
       if: runner.os == 'Windows'
 
 branding:
-  color: blue
+  color: orange
   icon: download
