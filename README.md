@@ -1,6 +1,6 @@
 # Setup Typst
 
-Setup Typst in GitHub Actions (currently only supported for Windows).
+A cross-OS action for installing Typst.
 
 ## Inputs
 
@@ -15,7 +15,7 @@ Exact version of Typst to use.
 ## Example usage
 
 ```yaml
-- uses: yusancky/setup-typst@v0.1
+- uses: yusancky/setup-typst@v1
   id: setup-typst
   with:
     version: 'v0.2.0'

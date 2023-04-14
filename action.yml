@@ -1,31 +1,68 @@
 name: Setup Typst
 author: yusancky
-description: Setup Typst in GitHub Actions
+description: A cross-OS action for installing Typst
+
 inputs:
   token:
     description: The token used to authenticate when fetching Typst distributions. When running this action on github.com, the default value is sufficient. When running on GHES, you can pass a personal access token for github.com if you are experiencing rate limiting.
     default: ${{ github.server_url == 'https://github.com' && github.token || '' }}
   version:
     description: Exact version of Typst to use.
+
 runs:
   using: composite
   steps:
+    - name: Configure filenames (Linux)
+      run: |
+        echo "typst_asset_name=unknown-linux-gnu" >> $GITHUB_ENV
+        echo "typst_asset_zip_name=tar.gz" >> $GITHUB_ENV
+      shell: bash
+      if: runner.os == 'Linux'
+    - name: Configure filenames (Windows)
+      run: |
+        echo "typst_asset_name=pc-windows-msvc" >> $GITHUB_ENV
+        echo "typst_asset_zip_name=zip" >> $GITHUB_ENV
+      shell: bash
+      if: runner.os == 'Windows'
+    - name: Configure filenames (macOS)
+      run: |
+        echo "typst_asset_name=apple-darwin" >> $GITHUB_ENV
+        echo "typst_asset_zip_name=tar.gz" >> $GITHUB_ENV
+      shell: bash
+      if: runner.os == 'macOS'
+
     - name: Download release
       uses: robinraju/release-downloader@v1.7
       with:
-        repository: "typst/typst"
+        repository: typst/typst
         tag: ${{ inputs.version }}
-        fileName: "typst-x86_64-pc-windows-msvc.zip"
+        fileName: ${{ format('typst-x86_64-{0}.{1}', env.typst_asset_name, env.typst_asset_zip_name) }}
         token: ${{ inputs.token }}
-    - name: Unzip Typst
-      run: 7z x typst-x86_64-pc-windows-msvc.zip -oc:\typst typst.exe -r
+
+    - name: Unzip Typst (Linux, macOS)
+      run: |
+        sudo mkdir /usr/local/typst
+        ${{ format('sudo tar -xzf typst-x86_64-{0}.{1} -C /usr/local/typst/', env.typst_asset_name, env.typst_asset_zip_name) }}
       shell: bash
+      if: runner.os == 'Linux' || runner.os == 'macOS'
+    - name: Unzip Typst (Windows)
+      run: ${{ format('7z x typst-x86_64-{0}.{1} -oc:\typst', env.typst_asset_name, env.typst_asset_zip_name) }}
+      shell: bash
+      if: runner.os == 'Windows'
+
     - name: Delete zip
-      run: rm -f typst-x86_64-pc-windows-msvc.zip
+      run: ${{ format('rm -f typst-x86_64-{0}.{1}', env.typst_asset_name, env.typst_asset_zip_name) }}
       shell: bash
-    - name: Add system path
-      run: echo "c:\typst\typst-x86_64-pc-windows-msvc" >> $GITHUB_PATH
+
+    - name: Add system path (Linux, macOS)
+      run: ${{ format('echo "/usr/local/typst/typst-x86_64-{0}" >> $GITHUB_PATH', env.typst_asset_name) }}
       shell: bash
+      if: runner.os == 'Linux' || runner.os == 'macOS'
+    - name: Add system path (Windows)
+      run: ${{ format('echo "c:\typst\typst-x86_64-{0}" >> $GITHUB_PATH', env.typst_asset_name) }}
+      shell: bash
+      if: runner.os == 'Windows'
+
 branding:
-  color: blue
+  color: orange
   icon: download
