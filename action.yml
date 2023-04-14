@@ -40,6 +40,7 @@ runs:
         sudo mkdir /typst
         ${{ format('sudo tar -xzf typst-x86_64-{0}.{1} typst -C /typst/', env.typst_zip_name, env.typst_zip_extend) }}
       shell: bash
+      if: runner.os == 'Linux'
     - name: Unzip Typst (Windows)
       run: ${{ format('7z x typst-x86_64-{0}.{1} -oc:\typst typst.exe -r', env.typst_zip_name, env.typst_zip_extend) }}
       shell: bash
