@@ -53,7 +53,7 @@ runs:
       shell: bash
       if: runner.os == 'Windows'
     - name: Unzip Typst (macOS)
-      run: ${{ format('sudo 7z x typst-x86_64-{0}.{1} -o/usr/local/typst/', env.typst_asset_name, env.typst_asset_zip_name) }}
+      run: ${{ format('sudo tar -xzf typst-x86_64-{0}.{1} -C /usr/local/typst/', env.typst_asset_name, env.typst_asset_zip_name) }}
       shell: bash
       if: runner.os == 'macOS'
 
