@@ -1,4 +1,4 @@
-# Setup Typst 
+# Setup Typst
 
 A cross-OS Actions for installing Typst.
 
