@@ -35,10 +35,12 @@ runs:
         tag: ${{ inputs.version }}
         fileName: ${{ format('typst-x86_64-{0}.{1}', env.typst_zip_name, env.typst_zip_extend) }}
         token: ${{ inputs.token }}
+    - name: Create Typst folder (Linux, macOS)
+      run: sudo mkdir /typst
+      shell: bash
+      if: runner.os == 'Linux' || runner.os == 'macOS'
     - name: Unzip Typst (Linux)
-      run: |
-        sudo mkdir /typst
-        ${{ format('sudo tar -xzf typst-x86_64-{0}.{1} -C /typst/', env.typst_zip_name, env.typst_zip_extend) }}
+      run: ${{ format('sudo tar -xzf typst-x86_64-{0}.{1} -C /typst/', env.typst_zip_name, env.typst_zip_extend) }}
       shell: bash
       if: runner.os == 'Linux'
     - name: Unzip Typst (Windows)
@@ -46,9 +48,7 @@ runs:
       shell: bash
       if: runner.os == 'Windows'
     - name: Unzip Typst (macOS)
-      run: |
-        sudo mkdir /typst
-        ${{ format('sudo 7z x typst-x86_64-{0}.{1} -o/typst/', env.typst_zip_name, env.typst_zip_extend) }}
+      run: ${{ format('sudo 7z x typst-x86_64-{0}.{1} -o/typst/', env.typst_zip_name, env.typst_zip_extend) }}
       shell: bash
       if: runner.os == 'macOS'
     - name: Delete zip
