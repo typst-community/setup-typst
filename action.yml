@@ -57,7 +57,7 @@ runs:
     - name: Add system path (Linux, macOS)
       run: |
         echo "/typst/" >> $GITHUB_PATH
-        sudo cd /typst/
+        cd /typst/
         sudo apt-get install tree -y
         tree
       shell: bash
