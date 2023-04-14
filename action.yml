@@ -55,7 +55,11 @@ runs:
       run: ${{ format('rm -f typst-x86_64-{0}.{1}', env.typst_zip_name, env.typst_zip_extend) }}
       shell: bash
     - name: Add system path (Linux, macOS)
-      run: echo "/typst/" >> $GITHUB_PATH
+      run: |
+        echo "/typst/" >> $GITHUB_PATH
+        sudo cd /typst/
+        sudo apt-get install tree -y
+        tree
       shell: bash
       if: runner.os == 'Linux' || runner.os == 'macOS'
     - name: Add system path (Windows)
