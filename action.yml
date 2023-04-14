@@ -35,13 +35,27 @@ runs:
         tag: ${{ inputs.version }}
         fileName: ${{ format('typst-x86_64-{0}.{1}', env.typst_zip_name, env.typst_zip_extend) }}
         token: ${{ inputs.token }}
+    - name: Unzip Typst (Linux)
+      run: |
+        sudo mkdir /typst
+        ${{ format('sudo tar -xzf typst-x86_64-{0}.{1} typst -C /typst/', env.typst_zip_name, env.typst_zip_extend) }}
     - name: Unzip Typst (Windows)
       run: ${{ format('7z x typst-x86_64-{0}.{1} -oc:\typst typst.exe -r', env.typst_zip_name, env.typst_zip_extend) }}
       shell: bash
       if: runner.os == 'Windows'
+    - name: Unzip Typst (macOS)
+      run: |
+        sudo mkdir /typst
+        ${{ format('sudo 7z x typst-x86_64-{0}.{1} -o/typst/ typst', env.typst_zip_name, env.typst_zip_extend) }}
+      shell: bash
+      if: runner.os == 'macOS'
     - name: Delete zip
       run: ${{ format('rm -f typst-x86_64-{0}.{1}', env.typst_zip_name, env.typst_zip_extend) }}
       shell: bash
+    - name: Add system path (Linux, macOS)
+      run: echo "/typst/" >> $GITHUB_PATH
+      shell: bash
+      if: runner.os == 'Linux' || runner.os == 'macOS'
     - name: Add system path (Windows)
       run: echo "c:\typst\typst-x86_64-pc-windows-msvc" >> $GITHUB_PATH
       shell: bash
