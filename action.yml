@@ -39,34 +39,23 @@ runs:
         fileName: ${{ format('typst-x86_64-{0}.{1}', env.typst_asset_name, env.typst_asset_zip_name) }}
         token: ${{ inputs.token }}
 
-    - name: Create Typst folder (Linux, macOS)
-      run: sudo mkdir /usr/local/typst
+    - name: Unzip Typst (Linux, macOS)
+      run: |
+        sudo mkdir /usr/local/typst
+        ${{ format('sudo tar -xzf typst-x86_64-{0}.{1} -C /usr/local/typst/', env.typst_asset_name, env.typst_asset_zip_name) }}
       shell: bash
       if: runner.os == 'Linux' || runner.os == 'macOS'
-
-    - name: Unzip Typst (Linux)
-      run: ${{ format('sudo tar -xzf typst-x86_64-{0}.{1} -C /usr/local/typst/', env.typst_asset_name, env.typst_asset_zip_name) }}
-      shell: bash
-      if: runner.os == 'Linux'
     - name: Unzip Typst (Windows)
       run: ${{ format('7z x typst-x86_64-{0}.{1} -oc:\typst', env.typst_asset_name, env.typst_asset_zip_name) }}
       shell: bash
       if: runner.os == 'Windows'
-    - name: Unzip Typst (macOS)
-      run: ${{ format('sudo tar -xzf typst-x86_64-{0}.{1} -C /usr/local/typst/', env.typst_asset_name, env.typst_asset_zip_name) }}
-      shell: bash
-      if: runner.os == 'macOS'
 
     - name: Delete zip
       run: ${{ format('rm -f typst-x86_64-{0}.{1}', env.typst_asset_name, env.typst_asset_zip_name) }}
       shell: bash
 
     - name: Add system path (Linux, macOS)
-      run: |
-        brew install tree
-        cd /usr/local/typst
-        tree
-        ${{ format('echo "/usr/local/typst/typst-x86_64-{0}" >> $GITHUB_PATH', env.typst_asset_name) }}
+      run: ${{ format('echo "/usr/local/typst/typst-x86_64-{0}" >> $GITHUB_PATH', env.typst_asset_name) }}
       shell: bash
       if: runner.os == 'Linux' || runner.os == 'macOS'
     - name: Add system path (Windows)
