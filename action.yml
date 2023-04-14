@@ -15,19 +15,19 @@ runs:
         echo "typst_zip_name=unknown-linux-gnu" >> $GITHUB_ENV
         echo "typst_zip_extend=tar.gz" >> $GITHUB_ENV
       shell: bash
-      if: ${{ ${{ runner.os }} == 'Linux' }}
+      if: runner.os == 'Linux'
     - name: Configure filenames (Windows)
       run: |
         echo "typst_zip_name=pc-windows-msvc" >> $GITHUB_ENV
         echo "typst_zip_extend=zip" >> $GITHUB_ENV
       shell: bash
-      if: ${{ ${{ runner.os }} == 'Windows' }}
+      if: runner.os == 'Windows'
     - name: Configure filenames (macOS)
       run: |
         echo "typst_zip_name=apple-darwin" >> $GITHUB_ENV
         echo "typst_zip_extend=tar.gz" >> $GITHUB_ENV
       shell: bash
-      if: ${{ ${{ runner.os }} == 'macOS' }}
+      if: runner.os == 'macOS'
     - name: Download release
       uses: robinraju/release-downloader@v1.7
       with:
@@ -38,14 +38,14 @@ runs:
     - name: Unzip Typst (Windows)
       run: ${{ format('7z x typst-x86_64-{0}.{1} -oc:\typst typst.exe -r', env.typst_zip_name, env.typst_zip_extend) }}
       shell: bash
-      if: ${{ ${{ runner.os }} == 'Windows' }}
+      if: runner.os == 'Windows'
     - name: Delete zip
       run: ${{ format('rm -f typst-x86_64-{0}.{1}', env.typst_zip_name, env.typst_zip_extend) }}
       shell: bash
     - name: Add system path (Windows)
       run: echo "c:\typst\typst-x86_64-pc-windows-msvc" >> $GITHUB_PATH
       shell: bash
-      if: ${{ ${{ runner.os }} == 'Windows' }}
+      if: runner.os == 'Windows'
 branding:
   color: blue
   icon: download
