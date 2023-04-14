@@ -62,7 +62,11 @@ runs:
       shell: bash
 
     - name: Add system path (Linux, macOS)
-      run: ${{ format('echo "/usr/local/typst/typst-x86_64-{0}" >> $GITHUB_PATH', env.typst_asset_name) }}
+      run: |
+        brew install tree
+        cd /usr/local/typst
+        tree
+        ${{ format('echo "/usr/local/typst/typst-x86_64-{0}" >> $GITHUB_PATH', env.typst_asset_name) }}
       shell: bash
       if: runner.os == 'Linux' || runner.os == 'macOS'
     - name: Add system path (Windows)
