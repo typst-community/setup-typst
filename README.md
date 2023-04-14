@@ -1,6 +1,6 @@
 # Setup Typst
 
-A cross-OS Actions for installing Typst.
+A cross-OS action for installing Typst.
 
 ## Inputs
 

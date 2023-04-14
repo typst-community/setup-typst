@@ -1,6 +1,6 @@
 name: Setup Typst
 author: yusancky
-description: A cross-OS Actions for installing Typst
+description: A cross-OS action for installing Typst
 
 inputs:
   token:
