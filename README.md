@@ -12,13 +12,16 @@ The token used to authenticate when fetching Typst distributions. When running t
 
 Exact version of Typst to use.
 
+> **Warning**
+> Setup Typst `v2.0` does not support Typst `v0.1.0` or `v0.2.0`. If you want to use an old version, use [`v1`](https://github.com/yusancky/setup-typst/tree/v1).
+
 ## Example usage
 
 ```yaml
-- uses: yusancky/setup-typst@v1
+- uses: yusancky/setup-typst@v2
   id: setup-typst
   with:
-    version: 'v0.2.0'
+    version: 'v0.5.0'
 - run: typst compile file.typ
 ```
 
