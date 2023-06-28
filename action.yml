@@ -12,27 +12,22 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Configure filenames (Linux)
+    - name: Configure filenames
       run: |
-        echo "typst_asset_name=unknown-linux-gnu" >> $GITHUB_ENV
-        echo "typst_asset_zip_name=tar.gz" >> $GITHUB_ENV
+        if [ "$RUNNER_OS" == 'Linux' ]; then
+          echo "typst_asset_name=unknown-linux-musl" >> $GITHUB_ENV
+          echo "typst_asset_zip_name=tar.xz" >> $GITHUB_ENV
+        elif [ "$RUNNER_OS" == 'Windows' ]; then
+          echo "typst_asset_name=pc-windows-msvc" >> $GITHUB_ENV
+          echo "typst_asset_zip_name=zip" >> $GITHUB_ENV
+        else
+          echo "typst_asset_name=apple-darwin" >> $GITHUB_ENV
+          echo "typst_asset_zip_name=tar.xz" >> $GITHUB_ENV
+        fi
       shell: bash
-      if: runner.os == 'Linux'
-    - name: Configure filenames (Windows)
-      run: |
-        echo "typst_asset_name=pc-windows-msvc" >> $GITHUB_ENV
-        echo "typst_asset_zip_name=zip" >> $GITHUB_ENV
-      shell: bash
-      if: runner.os == 'Windows'
-    - name: Configure filenames (macOS)
-      run: |
-        echo "typst_asset_name=apple-darwin" >> $GITHUB_ENV
-        echo "typst_asset_zip_name=tar.gz" >> $GITHUB_ENV
-      shell: bash
-      if: runner.os == 'macOS'
 
     - name: Download release
-      uses: robinraju/release-downloader@v1.7
+      uses: robinraju/release-downloader@v1.8
       with:
         repository: typst/typst
         tag: ${{ inputs.version }}
@@ -42,7 +37,7 @@ runs:
     - name: Unzip Typst (Linux, macOS)
       run: |
         sudo mkdir /usr/local/typst
-        ${{ format('sudo tar -xzf typst-x86_64-{0}.{1} -C /usr/local/typst/', env.typst_asset_name, env.typst_asset_zip_name) }}
+        ${{ format('sudo tar -xf typst-x86_64-{0}.{1} -C /usr/local/typst/', env.typst_asset_name, env.typst_asset_zip_name) }}
       shell: bash
       if: runner.os == 'Linux' || runner.os == 'macOS'
     - name: Unzip Typst (Windows)
