@@ -12,27 +12,34 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Configure filenames (Linux)
-      run: |
-        echo "typst_asset_name=unknown-linux-gnu" >> $GITHUB_ENV
-        echo "typst_asset_zip_name=tar.gz" >> $GITHUB_ENV
+    - name: Install Semver
+      run: npm install semver
       shell: bash
-      if: runner.os == 'Linux'
-    - name: Configure filenames (Windows)
+    - name: Configure filenames
       run: |
-        echo "typst_asset_name=pc-windows-msvc" >> $GITHUB_ENV
-        echo "typst_asset_zip_name=zip" >> $GITHUB_ENV
+        if [ "$RUNNER_OS" == 'Linux' ]; then
+          if semver -r '>=0.3.0' $inputs.version; then
+            echo "typst_asset_name=unknown-linux-musl" >> $GITHUB_ENV
+            echo "typst_asset_zip_name=tar.xz" >> $GITHUB_ENV
+          else
+            echo "typst_asset_name=unknown-linux-gnu" >> $GITHUB_ENV
+            echo "typst_asset_zip_name=tar.gz" >> $GITHUB_ENV
+          fi
+        elif [ "$RUNNER_OS" == 'Windows' ]; then
+          echo "typst_asset_name=pc-windows-msvc" >> $GITHUB_ENV
+          echo "typst_asset_zip_name=zip" >> $GITHUB_ENV
+        else
+          echo "typst_asset_name=apple-darwin" >> $GITHUB_ENV
+          if semver -r '>=0.3.0' $inputs.version; then
+            echo "typst_asset_zip_name=tar.xz" >> $GITHUB_ENV
+          else
+            echo "typst_asset_zip_name=tar.gz" >> $GITHUB_ENV
+          fi
+        fi
       shell: bash
-      if: runner.os == 'Windows'
-    - name: Configure filenames (macOS)
-      run: |
-        echo "typst_asset_name=apple-darwin" >> $GITHUB_ENV
-        echo "typst_asset_zip_name=tar.gz" >> $GITHUB_ENV
-      shell: bash
-      if: runner.os == 'macOS'
 
     - name: Download release
-      uses: robinraju/release-downloader@v1.7
+      uses: robinraju/release-downloader@v1.8
       with:
         repository: typst/typst
         tag: ${{ inputs.version }}
