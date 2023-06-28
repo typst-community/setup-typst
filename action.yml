@@ -13,12 +13,12 @@ runs:
   using: composite
   steps:
     - name: Install Semver
-      run: npm install semver
+      run: npm install -g semver
       shell: bash
     - name: Configure filenames
       run: |
         if [ "$RUNNER_OS" == 'Linux' ]; then
-          if semver -r '>=0.3.0' $inputs.version; then
+          if semver -r '>=v0.3.0' $inputs.version; then
             echo "typst_asset_name=unknown-linux-musl" >> $GITHUB_ENV
             echo "typst_asset_zip_name=tar.xz" >> $GITHUB_ENV
           else
@@ -30,7 +30,7 @@ runs:
           echo "typst_asset_zip_name=zip" >> $GITHUB_ENV
         else
           echo "typst_asset_name=apple-darwin" >> $GITHUB_ENV
-          if semver -r '>=0.3.0' $inputs.version; then
+          if semver -r '>=v0.3.0' $inputs.version; then
             echo "typst_asset_zip_name=tar.xz" >> $GITHUB_ENV
           else
             echo "typst_asset_zip_name=tar.gz" >> $GITHUB_ENV
