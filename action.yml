@@ -37,7 +37,7 @@ runs:
     - name: Unzip Typst (Linux, macOS)
       run: |
         sudo mkdir /usr/local/typst
-        ${{ format('sudo tar -xzf typst-x86_64-{0}.{1} -C /usr/local/typst/', env.typst_asset_name, env.typst_asset_zip_name) }}
+        ${{ format('sudo tar -xf typst-x86_64-{0}.{1} -C /usr/local/typst/', env.typst_asset_name, env.typst_asset_zip_name) }}
       shell: bash
       if: runner.os == 'Linux' || runner.os == 'macOS'
     - name: Unzip Typst (Windows)
