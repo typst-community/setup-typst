@@ -26,14 +26,22 @@ runs:
         fi
       shell: bash
 
+    - name: Download release if latest
+      uses: robinraju/release-downloader@v1.8
+      with:
+        repository: typst/typst
+        latest: true
+        fileName: ${{ format('typst-x86_64-{0}.{1}', env.typst_asset_name, env.typst_asset_zip_name) }}
+        token: ${{ inputs.token }}
+      if: inputs.version == 'latest'
     - name: Download release
       uses: robinraju/release-downloader@v1.8
       with:
         repository: typst/typst
-        tag: ${{ inputs.version != 'latest' ? inputs.version : "" }}
-        latest: ${{ inputs.version == 'latest' ? "true" : "false" }}
+        tag: ${{ inputs.version }}
         fileName: ${{ format('typst-x86_64-{0}.{1}', env.typst_asset_name, env.typst_asset_zip_name) }}
         token: ${{ inputs.token }}
+      if: inputs.version != 'latest'
 
     - name: Unzip Typst (Linux, macOS)
       run: |
