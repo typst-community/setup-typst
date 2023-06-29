@@ -13,7 +13,7 @@ The token used to authenticate when fetching Typst distributions. When running t
 Exact version of Typst to use. Input `latest` if you want to use latest version of Typst.
 
 > **Warning**
-> Setup Typst `v2.0` does not support Typst `v0.1.0` or `v0.2.0`. If you want to use an old version, use [`v1`](https://github.com/yusancky/setup-typst/tree/v1).
+> Setup Typst v2.0 does not support Typst v0.1.0 or v0.2.0 (actually they were supported on Windows). If you want to use an old version on Linux or macOS, please use [v1](https://github.com/yusancky/setup-typst/tree/v1).
 
 ## Example usage
 
