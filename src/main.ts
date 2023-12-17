@@ -40,6 +40,9 @@ if (!path) {
   if (archive.endsWith(".zip")) {
     path = await tc.extractZip(path);
   } else {
+    // https://github.com/actions/toolkit/blob/68f22927e727a60caff909aaaec1ab7267b39f75/packages/tool-cache/src/tool-cache.ts#L226
+    // J flag is .tar.xz
+    // z flag is .tar.gz
     path = await tc.extractTar(path, undefined, "xJ");
   }
   path = join(path, folder);
