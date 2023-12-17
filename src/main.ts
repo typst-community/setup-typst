@@ -16,14 +16,14 @@ const octokit = core.getInput("typst-token")
 let version = core.getInput("typst-version")
 if (version === "latest") {
   const { data } = await octokit.rest.repos.getLatestRelease({
-    owner: "cli",
-    repo: "cli",
+    owner: "typst",
+    repo: "typst",
   });
   version = data.tag_name.slice(1);
 } else {
   const releases = await octokit.paginate(octokit.rest.repos.listReleases, {
-    owner: "cli",
-    repo: "cli",
+    owner: "typst",
+    repo: "typst",
   });
   const versions = releases.map((release) => release.tag_name.slice(1));
   version = semver.maxSatisfying(versions, version)!;
