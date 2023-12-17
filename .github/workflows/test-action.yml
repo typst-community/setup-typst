@@ -2,10 +2,23 @@ name: Test action
 on:
   push:
     branches: "main"
+    paths-ignore:
+      - .gitignore
+      - README.md
+      - LICENSE
+      - .github/**
+      - "!.github/workflows/test-action.yml"
   pull_request:
+    paths-ignore:
+      - .gitignore
+      - README.md
+      - LICENSE
+      - .github/**
+      - "!.github/workflows/test-action.yml"
 jobs:
   test-action:
     strategy:
+      fail-falst: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
@@ -18,4 +31,6 @@ jobs:
       - run: npm ci
       - run: npm run build
       - uses: ./
-      - run: bash ./test.sh
+      - shell: bash
+        run: command -v typst
+      - run: typst compile test/example.typ test/example.pdf
