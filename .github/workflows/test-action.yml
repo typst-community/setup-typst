@@ -35,5 +35,5 @@ jobs:
       - run: npm run build
       - uses: ./
       - shell: bash
-        run: command -v typst
-      - run: typst compile test/example.typ test/example.pdf
+      - run: typst --version
+      - run: typst compile test.typ

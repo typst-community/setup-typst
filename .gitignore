@@ -1,5 +1,5 @@
-# Ignore test artifacts
-test/*.pdf
+# Ignore test artifact
+test.pdf
 
 #region https://github.com/github/gitignore/blob/main/Node.gitignore
 # Logs
