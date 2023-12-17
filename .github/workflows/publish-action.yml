@@ -2,6 +2,7 @@ name: publish-action
 on:
   release:
     types: released
+concurrency: ${{ github.workflow }}
 jobs:
   publish-action:
     permissions:
