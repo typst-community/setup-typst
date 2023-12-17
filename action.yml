@@ -11,6 +11,10 @@ inputs:
   typst-version:
     default: latest
 
+outputs:
+  typst-version: {}
+  cache-hit: {}
+
 runs:
   using: node20
   main: dist/main.js
