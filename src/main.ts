@@ -28,7 +28,7 @@ if (version === "latest") {
   const versions = releases.map((release) => release.tag_name.slice(1));
   version = semver.maxSatisfying(versions, version)!;
 }
-core.info(`Resolved version: ${version}`)
+core.debug(`Resolved version: v${version}`)
 if (!version) throw new DOMException(`${core.getInput("typst-version")} resolved to ${version}`)
 
 let found = tc.find("typst", version);
