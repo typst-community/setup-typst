@@ -7,7 +7,7 @@ branding:
 inputs:
   typst-token:
     default: ${{ github.server_url == 'https://github.com' && github.token || '' }}
-  version:
+  typst-version:
     default: latest
 
 runs:

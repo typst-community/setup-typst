@@ -3,8 +3,7 @@ import * as core from "@actions/core"
 import * as tc from "@actions/tool-cache"
 import { join } from "node:path";
 
-const version = core.getInput("typst-version")
-
+let version = core.getInput("typst-version")
 let tag: string
 if (version === "latest") {
   const response = await fetch(
@@ -12,6 +11,7 @@ if (version === "latest") {
   );
   const json = await response.json();
   tag = json.release.tag;
+  version = tag.match(/\d+\.\d+\.\d+/)![0]
 } else {
   tag = `v${version}`
 }
