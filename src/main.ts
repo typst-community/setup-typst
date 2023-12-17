@@ -40,7 +40,7 @@ if (!path) {
   if (archive.endsWith(".zip")) {
     path = await tc.extractZip(path);
   } else {
-    path = await tc.extractTar(path);
+    path = await tc.extractTar(path, undefined, "xJ");
   }
   path = join(path, folder);
   path = await tc.cacheDir(path, "typst", version);  
