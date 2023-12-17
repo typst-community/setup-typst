@@ -1,8 +1,9 @@
 name: Setup Typst CLI
+description: 📑 Install Typst for use in GitHub Actions
 
 branding:
+  icon: terminal
   color: white
-  icon: download
 
 inputs:
   typst-token:
