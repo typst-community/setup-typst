@@ -1,4 +1,4 @@
-# Setup Typst CLI
+# Setup Typst
 
 📑 Install Typst for use in GitHub Actions
 
