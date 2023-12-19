@@ -1,4 +1,4 @@
-name: Setup Typst CLI
+name: Setup Typst
 description: 📑 Install Typst for use in GitHub Actions
 
 branding:
