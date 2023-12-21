@@ -42,14 +42,14 @@ jobs:
   [typst/typst]. By default this should cover all cases. You shouldn't have to
   touch this setting.
 
-- **`typst-version`:** Which version of 'typst' to install. This can be an exact
-  version like '0.10.0' or a semver range like '0.10' or '0.x'. You can also
-  specify 'latest' to always use the latest version. The default is 'latest'.
+- **`typst-version`:** Which version of `typst` to install. This can be an exact
+  version like `0.10.0` or a semver range like `0.10` or `0.x`. You can also
+  specify `latest` to always use the latest version. The default is `latest`.
 
 ### Outputs
 
-- **`typst-version`:** The version of 'typst' that was installed. This will be
-  something like '0.10.0' or similar.
+- **`typst-version`:** The version of `typst` that was installed. This will be
+  something like `0.10.0` or similar.
 
 - **`cache-hit`:** Whether or not Typst was restored from the runner's cache or
   download anew.
