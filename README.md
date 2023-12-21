@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: yusancky/setup-typst@v3
-      # Now 'typst' is installed!
+      # Now Typst is installed!
       - run: typst compile paper.typ paper.pdf
       - uses: actions/upload-artifact@v4
         with:
