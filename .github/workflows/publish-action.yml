@@ -1,0 +1,27 @@
+name: publish-action
+on:
+  release:
+    types: released
+concurrency: ${{ github.workflow }}
+jobs:
+  publish-action:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: rm -rf node_modules
+      - uses: actions4git/setup-git@v1
+      - run: git add -Af && git commit -m 'npm run build'
+      - run: git tag -f "$TAG" && git push -f origin "$TAG"
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+      - uses: actions/publish-action@v0.2.2
+        with:
+          source-tag: ${{ github.event.release.tag_name }}
