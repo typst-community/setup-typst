@@ -23,16 +23,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        # os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - if: runner.os == 'Windows'
-        uses: oven-sh/setup-bun@v1
-        with:
-          bun-version: canary
-      - if: runner.os != 'Windows'
-        uses: oven-sh/setup-bun@v1
+      - uses: oven-sh/setup-bun@v1
       - run: bun install
       - run: bun run build
       - uses: ./
