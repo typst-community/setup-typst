@@ -8,8 +8,9 @@ import { join } from "node:path";
 import * as semver from "semver";
 import { createUnauthenticatedAuth } from "@octokit/auth-unauthenticated";
 
-const octokit = core.getInput("typst-token")
-  ? github.getOctokit(core.getInput("typst-token"))
+const token = core.getInput("typst-token")
+const octokit = token
+  ? github.getOctokit(token)
   : github.getOctokit(undefined!, {
       authStrategy: createUnauthenticatedAuth,
       auth: { reason: "no 'typst-token' input" },

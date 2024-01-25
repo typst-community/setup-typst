@@ -10,12 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: npm
-      - run: npm ci
-      - run: npm run build
+      - uses: oven-sh/setup-bun@v1
+      - run: bun install
+      - run: bun run build
       - run: rm -rf node_modules
       - uses: actions4git/setup-git@v1
       - run: git add -Af && git commit -m 'npm run build'
