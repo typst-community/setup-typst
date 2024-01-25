@@ -1,24 +1,14 @@
 #!/usr/bin/env node
 import * as cache from "@actions/cache";
 import * as core from "@actions/core";
+import * as glob from "@actions/glob"
 
-let packagesId = core.getInput("packages-id");
-
-if (!packagesId || packagesId === "-1") {
-  core.info("No packages should be cached.");
-} else {
-  const cachePath = {
-    darwin: "~/Library/Caches",
-    linux: "$XDG_CACHE_HOME",
-    win32: "~/Library/Caches",
-  }[process.platform.toString()]!;
-  const cacheId = await cache.saveCache(
-    [`${cachePath}/typst/packages/preview/`],
-    `typst-packages-${packagesId}`
-  );
-  if (cacheId instanceof Error) {
-    core.info("Packages cache upload fails.");
-  } else {
-    core.info(`✅ Packages group ${packagesId} uploaded!`);
-  }
+if (core.getBooleanInput("cache")) {
+  const cacheDir = {
+    linux: process.env.XDG_CACHE_HOME,
+    darwin: `${process.env.HOME}/Library/Caches`,
+    win32: process.env.LOCALAPPDATA,
+  }[process.platform as string]!
+  const primaryKey = await glob.hashFiles(["./**/*.typ"].join("\n"))
+  cache.saveCache([cacheDir], primaryKey)
 }
