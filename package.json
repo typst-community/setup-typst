@@ -22,5 +22,6 @@
     "build": "bun build ./src/main.ts ./src/post.ts --outdir=dist --target=node",
     "lint": "tsc --noEmit",
     "format": "prettier -w ."
-  }
+  },
+  "packageManager": "bun@1.0.25"
 }
