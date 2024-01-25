@@ -83,9 +83,10 @@ if (core.getBooleanInput("cache")) {
   }[process.platform as string]!();
   const hash = await glob.hashFiles("**/*.typ")
   const primaryKey = `typst-packages-cache-${process.env.RUNNER_OS}-${hash}`
-  core.saveState("cache-key", primaryKey)
+  core.saveState("cache-primary-key", primaryKey)
   core.info(`Restoring ${cacheDir} with key ${primaryKey}`)
   const hitKey = cache.restoreCache([cacheDir], primaryKey)
+  core.saveState("cache-hit-key", hitKey)
   cacheHit ||= !!hitKey
 }
 

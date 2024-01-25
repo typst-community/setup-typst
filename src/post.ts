@@ -11,7 +11,12 @@ if (core.getBooleanInput("cache")) {
     darwin: () => join(process.env.HOME!, "Library/Caches", "typst/packages"),
     win32: () => join(process.env.LOCALAPPDATA!, "typst/packages"),
   }[process.platform as string]!();
-  const primaryKey = core.getState("cache-key")
-  core.info(`Saving ${cacheDir} with key ${primaryKey}`)
-  cache.saveCache([cacheDir], primaryKey)
+  const primaryKey = core.getState("cache-primary-key")
+  const hitKey = core.getState("cache-hit-key")
+  if (hitKey) {
+    core.info(`Successfully restored ${cacheDir} with key ${hitKey}. Not saving cache.`)
+  } else {
+    core.info(`Saving ${cacheDir} with key ${primaryKey}`)
+    cache.saveCache([cacheDir], primaryKey)
+  }
 }
