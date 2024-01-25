@@ -3,13 +3,13 @@ import * as cache from "@actions/cache";
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 import * as tc from "@actions/tool-cache";
-import * as glob from "@actions/glob"
+import * as glob from "@actions/glob";
 import { join } from "node:path";
 import * as semver from "semver";
 import { createUnauthenticatedAuth } from "@octokit/auth-unauthenticated";
 import { xdgCache } from "xdg-basedir";
 
-const token = core.getInput("typst-token")
+const token = core.getInput("typst-token");
 const octokit = token
   ? github.getOctokit(token)
   : github.getOctokit(undefined!, {
@@ -37,7 +37,7 @@ core.debug(`Resolved version: v${version}`);
 if (!version) throw new DOMException(`${versionRaw} resolved to ${version}`);
 
 let found = tc.find("typst", version);
-let cacheHit = !!found
+let cacheHit = !!found;
 
 if (!found) {
   const target = {
@@ -81,13 +81,13 @@ if (core.getBooleanInput("cache")) {
     darwin: () => join(process.env.HOME!, "Library/Caches", "typst/packages"),
     win32: () => join(process.env.LOCALAPPDATA!, "typst/packages"),
   }[process.platform as string]!();
-  const hash = await glob.hashFiles("**/*.typ")
-  const primaryKey = `typst-packages-cache-${process.env.RUNNER_OS}-${hash}`
-  core.saveState("cache-primary-key", primaryKey)
-  core.info(`Restoring ${cacheDir} with key ${primaryKey}`)
-  const hitKey = cache.restoreCache([cacheDir], primaryKey)
-  core.saveState("cache-hit-key", hitKey)
-  cacheHit ||= !!hitKey
+  const hash = await glob.hashFiles("**/*.typ");
+  const primaryKey = `typst-packages-cache-${process.env.RUNNER_OS}-${hash}`;
+  core.saveState("cache-primary-key", primaryKey);
+  core.info(`Restoring ${cacheDir} with key ${primaryKey}`);
+  const hitKey = cache.restoreCache([cacheDir], primaryKey);
+  core.saveState("cache-hit-key", hitKey);
+  cacheHit ||= !!hitKey;
 }
 
-core.setOutput("cache-hit", cacheHit)
+core.setOutput("cache-hit", cacheHit);
