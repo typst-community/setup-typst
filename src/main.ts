@@ -86,7 +86,7 @@ if (core.getBooleanInput("cache")) {
   core.saveState("cache-key", primaryKey)
   core.info(`Restoring ${cacheDir} with key ${primaryKey}`)
   const hitKey = cache.restoreCache([cacheDir], primaryKey)
-  cacheHit = !!hitKey
+  cacheHit ||= !!hitKey
 }
 
 core.setOutput("cache-hit", cacheHit)
