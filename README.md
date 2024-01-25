@@ -12,7 +12,7 @@
 </table>
 
 📝 Installs [Typst] for GitHub Actions \
-⚡ Caches installation files
+⚡ Caches installation files and packages
 
 ## Usage
 
@@ -28,7 +28,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: typst-community/setup-typst@v3
-      # Now Typst is installed!
+        with:
+          packages-id: 1
+      # Now Typst and packages group 1 is installed!
       - run: typst compile paper.typ paper.pdf
       - uses: actions/upload-artifact@v4
         with:
@@ -38,21 +40,27 @@ jobs:
 
 ### Inputs
 
-- **`typst-token`:** The GitHub token to use when pulling versions from
-  [typst/typst]. By default this should cover all cases. You shouldn't have to
-  touch this setting.
+- **`typst-token`:** The GitHub token to use when pulling
+  versions from [typst/typst]. By default this should cover all
+  cases. You shouldn't have to touch this setting.
 
-- **`typst-version`:** Which version of `typst` to install. This can be an exact
-  version like `0.10.0` or a semver range like `0.10` or `0.x`. You can also
-  specify `latest` to always use the latest version. The default is `latest`.
+- **`typst-version`:** The version of Typst to install. This can
+  be an exact version like `0.10.0` or a semver range like
+  `0.10` or `0.x`. You can also specify `latest` to always use
+  the latest version. The default is `latest`.
+
+- **`packages-id`:** The identifier of a group of packages to be
+  cached, to distinguish between different groups of packages
+  and to flush the cache folder. The default is -1, which means
+  no caching.
 
 ### Outputs
 
-- **`typst-version`:** The version of `typst` that was installed. This will be
-  something like `0.10.0` or similar.
+- **`typst-version`:** The version of `typst` that was
+  installed. This will be something like `0.10.0` or similar.
 
-- **`cache-hit`:** Whether or not Typst was restored from the runner's cache or
-  download anew.
+- **`cache-hit`:** Whether or not Typst was restored from the
+  runner's cache or download anew.
 
 ## Development
 
@@ -60,8 +68,8 @@ jobs:
 
 **How do I test my changes?**
 
-Open a Draft Pull Request and some magic GitHub Actions will run to test the
-action.
+Open a Draft Pull Request and some magic GitHub Actions will run
+to test the action.
 
 [typst]: https://typst.app/
 [typst/typst]: https://github.com/typst/typst

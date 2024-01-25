@@ -14,10 +14,16 @@ inputs:
       ${{ github.server_url == 'https://github.com' && github.token || '' }}
   typst-version:
     description: >
-      Which version of 'typst' to install. This can be an exact version like
+      The version of Typst to install. This can be an exact version like
       '0.10.0' or a semver range like '0.10' or '0.x'. You can also specify
       'latest' to always use the latest version. The default is 'latest'.
     default: latest
+  packages-id:
+    description: >
+      The identifier of a group of packages to be cached, to distinguish
+      between different groups of packages and to flush the cache folder. The
+      default is -1, which means no caching.
+    default: -1
 
 outputs:
   typst-version:
@@ -32,3 +38,4 @@ outputs:
 runs:
   using: node20
   main: dist/main.js
+  post: dist/post.js

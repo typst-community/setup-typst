@@ -1,9 +1,10 @@
 #!/usr/bin/env node
+import * as cache from "@actions/cache";
 import * as core from "@actions/core";
+import * as github from "@actions/github";
 import * as tc from "@actions/tool-cache";
 import { join } from "node:path";
 import * as semver from "semver";
-import * as github from "@actions/github";
 import { createUnauthenticatedAuth } from "@octokit/auth-unauthenticated";
 
 const octokit = core.getInput("typst-token")
@@ -13,29 +14,31 @@ const octokit = core.getInput("typst-token")
       auth: { reason: "no 'typst-token' input" },
     });
 
+const repoSet = {
+  owner: "typst",
+  repo: "typst",
+};
 let version = core.getInput("typst-version");
 if (version === "latest") {
-  const { data } = await octokit.rest.repos.getLatestRelease({
-    owner: "typst",
-    repo: "typst",
-  });
+  const { data } = await octokit.rest.repos.getLatestRelease(repoSet);
   version = data.tag_name.slice(1);
 } else {
-  const releases = await octokit.paginate(octokit.rest.repos.listReleases, {
-    owner: "typst",
-    repo: "typst",
-  });
+  const releases = await octokit.paginate(
+    octokit.rest.repos.listReleases,
+    repoSet
+  );
   const versions = releases.map((release) => release.tag_name.slice(1));
   version = semver.maxSatisfying(versions, version)!;
 }
 core.debug(`Resolved version: v${version}`);
 if (!version)
   throw new DOMException(
-    `${core.getInput("typst-version")} resolved to ${version}`,
+    `${core.getInput("typst-version")} resolved to ${version}`
   );
 
 let found = tc.find("typst", version);
 core.setOutput("cache-hit", !!found);
+
 if (!found) {
   const target = {
     "darwin,arm64": "aarch64-apple-darwin",
@@ -54,14 +57,11 @@ if (!found) {
   const file = `${folder}${archiveExt}`;
 
   found = await tc.downloadTool(
-    `https://github.com/typst/typst/releases/download/v${version}/${file}`,
+    `https://github.com/typst/typst/releases/download/v${version}/${file}`
   );
   if (file.endsWith(".zip")) {
     found = await tc.extractZip(found);
   } else {
-    // https://github.com/actions/toolkit/blob/68f22927e727a60caff909aaaec1ab7267b39f75/packages/tool-cache/src/tool-cache.ts#L226
-    // J flag is .tar.xz
-    // z flag is .tar.gz
     found = await tc.extractTar(found, undefined, "xJ");
   }
   found = join(found, folder);
@@ -71,3 +71,24 @@ if (!found) {
 core.addPath(found);
 core.setOutput("typst-version", version);
 core.info(`✅ Typst v${version} installed!`);
+
+let packagesId = core.getInput("packages-id");
+if (!packagesId || packagesId === "-1") {
+  core.info(`No packages should be installed.`);
+} else {
+  const cachePath = {
+    darwin: "~/Library/Caches",
+    linux: "$XDG_CACHE_HOME",
+    win32: "~/Library/Caches",
+  }[process.platform.toString()]!;
+  const cacheKey = await cache.restoreCache(
+    [`${cachePath}/typst/packages/preview/`],
+    `typst-packages-${packagesId}`,
+    ["typst-packages", "typst-"]
+  );
+  if (cacheKey != undefined) {
+    core.info(`✅ Packages group ${packagesId} downloaded!`);
+  } else {
+    core.info(`Packages group ${packagesId} cache not found.`);
+  }
+}

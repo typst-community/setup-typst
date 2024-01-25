@@ -7,7 +7,7 @@ export default defineConfig({
     target: "node20",
     ssr: true,
     rollupOptions: {
-      input: ["src/main.ts"],
+      input: ["src/main.ts", "src/post.ts"],
     },
   },
   ssr: {

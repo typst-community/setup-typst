@@ -34,5 +34,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - uses: ./
+        with:
+          packages-id: 1
       - run: typst --version
       - run: typst compile test.typ
