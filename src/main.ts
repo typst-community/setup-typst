@@ -77,11 +77,12 @@ core.info(`✅ Typst v${version} installed!`);
 
 if (core.getBooleanInput("cache")) {
   const cacheDir = {
-    linux: xdgCache,
-    darwin: `${process.env.HOME}/Library/Caches`,
-    win32: process.env.LOCALAPPDATA,
+    linux: join(xdgCache!, "typst/packages"),
+    darwin: join(process.env.HOME!, "Library/Caches", "typst/packages"),
+    win32: join(process.env.LOCALAPPDATA!, "typst/packages"),
   }[process.platform as string]!
-  const primaryKey = await glob.hashFiles(["./**/*.typ"].join("\n"))
+  const hash = await glob.hashFiles("**/*.typ")
+  const primaryKey = `typst-packages-cache-${process.env.RUNNER_OS}-${hash}`
   core.info(`Restoring ${cacheDir} with key ${primaryKey}`)
   const hitKey = cache.restoreCache([cacheDir], primaryKey)
   cacheHit = !!hitKey
