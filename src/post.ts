@@ -2,10 +2,11 @@
 import * as cache from "@actions/cache";
 import * as core from "@actions/core";
 import * as glob from "@actions/glob"
+import { xdgCache } from "xdg-basedir";
 
 if (core.getBooleanInput("cache")) {
   const cacheDir = {
-    linux: process.env.XDG_CACHE_HOME,
+    linux: xdgCache,
     darwin: `${process.env.HOME}/Library/Caches`,
     win32: process.env.LOCALAPPDATA,
   }[process.platform as string]!

@@ -7,7 +7,8 @@
     "@actions/glob": "^0.4.0",
     "@actions/tool-cache": "^2.0.1",
     "@octokit/auth-unauthenticated": "^5.0.1",
-    "semver": "^7.5.4"
+    "semver": "^7.5.4",
+    "xdg-basedir": "^5.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.4",

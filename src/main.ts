@@ -7,6 +7,7 @@ import * as glob from "@actions/glob"
 import { join } from "node:path";
 import * as semver from "semver";
 import { createUnauthenticatedAuth } from "@octokit/auth-unauthenticated";
+import { xdgCache } from "xdg-basedir";
 
 const token = core.getInput("typst-token")
 const octokit = token
@@ -76,7 +77,7 @@ core.info(`✅ Typst v${version} installed!`);
 
 if (core.getBooleanInput("cache")) {
   const cacheDir = {
-    linux: process.env.XDG_CACHE_HOME,
+    linux: xdgCache,
     darwin: `${process.env.HOME}/Library/Caches`,
     win32: process.env.LOCALAPPDATA,
   }[process.platform as string]!

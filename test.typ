@@ -1,8 +1,20 @@
-#import "@preview/example:0.1.0": *
+#import "@preview/droplet:0.2.0": dropcap
 
-= Introduction
-In this report, we will explore the
-various factors that influence _fluid
-dynamics_ in glaciers and how they
-contribute to the formation and
-behavior of these natural structures.
+#dropcap(
+  height: 3,
+  justify: true,
+  gap: 4pt,
+  hanging-indent: 1em,
+  overhang: 8pt,
+  font: "Curlz MT",
+)[
+  *Typst* is a new markup-based typesetting system that is designed to be as
+  _powerful_ as LaTeX while being _much easier_ to learn and use. Typst has:
+
+  - Built-in markup for the most common formatting tasks
+  - Flexible functions for everything else
+  - A tightly integrated scripting system
+  - Math typesetting, bibliography management, and more
+  - Fast compile times thanks to incremental compilation
+  - Friendly error messages in case something goes wrong
+]
