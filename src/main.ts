@@ -82,6 +82,7 @@ if (core.getBooleanInput("cache")) {
     win32: process.env.LOCALAPPDATA,
   }[process.platform as string]!
   const primaryKey = await glob.hashFiles(["./**/*.typ"].join("\n"))
+  core.info(`Restoring ${cacheDir} with key ${primaryKey}`)
   const hitKey = cache.restoreCache([cacheDir], primaryKey)
   cacheHit = !!hitKey
 }

@@ -11,5 +11,6 @@ if (core.getBooleanInput("cache")) {
     win32: process.env.LOCALAPPDATA,
   }[process.platform as string]!
   const primaryKey = await glob.hashFiles(["./**/*.typ"].join("\n"))
+  core.info(`Saving ${cacheDir} with key ${primaryKey}`)
   cache.saveCache([cacheDir], primaryKey)
 }
