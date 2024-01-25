@@ -12,7 +12,8 @@
 </table>
 
 📝 Installs [Typst] for GitHub Actions \
-⚡ Caches installation files and packages
+⚡ Caches Typst installation in the tool cache \
+📦 Caches [Typst packages]() as dependencies
 
 ## Usage
 
@@ -49,10 +50,9 @@ jobs:
   `0.10` or `0.x`. You can also specify `latest` to always use
   the latest version. The default is `latest`.
 
-- **`packages-id`:** The identifier of a group of packages to be
-  cached, to distinguish between different groups of packages
-  and to flush the cache folder. The default is -1, which means
-  no caching.
+- **`cache`:** Whether or not to cache any Typst packages installed during the workflow. Defaults to `true`.
+
+- **`cache-dependency-path`:** This should be any `.typ` file that when changed you wish to invalidate previous Typst package caches. By default it's `**/*.typ`.
 
 ### Outputs
 

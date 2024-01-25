@@ -81,7 +81,7 @@ if (core.getBooleanInput("cache")) {
     darwin: () => join(process.env.HOME!, "Library/Caches", "typst/packages"),
     win32: () => join(process.env.LOCALAPPDATA!, "typst/packages"),
   }[process.platform as string]!();
-  const hash = await glob.hashFiles("**/*.typ");
+  const hash = await glob.hashFiles(core.getInput("cache-dependency-path"));
   const primaryKey = `typst-packages-cache-${process.env.RUNNER_OS}-${hash}`;
   core.saveState("cache-primary-key", primaryKey);
   core.info(`Restoring ${cacheDir} with key ${primaryKey}`);

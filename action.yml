@@ -20,6 +20,9 @@ inputs:
   cache:
     description: Whether or not to cache any Typst packages installed during the workflow. Defaults to 'true'.
     default: true
+  cache-dependency-path:
+    description: This should be any '.typ' file that when changed you wish to invalidate previous Typst package caches. By default it's '**/*.typ'.
+    default: "**/*.typ"
 
 outputs:
   typst-version:
