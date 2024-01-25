@@ -29,9 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: typst-community/setup-typst@v3
-        with:
-          packages-id: 1
-      # Now Typst and packages group 1 is installed!
+      # Now Typst is installed!
       - run: typst compile paper.typ paper.pdf
       - uses: actions/upload-artifact@v4
         with:
