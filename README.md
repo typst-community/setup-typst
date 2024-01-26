@@ -12,7 +12,8 @@
 </table>
 
 📝 Installs [Typst] for GitHub Actions \
-⚡ Caches installation files and packages
+⚡ Caches Typst installation in the tool cache \
+📦 Caches [packages](https://github.com/typst/packages) as dependencies
 
 ## Usage
 

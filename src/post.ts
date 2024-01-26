@@ -10,7 +10,7 @@ if (!packagesId || packagesId === "-1") {
   const cachePath = {
     darwin: "~/Library/Caches",
     linux: "$XDG_CACHE_HOME",
-    win32: "~/Library/Caches",
+    win32: "%LOCALAPPDATA%",
   }[process.platform.toString()]!;
   const cacheId = await cache.saveCache(
     [`${cachePath}/typst/packages/preview/`],
