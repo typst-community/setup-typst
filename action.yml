@@ -20,7 +20,7 @@ inputs:
       '0.x'. You can also specify 'latest' to always use the
       latest version. The default is 'latest'.
     default: latest
-  cache:
+  cache-dependency-path:
     description: >
       Used to specify the path to dependency file. Supports a
       Typst file with lines of 'import' keyword.

@@ -73,7 +73,7 @@ core.addPath(found);
 core.setOutput("typst-version", version);
 core.info(`✅ Typst v${version} installed!`);
 
-const cachePackage = core.getInput("cache");
+const cachePackage = core.getInput("cache-dependency-path");
 if (cachePackage) {
   if (fs.existsSync(cachePackage)) {
     const packagePath = {

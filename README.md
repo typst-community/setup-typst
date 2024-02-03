@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: typst-community/setup-typst@v3
         with:
-          cache: requirements.typ
+          cache-dependency-path: requirements.typ
       # Now Typst is installed and packages will be cached!
       - run: typst compile paper.typ paper.pdf
       - uses: actions/upload-artifact@v4
@@ -48,8 +48,9 @@ jobs:
   `0.10` or `0.x`. You can also specify `latest` to always use
   the latest version. The default is `latest`.
 
-- **`cache`:** Used to specify the path to dependency file.
-  Supports a Typst file with lines of 'import' keyword.
+- **`cache-dependency-path`:** Used to specify the path to
+  dependency file. Supports a Typst file with lines of
+  'import' keyword.
 
 ### Outputs
 
