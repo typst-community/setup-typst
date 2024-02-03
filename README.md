@@ -1,6 +1,8 @@
 # Setup Typst
 
-📑 Install Typst for use in GitHub Actions
+📑 Install Typst for GitHub Actions \
+⚡ Caches Typst installation \
+📦 Caches [packages](https://github.com/typst/packages) as dependencies
 
 <table align=center><td>
 
@@ -10,10 +12,6 @@
 ```
 
 </table>
-
-📝 Installs [Typst] for GitHub Actions \
-⚡ Caches Typst installation in the tool cache \
-📦 Caches [packages](https://github.com/typst/packages) as dependencies
 
 ## Usage
 
@@ -30,8 +28,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: typst-community/setup-typst@v3
         with:
-          packages-id: 1
-      # Now Typst and packages group 1 is installed!
+          cache: requirements.typ
+      # Now Typst is installed and packages will be cached!
       - run: typst compile paper.typ paper.pdf
       - uses: actions/upload-artifact@v4
         with:
@@ -50,10 +48,8 @@ jobs:
   `0.10` or `0.x`. You can also specify `latest` to always use
   the latest version. The default is `latest`.
 
-- **`packages-id`:** The identifier of a group of packages to be
-  cached, to distinguish between different groups of packages
-  and to flush the cache folder. The default is -1, which means
-  no caching.
+- **`cache`:** Used to specify the path to dependency file.
+  Supports a Typst file with lines of 'import' keyword.
 
 ### Outputs
 
@@ -69,7 +65,7 @@ jobs:
 
 **How do I test my changes?**
 
-Open a Draft Pull Request and some magic GitHub Actions will run
+Open a draft Pull Request and some magic GitHub Actions will run
 to test the action.
 
 [typst]: https://typst.app/

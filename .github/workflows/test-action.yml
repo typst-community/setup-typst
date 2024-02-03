@@ -35,6 +35,6 @@ jobs:
       - run: npm run build
       - uses: ./
         with:
-          packages-id: 1
+          cache: test/requirements.typ
       - run: typst --version
-      - run: typst compile test.typ
+      - run: typst compile test/test.typ

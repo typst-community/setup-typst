@@ -1,18 +1,21 @@
 #!/usr/bin/env node
 import * as cache from "@actions/cache";
 import * as core from "@actions/core";
+import * as exec from "@actions/exec";
 import * as github from "@actions/github";
+import * as glob from "@actions/glob";
 import * as tc from "@actions/tool-cache";
+import fs from "fs";
 import { join } from "node:path";
-import * as semver from "semver";
 import { createUnauthenticatedAuth } from "@octokit/auth-unauthenticated";
+import * as semver from "semver";
 
 const octokit = core.getInput("typst-token")
   ? github.getOctokit(core.getInput("typst-token"))
   : github.getOctokit(undefined!, {
-      authStrategy: createUnauthenticatedAuth,
-      auth: { reason: "no 'typst-token' input" },
-    });
+    authStrategy: createUnauthenticatedAuth,
+    auth: { reason: "no 'typst-token' input" },
+  });
 
 const repoSet = {
   owner: "typst",
@@ -38,7 +41,6 @@ if (!version)
 
 let found = tc.find("typst", version);
 core.setOutput("cache-hit", !!found);
-
 if (!found) {
   const target = {
     "darwin,arm64": "aarch64-apple-darwin",
@@ -55,7 +57,6 @@ if (!found) {
   }[process.platform.toString()]!;
   const folder = `typst-${target}`;
   const file = `${folder}${archiveExt}`;
-
   found = await tc.downloadTool(
     `https://github.com/typst/typst/releases/download/v${version}/${file}`
   );
@@ -72,23 +73,51 @@ core.addPath(found);
 core.setOutput("typst-version", version);
 core.info(`✅ Typst v${version} installed!`);
 
-let packagesId = core.getInput("packages-id");
-if (!packagesId || packagesId === "-1") {
-  core.info(`No packages should be installed.`);
-} else {
-  const cachePath = {
-    darwin: "~/Library/Caches",
-    linux: "$XDG_CACHE_HOME",
-    win32: "%LOCALAPPDATA%",
-  }[process.platform.toString()]!;
-  const cacheKey = await cache.restoreCache(
-    [`${cachePath}/typst/packages/preview/`],
-    `typst-packages-${packagesId}`,
-    ["typst-packages", "typst-"]
-  );
-  if (cacheKey != undefined) {
-    core.info(`✅ Packages group ${packagesId} downloaded!`);
+const cachePackage = core.getInput("cache");
+if (cachePackage) {
+  if (fs.existsSync(cachePackage)) {
+    const packagePath = {
+      linux: "$XDG_CACHE_HOME",
+      darwin: "~/Library/Caches",
+      win32: "%LOCALAPPDATA%",
+    }[process.platform.toString()]!;
+    let cachePath = `${packagePath}/typst/packages/preview/`;
+    const hash = await glob.hashFiles(cachePackage);
+    const cacheKey = await cache.restoreCache(
+      [cachePath],
+      `typst-packages-${hash}`,
+      ["typst-packages-", "typst-"]
+    );
+    if (cacheKey != undefined) {
+      core.info(`✅ Packages downloaded from cache!`);
+    } else {
+      const cachePathState = core.getState(cachePath);
+      await exec.exec(`typst compile ${cachePackage}`);
+      if (!cachePathState) {
+        core.warning(
+          'Cache path is empty. Please check the previous logs.'
+        );
+      } else {
+        let cacheId = 0;
+        try {
+          cacheId = await cache.saveCache(
+            [cachePath],
+            `typst-package-${hash}`
+          );
+        } catch (err) {
+          const message = (err as Error).message;
+          core.warning(message);
+        }
+        if (cacheId != -1) {
+          core.info(
+            `Cache saved with the key: typst-package-${hash}`
+          );
+        }
+      }
+    }
   } else {
-    core.info(`Packages group ${packagesId} cache not found.`);
+    core.warning(
+      "The file with the name as same as the `cache` input was not found. Packages will not be cached."
+    );
   }
 }
