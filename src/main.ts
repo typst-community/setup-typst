@@ -76,12 +76,11 @@ core.info(`✅ Typst v${version} installed!`);
 const cachePackage = core.getInput("cache-dependency-path");
 if (cachePackage) {
   if (fs.existsSync(cachePackage)) {
-    const packagePath = {
-      linux: "$XDG_CACHE_HOME",
-      darwin: "~/Library/Caches",
-      win32: "%LOCALAPPDATA%",
+    const cachePath = {
+      linux: join(process.env.XDG_CACHE_HOME, "typst/packages"),
+      darwin: join(process.env.HOME, "/Library/Caches/typst/packages"),
+      win32: join(process.env.LOCALAPPDATA, "typst/packages")
     }[process.platform.toString()]!;
-    let cachePath = `${packagePath}/typst/packages/preview/`;
     const hash = await glob.hashFiles(cachePackage);
     const cacheKey = await cache.restoreCache(
       [cachePath],
