@@ -77,10 +77,10 @@ const cachePackage = core.getInput("cache-dependency-path");
 if (cachePackage) {
   if (fs.existsSync(cachePackage)) {
     const cacheDir = {
-      linux: join(process.env.XDG_CACHE_HOME!, "typst/packages"),
-      darwin: join(process.env.HOME!, "/Library/Caches/typst/packages"),
-      win32: join(process.env.LOCALAPPDATA!, "typst/packages"),
-    }[process.platform.toString()]!;
+      linux: () => join(xdgCache!, "typst/packages"),
+      darwin: () => join(process.env.HOME!, "Library/Caches", "typst/packages"),
+      win32: () => join(process.env.LOCALAPPDATA!, "typst/packages")
+    }[process.platform as string]!();
     const hash = await glob.hashFiles(cachePackage);
     const cacheKey = await cache.restoreCache(
       [cacheDir],
