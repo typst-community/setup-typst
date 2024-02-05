@@ -6,6 +6,7 @@ import * as github from "@actions/github";
 import * as glob from "@actions/glob";
 import * as tc from "@actions/tool-cache";
 import fs from "fs";
+import * as os from 'os';
 import { join } from "node:path";
 import { createUnauthenticatedAuth } from "@octokit/auth-unauthenticated";
 import * as semver from "semver";
@@ -77,7 +78,7 @@ const cachePackage = core.getInput("cache-dependency-path");
 if (cachePackage) {
   if (fs.existsSync(cachePackage)) {
     const cacheDir = {
-      linux: () => join(process.env.XDG_CACHE_HOME!, "typst/packages"),
+      linux: () => join(process.env.XDG_CACHE_HOME || (os.homedir() ? join(os.homedir(), '.cache') : undefined)!, "typst/packages"),
       darwin: () => join(process.env.HOME!, "Library/Caches", "typst/packages"),
       win32: () => join(process.env.LOCALAPPDATA!, "typst/packages")
     }[process.platform as string]!();
