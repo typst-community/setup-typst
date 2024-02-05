@@ -13,9 +13,9 @@ import * as semver from "semver";
 const octokit = core.getInput("typst-token")
   ? github.getOctokit(core.getInput("typst-token"))
   : github.getOctokit(undefined!, {
-    authStrategy: createUnauthenticatedAuth,
-    auth: { reason: "no 'typst-token' input" },
-  });
+      authStrategy: createUnauthenticatedAuth,
+      auth: { reason: "no 'typst-token' input" },
+    });
 
 const repoSet = {
   owner: "typst",
@@ -28,7 +28,7 @@ if (version === "latest") {
 } else {
   const releases = await octokit.paginate(
     octokit.rest.repos.listReleases,
-    repoSet
+    repoSet,
   );
   const versions = releases.map((release) => release.tag_name.slice(1));
   version = semver.maxSatisfying(versions, version)!;
@@ -36,7 +36,7 @@ if (version === "latest") {
 core.debug(`Resolved version: v${version}`);
 if (!version)
   throw new DOMException(
-    `${core.getInput("typst-version")} resolved to ${version}`
+    `${core.getInput("typst-version")} resolved to ${version}`,
   );
 
 let found = tc.find("typst", version);
@@ -58,7 +58,7 @@ if (!found) {
   const folder = `typst-${target}`;
   const file = `${folder}${archiveExt}`;
   found = await tc.downloadTool(
-    `https://github.com/typst/typst/releases/download/v${version}/${file}`
+    `https://github.com/typst/typst/releases/download/v${version}/${file}`,
   );
   if (file.endsWith(".zip")) {
     found = await tc.extractZip(found);
@@ -77,15 +77,15 @@ const cachePackage = core.getInput("cache-dependency-path");
 if (cachePackage) {
   if (fs.existsSync(cachePackage)) {
     const cachePath = {
-      linux: join(process.env.XDG_CACHE_HOME, "typst/packages"),
-      darwin: join(process.env.HOME, "/Library/Caches/typst/packages"),
-      win32: join(process.env.LOCALAPPDATA, "typst/packages")
+      linux: join(process.env.XDG_CACHE_HOME!, "typst/packages"),
+      darwin: join(process.env.HOME!, "/Library/Caches/typst/packages"),
+      win32: join(process.env.LOCALAPPDATA!, "typst/packages"),
     }[process.platform.toString()]!;
     const hash = await glob.hashFiles(cachePackage);
     const cacheKey = await cache.restoreCache(
       [cachePath],
       `typst-packages-${hash}`,
-      ["typst-packages-", "typst-"]
+      ["typst-packages-", "typst-"],
     );
     if (cacheKey != undefined) {
       core.info(`✅ Packages downloaded from cache!`);
@@ -93,30 +93,23 @@ if (cachePackage) {
       const cachePathState = core.getState(cachePath);
       await exec.exec(`typst compile ${cachePackage}`);
       if (!cachePathState) {
-        core.warning(
-          'Cache path is empty. Please check the previous logs.'
-        );
+        core.warning("Cache path is empty. Please check the previous logs.");
       } else {
         let cacheId = 0;
         try {
-          cacheId = await cache.saveCache(
-            [cachePath],
-            `typst-package-${hash}`
-          );
+          cacheId = await cache.saveCache([cachePath], `typst-package-${hash}`);
         } catch (err) {
           const message = (err as Error).message;
           core.warning(message);
         }
         if (cacheId != -1) {
-          core.info(
-            `Cache saved with the key: typst-package-${hash}`
-          );
+          core.info(`Cache saved with the key: typst-package-${hash}`);
         }
       }
     }
   } else {
     core.warning(
-      "The file with the name as same as the `cache` input was not found. Packages will not be cached."
+      "The file with the name as same as the `cache` input was not found. Packages will not be cached.",
     );
   }
 }
