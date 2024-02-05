@@ -6,9 +6,10 @@ import * as github from "@actions/github";
 import * as glob from "@actions/glob";
 import * as tc from "@actions/tool-cache";
 import fs from "fs";
+import { createUnauthenticatedAuth } from "@octokit/auth-unauthenticated";
 import * as os from "os";
 import { join } from "node:path";
-import { createUnauthenticatedAuth } from "@octokit/auth-unauthenticated";
+import { exit } from "process";
 import * as semver from "semver";
 
 const octokit = core.getInput("typst-token")
@@ -107,6 +108,7 @@ if (cachePackage) {
       if (cacheId != -1) {
         core.info(`✅ Cache saved with the key: typst-package-${hash}`);
       }
+      exit(0);
     }
   } else {
     core.warning(
