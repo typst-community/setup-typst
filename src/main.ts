@@ -77,7 +77,7 @@ const cachePackage = core.getInput("cache-dependency-path");
 if (cachePackage) {
   if (fs.existsSync(cachePackage)) {
     const cacheDir = {
-      linux: () => join(xdgCache!, "typst/packages"),
+      linux: () => join(process.env.XDG_CACHE_HOME!, "typst/packages"),
       darwin: () => join(process.env.HOME!, "Library/Caches", "typst/packages"),
       win32: () => join(process.env.LOCALAPPDATA!, "typst/packages")
     }[process.platform as string]!();
