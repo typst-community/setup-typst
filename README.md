@@ -1,6 +1,8 @@
 # Setup Typst
 
-📑 Install Typst for use in GitHub Actions
+📑 Install Typst for GitHub Actions \
+⚡ Caches Typst installation \
+📦 Caches [packages](https://github.com/typst/packages) as dependencies
 
 <table align=center><td>
 
@@ -10,9 +12,6 @@
 ```
 
 </table>
-
-📝 Installs [Typst] for GitHub Actions \
-⚡ Caches installation files
 
 ## Usage
 
@@ -28,7 +27,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: typst-community/setup-typst@v3
-      # Now Typst is installed!
+        with:
+          cache-dependency-path: requirements.typ
+      # Now Typst is installed and packages will be cached!
       - run: typst compile paper.typ paper.pdf
       - uses: actions/upload-artifact@v4
         with:
@@ -38,21 +39,26 @@ jobs:
 
 ### Inputs
 
-- **`typst-token`:** The GitHub token to use when pulling versions from
-  [typst/typst]. By default this should cover all cases. You shouldn't have to
-  touch this setting.
+- **`typst-token`:** The GitHub token to use when pulling
+  versions from [typst/typst]. By default this should cover all
+  cases. You shouldn't have to touch this setting.
 
-- **`typst-version`:** Which version of `typst` to install. This can be an exact
-  version like `0.10.0` or a semver range like `0.10` or `0.x`. You can also
-  specify `latest` to always use the latest version. The default is `latest`.
+- **`typst-version`:** The version of Typst to install. This can
+  be an exact version like `0.10.0` or a semver range like
+  `0.10` or `0.x`. You can also specify `latest` to always use
+  the latest version. The default is `latest`.
+
+- **`cache-dependency-path`:** Used to specify the path to
+  dependency file. Supports a Typst file with lines of
+  'import' keyword.
 
 ### Outputs
 
-- **`typst-version`:** The version of `typst` that was installed. This will be
-  something like `0.10.0` or similar.
+- **`typst-version`:** The version of `typst` that was
+  installed. This will be something like `0.10.0` or similar.
 
-- **`cache-hit`:** Whether or not Typst was restored from the runner's cache or
-  download anew.
+- **`cache-hit`:** Whether or not Typst was restored from the
+  runner's cache or download anew.
 
 ## Development
 
@@ -60,8 +66,8 @@ jobs:
 
 **How do I test my changes?**
 
-Open a Draft Pull Request and some magic GitHub Actions will run to test the
-action.
+Open a draft Pull Request and some magic GitHub Actions will run
+to test the action.
 
 [typst]: https://typst.app/
 [typst/typst]: https://github.com/typst/typst

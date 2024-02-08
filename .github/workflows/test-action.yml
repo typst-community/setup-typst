@@ -34,5 +34,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - uses: ./
+        with:
+          cache-dependency-path: test/requirements.typ
       - run: typst --version
-      - run: typst compile test.typ
+      - run: typst compile test/test.typ
