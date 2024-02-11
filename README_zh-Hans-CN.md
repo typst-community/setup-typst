@@ -10,7 +10,7 @@
 
 <table align=center><td>
 
-```yml
+```yaml
 - uses: typst-community/setup-typst@v3
 - run: typst compile paper.typ paper.pdf
 ```
@@ -22,7 +22,9 @@
 ![GitHub Actions](https://img.shields.io/static/v1?style=for-the-badge&message=GitHub+Actions&color=2088FF&logo=GitHub+Actions&logoColor=FFFFFF&label=)
 ![GitHub](https://img.shields.io/static/v1?style=for-the-badge&message=GitHub&color=181717&logo=GitHub&logoColor=FFFFFF&label=)
 
-```yml
+### 基本用法
+
+```yaml
 name: Render paper.pdf
 on: push
 jobs:
@@ -35,10 +37,6 @@ jobs:
           cache-dependency-path: requirements.typ
       # Typst 被安装，且第三方包将被缓存！
       - run: typst compile paper.typ paper.pdf
-      - uses: actions/upload-artifact@v4
-        with:
-          name: paper
-          path: paper.pdf
 ```
 
 ### 输入
@@ -58,6 +56,35 @@ jobs:
 - **`typst-version`:** 安装的 Typst 的版本。它的格式应该类似 `0.10.0`。
 
 - **`cache-hit`:** Typst 是否存缓存下载。
+
+### 自定义组合
+
+#### 上传工作流构件
+
+```yaml
+- uses: typst-community/setup-typst@v3
+  with:
+    cache-dependency-path: requirements.typ
+- run: typst compile paper.typ paper.pdf
+- uses: actions/upload-artifact@v4
+  with:
+    name: paper
+    path: paper.pdf
+```
+
+#### 使用 Fontist 拓展字体支持
+
+如需为 GitHub Actions 运行器拓展字体库，可使用 Fontist 进行自定义字体安装。以下是使用
+[fontist/setup-fontist] 添加新字体的范例：
+
+```yaml
+- uses: fontist/setup-fontist@v2
+- run: fontist install "Fira Code"
+- uses: typst-community/setup-typst@v3
+  with:
+    cache-dependency-path: requirements.typ
+- run: typst compile paper.typ paper.pdf --font-path ~/.fontist/fonts
+```
 
 ## 开发
 
