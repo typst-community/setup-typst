@@ -4,14 +4,14 @@ on:
     branches: "main"
     paths-ignore:
       - .gitignore
-      - README.md
+      - README*.md
       - LICENSE
       - .github/**
       - "!.github/workflows/test-action.yml"
   pull_request:
     paths-ignore:
       - .gitignore
-      - README.md
+      - README*.md
       - LICENSE
       - .github/**
       - "!.github/workflows/test-action.yml"
