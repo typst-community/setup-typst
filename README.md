@@ -1,3 +1,7 @@
+<p align=center>
+  <b>English</b> | <a href="https://github.com/typst-community/setup-typst/blob/main/README_zh-Hans-CN.md" hreflang="zh-Hans-CN" lang="zh-Hans-CN">简体中文</a>
+</p>
+
 # Setup Typst
 
 This action provides the following functionality for GitHub Actions users:
@@ -8,7 +12,7 @@ This action provides the following functionality for GitHub Actions users:
 <table align=center><td>
 
 ```yaml
-- uses: typst-community/setup-typst@v3
+- uses: typst-community/setup-typst@v4
 - run: typst compile paper.typ paper.pdf
 ```
 
@@ -16,8 +20,8 @@ This action provides the following functionality for GitHub Actions users:
 
 ## Usage
 
-![GitHub Actions](https://img.shields.io/static/v1?style=for-the-badge&message=GitHub+Actions&color=2088FF&logo=GitHub+Actions&logoColor=FFFFFF&label=)
-![GitHub](https://img.shields.io/static/v1?style=for-the-badge&message=GitHub&color=181717&logo=GitHub&logoColor=FFFFFF&label=)
+[![GitHub Actions](https://img.shields.io/static/v1?style=for-the-badge&message=GitHub+Actions&color=2088FF&logo=GitHub+Actions&logoColor=FFFFFF&label=)](https://github.com/marketplace/actions/setup-typst)
+[![GitHub](https://img.shields.io/static/v1?style=for-the-badge&message=GitHub&color=181717&logo=GitHub&logoColor=FFFFFF&label=)](https://github.com/typst-community/setup-typst)
 
 ### Basic usage
 
@@ -29,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: typst-community/setup-typst@v3
+      - uses: typst-community/setup-typst@v4
         with:
           cache-dependency-path: requirements.typ
       # Now Typst is installed and packages will be cached!
@@ -38,28 +42,22 @@ jobs:
 
 ### Inputs
 
-- **`typst-token`:** The GitHub token to use when pulling versions from
-  [typst/typst]. By default this should cover all cases. You shouldn't have to
-  touch this setting.
-- **`typst-version`:** The version of Typst to install. This can be an exact
-  version like `0.10.0` or a semver range like `0.10` or `0.x`. You can also
-  specify `latest` to always use the latest version. The default is `latest`.
-- **`cache-dependency-path`:** Used to specify the path to dependency file.
-  Supports a Typst file with lines of `import` keyword.
+- **`typst-version`:** Version range or exact version of Typst to use, using SemVer's version range syntax. Uses the latest version if unset.
+- **`allow-prereleases`:** When `true`, a version range including `latest` passed to `typst-version` input will match prerelease versions.
+- **`cache-dependency-path`:** Used to specify the path to dependency file. Supports a Typst file with lines of `import` keyword.
+- **`token`:** The token used to authenticate when fetching Typst distributions from [typst/typst]. When running this action on github.com, the default value is sufficient. When running on GHES, you can pass a personal access token for github.com if you are experiencing rate limiting.
 
 ### Outputs
 
-- **`typst-version`:** The version of Typst that was installed. This will be
-  something like `0.10.0` or similar.
-- **`cache-hit`:** Whether or not Typst was restored from the runner's cache or
-  download anew.
+- **`typst-version`:** The installed Typst version. Useful when given a version range as input.
+- **`cache-hit`:** A boolean value to indicate a cache entry was found.
 
 ### Custom combinations
 
 #### Uploading workflow artifact
 
 ```yaml
-- uses: typst-community/setup-typst@v3
+- uses: typst-community/setup-typst@v4
   with:
     cache-dependency-path: requirements.typ
 - run: typst compile paper.typ paper.pdf
@@ -71,14 +69,12 @@ jobs:
 
 #### Expanding font support with Fontist
 
-If your tasks require extending beyond the set of fonts in GitHub Actions runner,
-you can employ the Fontist to facilitate custom font installations. Here's an
-example showcasing how to use [fontist/setup-fontist] to add new fonts:
+If your tasks require extending beyond the set of fonts in GitHub Actions runner, you can employ the Fontist to facilitate custom font installations. Here's an example showcasing how to use [fontist/setup-fontist] to add new fonts:
 
 ```yaml
 - uses: fontist/setup-fontist@v2
 - run: fontist install "Fira Code"
-- uses: typst-community/setup-typst@v3
+- uses: typst-community/setup-typst@v4
   with:
     cache-dependency-path: requirements.typ
 - run: typst compile paper.typ paper.pdf --font-path ~/.fontist/fonts
@@ -90,8 +86,8 @@ example showcasing how to use [fontist/setup-fontist] to add new fonts:
 
 **How do I test my changes?**
 
-Open a draft Pull Request and some magic GitHub Actions will run to test the
-action.
+Open a Pull Request and some magic GitHub Actions will run to test the action.
 
 [Typst]: https://typst.app/
 [typst/typst]: https://github.com/typst/typst
+[fontist/setup-fontist]: https://github.com/fontist/setup-fontist
