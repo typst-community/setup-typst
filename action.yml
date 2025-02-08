@@ -6,31 +6,24 @@ branding:
   color: white
 
 inputs:
-  typst-token:
-    description: >
-      The GitHub token to use when pulling versions from typst/typst. By default
-      this should cover all cases. You shouldn't have to touch this setting.
-    default: ${{ github.server_url == 'https://github.com' && github.token || '' }}
   typst-version:
-    description: >
-      The version of Typst to install. This can be an exact version like '0.10.0'
-      or a semver range like '0.10' or '0.x'. You can also specify 'latest' to
-      always use the latest version. The default is 'latest'.
+    description: "Version range or exact version of Typst to use, using SemVer's version range syntax. Uses the latest version if unset."
     default: latest
+  allow-prereleases:
+    description: "When 'true', a version range including 'latest' passed to 'typst-version' input will match prerelease versions."
+    default: false
   cache-dependency-path:
-    description: >
-      Used to specify the path to dependency file. Supports a Typst file with
-      lines of 'import' keyword.
+    description: "Used to specify the path to dependency file. Supports a Typst file with lines of 'import' keyword."
     required: false
+  token:
+    description: "The token used to authenticate when fetching Typst distributions from typst/typst. When running this action on github.com, the default value is sufficient. When running on GHES, you can pass a personal access token for github.com if you are experiencing rate limiting."
+    default: ${{ github.server_url == 'https://github.com' && github.token || '' }}
 
 outputs:
   typst-version:
-    description: >
-      The version of Typst that was installed. This will be something like
-      '0.10.0' or similar.
+    description: "The installed Typst version. Useful when given a version range as input."
   cache-hit:
-    description: >
-      Whether or not Typst was restored from the runner's cache or download anew.
+    description: "A boolean value to indicate a cache entry was found."
 
 runs:
   using: node20

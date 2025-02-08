@@ -12,11 +12,11 @@ import { join } from "node:path";
 import { exit } from "process";
 import * as semver from "semver";
 
-const octokit = core.getInput("typst-token")
-  ? github.getOctokit(core.getInput("typst-token"))
+const octokit = core.getInput("token")
+  ? github.getOctokit(core.getInput("token"))
   : github.getOctokit(undefined!, {
       authStrategy: createUnauthenticatedAuth,
-      auth: { reason: "no 'typst-token' input" },
+      auth: { reason: "no 'token' input" },
     });
 
 const repoSet = {
@@ -24,17 +24,17 @@ const repoSet = {
   repo: "typst",
 };
 let version = core.getInput("typst-version");
-if (version === "latest") {
-  const { data } = await octokit.rest.repos.getLatestRelease(repoSet);
-  version = data.tag_name.slice(1);
-} else {
-  const releases = await octokit.paginate(
-    octokit.rest.repos.listReleases,
-    repoSet,
-  );
-  const versions = releases.map((release) => release.tag_name.slice(1));
-  version = semver.maxSatisfying(versions, version)!;
-}
+const allowPrereleases = core.getBooleanInput("allow-prereleases");
+const releases = await octokit.paginate(
+  octokit.rest.repos.listReleases,
+  repoSet,
+);
+const versions = releases
+  .map((release) => release.tag_name.slice(1))
+  .filter((v) => semver.valid(v));
+version = semver.maxSatisfying(versions, version === "latest" ? "*" : version, {
+  includePrerelease: allowPrereleases ? true : false,
+})!;
 core.debug(`Resolved version: v${version}`);
 if (!version)
   throw new DOMException(
