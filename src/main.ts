@@ -30,7 +30,7 @@ if (version === "latest") {
 } else {
   const releases = await octokit.paginate(
     octokit.rest.repos.listReleases,
-    repoSet
+    repoSet,
   );
   const versions = releases.map((release) => release.tag_name.slice(1));
   version = semver.maxSatisfying(versions, version)!;
@@ -38,7 +38,7 @@ if (version === "latest") {
 core.debug(`Resolved version: v${version}`);
 if (!version)
   throw new DOMException(
-    `${core.getInput("typst-version")} resolved to ${version}`
+    `${core.getInput("typst-version")} resolved to ${version}`,
   );
 
 let found = tc.find("typst", version);
@@ -60,7 +60,7 @@ if (!found) {
   const folder = `typst-${target}`;
   const file = `${folder}${archiveExt}`;
   found = await tc.downloadTool(
-    `https://github.com/typst/typst/releases/download/v${version}/${file}`
+    `https://github.com/typst/typst/releases/download/v${version}/${file}`,
   );
   if (file.endsWith(".zip")) {
     found = await tc.extractZip(found);
@@ -83,7 +83,7 @@ if (cachePackage) {
         join(
           process.env.XDG_CACHE_HOME ||
             (os.homedir() ? join(os.homedir(), ".cache") : undefined)!,
-          "typst/packages"
+          "typst/packages",
         ),
       darwin: () => join(process.env.HOME!, "Library/Caches", "typst/packages"),
       win32: () => join(process.env.LOCALAPPDATA!, "typst/packages"),
@@ -92,7 +92,7 @@ if (cachePackage) {
     const cacheKey = await cache.restoreCache(
       [cacheDir],
       `typst-packages-${hash}`,
-      ["typst-packages-", "typst-"]
+      ["typst-packages-", "typst-"],
     );
     if (cacheKey != undefined) {
       core.info(`✅ Packages downloaded from cache!`);
@@ -112,7 +112,7 @@ if (cachePackage) {
     }
   } else {
     core.warning(
-      "The file with the name as same as the `cache` input was not found. Packages will not be cached."
+      "The file with the name as same as the `cache` input was not found. Packages will not be cached.",
     );
   }
 }

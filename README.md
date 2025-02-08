@@ -1,6 +1,7 @@
 # Setup Typst
 
 This action provides the following functionality for GitHub Actions users:
+
 - Installing a version of Typst and adding it to the PATH
 - Optionally caching [packages](https://github.com/typst/packages) dependencies
 
