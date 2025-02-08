@@ -5,6 +5,7 @@
 # Setup Typst
 
 此操作为 GitHub Actions 用户提供以下功能：
+
 - 安装给定版本的 Typst 并将其加入 PATH
 - 可选地将 [第三方包](https://github.com/typst/packages) 依赖缓存
 
