@@ -92,7 +92,6 @@ if (cachePackage) {
     const cacheKey = await cache.restoreCache(
       [cacheDir],
       `typst-packages-${hash}`,
-      ["typst-packages-", "typst-"],
     );
     if (cacheKey != undefined) {
       core.info(`✅ Packages downloaded from cache!`);
