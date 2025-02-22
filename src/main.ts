@@ -89,23 +89,21 @@ if (cachePackage) {
       win32: () => join(process.env.LOCALAPPDATA!, "typst/packages"),
     }[process.platform as string]!();
     const hash = await glob.hashFiles(cachePackage);
-    const cacheKey = await cache.restoreCache(
-      [cacheDir],
-      `typst-packages-${hash}`,
-    );
+    const primaryKey = `typst-packages-${hash}`;
+    const cacheKey = await cache.restoreCache([cacheDir], primaryKey);
     if (cacheKey != undefined) {
       core.info(`✅ Packages downloaded from cache!`);
     } else {
       await exec.exec(`typst compile ${cachePackage}`);
       let cacheId = 0;
       try {
-        cacheId = await cache.saveCache([cacheDir], `typst-package-${hash}`);
+        cacheId = await cache.saveCache([cacheDir], primaryKey);
       } catch (err) {
         const message = (err as Error).message;
         core.warning(message);
       }
       if (cacheId != -1) {
-        core.info(`✅ Cache saved with the key: typst-package-${hash}`);
+        core.info(`✅ Cache saved with the key: ${primaryKey}`);
       }
       exit(0);
     }
