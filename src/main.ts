@@ -37,8 +37,8 @@ version = semver.maxSatisfying(versions, version === "latest" ? "*" : version, {
 })!;
 core.debug(`Resolved version: v${version}`);
 if (!version)
-  throw new DOMException(
-    `${core.getInput("typst-version")} resolved to ${version}`,
+  core.setFailed(
+    `Typst ${core.getInput("typst-version")} could not be resolved`,
   );
 
 let found = tc.find("typst", version);
@@ -109,7 +109,7 @@ if (cachePackage) {
     }
   } else {
     core.warning(
-      "The file with the name as same as the `cache` input was not found. Packages will not be cached.",
+      `${cachePackage} was not found. Packages will not be cached.`,
     );
   }
 }
