@@ -16,7 +16,7 @@ const octokit = core.getInput("token")
   ? github.getOctokit(core.getInput("token"))
   : github.getOctokit(undefined!, {
       authStrategy: createUnauthenticatedAuth,
-      auth: { reason: "no 'token' input" },
+      auth: createUnauthenticatedAuth({ reason: "no 'token' input" }),
     });
 
 const repoSet = {
