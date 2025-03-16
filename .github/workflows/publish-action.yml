@@ -3,11 +3,6 @@ on:
   release:
     types: released
   workflow_dispatch:
-    inputs:
-      branch:
-        description: 'The name of preview branch'
-        required: true
-        type: string
 concurrency: ${{ github.workflow }}
 jobs:
   publish-action:
@@ -44,5 +39,5 @@ jobs:
             }
             await tag(`${major}.${minor}`);
             await tag(`${major}`);
-      - run: git checkout -b ${{ inputs.branch }} && git push -f origin ${{ inputs.branch }}
+      - run: git checkout -b ${{ head_ref }}-preview && git push -f origin ${{ head_ref }}-preview
         if: ${{ github.event_name == 'workflow_dispatch' }}
