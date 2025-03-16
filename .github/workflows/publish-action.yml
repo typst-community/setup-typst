@@ -17,9 +17,21 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: rm -rf node_modules
-      - uses: actions4git/setup-git@v1
+      - run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - run: git add -Af && git commit -m 'npm run build'
-      - run: git tag -f "$TAG" && git push -f origin "$TAG"
-        env:
-          TAG: ${{ github.event.release.tag_name }}
-      - uses: Actions-R-Us/actions-tagger@v2
+      - uses: actions/github-script@v7
+        if: ${{ !github.event.release.prerelease }}
+        with:
+          script: |
+            const tagName = context.payload.release.tag_name;
+            const [major, minor, patch] = tagName.split('.');
+            const { exec } = require('@actions/exec');
+            async function tag(tag) {
+              await exec('git', ['tag', '-f', tag]);
+              await exec('git', ['push', '-f', 'origin', tag]);
+            }
+            await tag(tagName);
+            await tag(`${major}.${minor}`);
+            await tag(`${major}`);
