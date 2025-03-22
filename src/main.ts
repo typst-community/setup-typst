@@ -6,19 +6,17 @@ import * as github from "@actions/github";
 import * as glob from "@actions/glob";
 import * as tc from "@actions/tool-cache";
 import fs from "fs";
-import { createUnauthenticatedAuth } from "@octokit/auth-unauthenticated";
 import * as os from "os";
 import { join } from "node:path";
 import { exit } from "process";
 import * as semver from "semver";
 
-const octokit = core.getInput("token")
-  ? github.getOctokit(core.getInput("token"))
-  : github.getOctokit(undefined!, {
-      authStrategy: createUnauthenticatedAuth,
-      auth: { reason: "no 'token' input" },
-    });
-
+const token = core.getInput("token");
+if (!token) {
+  core.setFailed('GitHub token is required.');
+  process.exit(1);
+}
+const octokit = github.getOctokit(token);
 const repoSet = {
   owner: "typst",
   repo: "typst",
@@ -82,7 +80,7 @@ if (cachePackage) {
       linux: () =>
         join(
           process.env.XDG_CACHE_HOME ||
-            (os.homedir() ? join(os.homedir(), ".cache") : undefined)!,
+          (os.homedir() ? join(os.homedir(), ".cache") : undefined)!,
           "typst/packages",
         ),
       darwin: () => join(process.env.HOME!, "Library/Caches", "typst/packages"),
@@ -109,7 +107,7 @@ if (cachePackage) {
     }
   } else {
     core.warning(
-      `${cachePackage} was not found. Packages will not be cached.`,
+      `${cachePackage} is not found. Packages will not be cached.`,
     );
   }
 }
