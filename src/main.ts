@@ -6,6 +6,7 @@ import * as github from "@actions/github";
 import * as glob from "@actions/glob";
 import * as tc from "@actions/tool-cache";
 import fs from "fs";
+import path from "path";
 import { createUnauthenticatedAuth } from "@octokit/auth-unauthenticated";
 import * as os from "os";
 import { join } from "node:path";
@@ -62,7 +63,14 @@ if (!found) {
   found = await tc.downloadTool(
     `https://github.com/typst/typst/releases/download/v${version}/${file}`,
   );
-  if (file.endsWith(".zip")) {
+  if (archiveExt == ".zip") {
+    if (!found.endsWith('.zip')) {
+      fs.renameSync(
+        found,
+        path.join(path.dirname(found), `${path.basename(found)}.zip`),
+      );
+      found = path.join(path.dirname(found), `${path.basename(found)}.zip`);
+    }
     found = await tc.extractZip(found);
   } else {
     found = await tc.extractTar(found, undefined, "xJ");
