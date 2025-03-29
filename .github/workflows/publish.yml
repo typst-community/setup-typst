@@ -1,4 +1,4 @@
-name: Publish action
+name: Publish
 on:
   release:
     types: released
