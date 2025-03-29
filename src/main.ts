@@ -7,29 +7,39 @@ import * as glob from "@actions/glob";
 import * as tc from "@actions/tool-cache";
 import fs from "fs";
 import path from "path";
-import { createUnauthenticatedAuth } from "@octokit/auth-unauthenticated";
 import * as os from "os";
 import { join } from "node:path";
 import { exit } from "process";
 import * as semver from "semver";
 
-const octokit = core.getInput("token")
-  ? github.getOctokit(core.getInput("token"))
-  : github.getOctokit(undefined!, {
-      authStrategy: createUnauthenticatedAuth,
-      auth: { reason: "no 'token' input" },
-    });
-
+const token = core.getInput("token");
+const octokit = token
+  ? github.getOctokit(token, { baseUrl: "https://api.github.com" })
+  : null;
 const repoSet = {
   owner: "typst",
   repo: "typst",
 };
 let version = core.getInput("typst-version");
 const allowPrereleases = core.getBooleanInput("allow-prereleases");
-const releases = await octokit.paginate(
-  octokit.rest.repos.listReleases,
-  repoSet,
-);
+
+let releases: any[] = [];
+
+if (octokit) {
+  releases = await octokit.paginate(octokit.rest.repos.listReleases, repoSet);
+} else {
+  const releasesUrl = `https://api.github.com/repos/typst/typst/releases`;
+  const releasesResponse = await tc.downloadTool(releasesUrl);
+  try {
+    releases = JSON.parse(fs.readFileSync(releasesResponse, "utf8"));
+  } catch (error) {
+    core.setFailed(
+      `Failed to parse releases: ${(error as Error).message}. This could be caused by API rate limit exceeded.`
+    );
+    process.exit(1);
+  }
+}
+
 const versions = releases
   .map((release) => release.tag_name.slice(1))
   .filter((v) => semver.valid(v));
@@ -37,11 +47,12 @@ version = semver.maxSatisfying(versions, version === "latest" ? "*" : version, {
   includePrerelease: allowPrereleases ? true : false,
 })!;
 core.debug(`Resolved version: v${version}`);
-if (!version)
+if (!version) {
   core.setFailed(
-    `Typst ${core.getInput("typst-version")} could not be resolved`,
+    `Typst ${core.getInput("typst-version")} could not be resolved.`
   );
-
+  process.exit(1);
+}
 let found = tc.find("typst", version);
 core.setOutput("cache-hit", !!found);
 if (!found) {
@@ -61,7 +72,7 @@ if (!found) {
   const folder = `typst-${target}`;
   const file = `${folder}${archiveExt}`;
   found = await tc.downloadTool(
-    `https://github.com/typst/typst/releases/download/v${version}/${file}`,
+    `https://github.com/typst/typst/releases/download/v${version}/${file}`
   );
   if (archiveExt == ".zip") {
     if (!found.endsWith('.zip')) {
@@ -91,7 +102,7 @@ if (cachePackage) {
         join(
           process.env.XDG_CACHE_HOME ||
             (os.homedir() ? join(os.homedir(), ".cache") : undefined)!,
-          "typst/packages",
+          "typst/packages"
         ),
       darwin: () => join(process.env.HOME!, "Library/Caches", "typst/packages"),
       win32: () => join(process.env.LOCALAPPDATA!, "typst/packages"),
@@ -106,9 +117,8 @@ if (cachePackage) {
       let cacheId = 0;
       try {
         cacheId = await cache.saveCache([cacheDir], primaryKey);
-      } catch (err) {
-        const message = (err as Error).message;
-        core.warning(message);
+      } catch (error) {
+        core.warning(`Failed to save cache: ${(error as Error).message}.`);
       }
       if (cacheId != -1) {
         core.info(`✅ Cache saved with the key: ${primaryKey}`);
@@ -116,8 +126,6 @@ if (cachePackage) {
       exit(0);
     }
   } else {
-    core.warning(
-      `${cachePackage} was not found. Packages will not be cached.`,
-    );
+    core.warning(`${cachePackage} is not found. Packages will not be cached.`);
   }
 }
