@@ -100,13 +100,13 @@ if (cachePackage) {
         join(
           process.env.XDG_CACHE_HOME ||
             (os.homedir() ? join(os.homedir(), ".cache") : undefined)!,
-          "typst/packages"
+          "typst/packages/preview"
         ),
-      darwin: () => join(process.env.HOME!, "Library/Caches", "typst/packages"),
-      win32: () => join(process.env.LOCALAPPDATA!, "typst/packages"),
+      darwin: () => join(process.env.HOME!, "Library/Caches", "typst/packages/preview"),
+      win32: () => join(process.env.LOCALAPPDATA!, "typst/packages/preview"),
     }[process.platform as string]!();
     const hash = await glob.hashFiles(cachePackage);
-    const primaryKey = `typst-packages-${hash}`;
+    const primaryKey = `typst-preview-packages-${hash}`;
     const cacheKey = await cache.restoreCache([cacheDir], primaryKey);
     if (cacheKey != undefined) {
       core.info(`✅ Packages downloaded from cache!`);
