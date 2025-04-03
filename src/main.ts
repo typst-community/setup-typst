@@ -92,21 +92,23 @@ core.addPath(found);
 core.setOutput("typst-version", version);
 core.info(`✅ Typst v${version} installed!`);
 
+const packageDir = {
+  linux: () =>
+    join(
+      process.env.XDG_CACHE_HOME ||
+        (os.homedir() ? join(os.homedir(), ".cache") : undefined)!,
+      "typst/packages"
+    ),
+  darwin: () => join(process.env.HOME!, "Library/Caches", "typst/packages"),
+  win32: () => join(process.env.LOCALAPPDATA!, "typst/packages"),
+}[process.platform as string]!();
+
 const cachePackage = core.getInput("cache-dependency-path");
 if (cachePackage) {
   if (fs.existsSync(cachePackage)) {
-    const cacheDir = {
-      linux: () =>
-        join(
-          process.env.XDG_CACHE_HOME ||
-            (os.homedir() ? join(os.homedir(), ".cache") : undefined)!,
-          "typst/packages"
-        ),
-      darwin: () => join(process.env.HOME!, "Library/Caches", "typst/packages"),
-      win32: () => join(process.env.LOCALAPPDATA!, "typst/packages"),
-    }[process.platform as string]!();
+    const cacheDir = packageDir + "/preview";
     const hash = await glob.hashFiles(cachePackage);
-    const primaryKey = `typst-packages-${hash}`;
+    const primaryKey = `typst-preview-packages-${hash}`;
     const cacheKey = await cache.restoreCache([cacheDir], primaryKey);
     if (cacheKey != undefined) {
       core.info(`✅ Packages downloaded from cache!`);
@@ -126,4 +128,24 @@ if (cachePackage) {
   } else {
     core.warning(`${cachePackage} is not found. Packages will not be cached.`);
   }
+}
+
+const localPackage = core.getInput("local-packages");
+if (localPackage) {
+  try {
+    const localPackages = JSON.parse(fs.readFileSync(localPackage, 'utf8'));
+  } catch (error) {
+    core.warning(`Failed to parse local-packages json file: ${(error as Error).message}. Packages will not be downloaded.`);
+  }
+  const localPackagesDir = packageDir + "/local";
+  if (!fs.existsSync(localPackagesDir)) {
+    fs.mkdirSync(localPackagesDir);
+  }
+  Object.entries(localPackages).forEach(([key, value]) => {
+    const localPackageDir = localPackagesDir + key;
+    if (!fs.existsSync(localPackageDir)) {
+      fs.mkdirSync(localPackageDir);
+    }
+    // more code here
+  });
 }
