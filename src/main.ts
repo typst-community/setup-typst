@@ -16,15 +16,14 @@ const token = core.getInput("token");
 const octokit = token
   ? github.getOctokit(token, { baseUrl: "https://api.github.com" })
   : null;
+
+let version = core.getInput("typst-version");
+const allowPrereleases = core.getBooleanInput("allow-prereleases");
 const repoSet = {
   owner: "typst",
   repo: "typst",
 };
-let version = core.getInput("typst-version");
-const allowPrereleases = core.getBooleanInput("allow-prereleases");
-
 let releases: any[] = [];
-
 if (octokit) {
   releases = await octokit.paginate(octokit.rest.repos.listReleases, repoSet);
 } else {
@@ -34,12 +33,11 @@ if (octokit) {
     releases = JSON.parse(fs.readFileSync(releasesResponse, "utf8"));
   } catch (error) {
     core.setFailed(
-      `Failed to parse releases: ${(error as Error).message}. This could be caused by API rate limit exceeded.`
+      `Failed to parse releases: ${(error as Error).message}. This may be caused by API rate limit exceeded.`
     );
     process.exit(1);
   }
 }
-
 const versions = releases
   .map((release) => release.tag_name.slice(1))
   .filter((v) => semver.valid(v));
