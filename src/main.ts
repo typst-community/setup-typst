@@ -8,7 +8,6 @@ import * as tc from "@actions/tool-cache";
 import fs from "fs";
 import path from "path";
 import * as os from "os";
-import { join } from "node:path";
 import * as semver from "semver";
 
 async function move(src: string, dest: string) {
@@ -99,7 +98,7 @@ async function downloadAndCacheTypst(version: string) {
     found = await tc.extractTar(found, undefined, "xJ");
     core.debug(`Extracted archive for Typst version: '${version}'.`);
   }
-  found = join(found, folder);
+  found = path.join(found, folder);
   found = await tc.cacheDir(found, "typst", version);
   core.info(`Typst ${version} added to cache at '${found}'.`);
   return found;
@@ -107,13 +106,13 @@ async function downloadAndCacheTypst(version: string) {
 
 const TYPST_PACKAGES_DIR = {
   linux: () =>
-    join(
+    path.join(
       process.env.XDG_CACHE_HOME ||
-        (os.homedir() ? join(os.homedir(), ".cache") : undefined)!,
+        (os.homedir() ? path.join(os.homedir(), ".cache") : undefined)!,
       "typst/packages"
     ),
-  darwin: () => join(process.env.HOME!, "Library/Caches", "typst/packages"),
-  win32: () => join(process.env.LOCALAPPDATA!, "typst/packages"),
+  darwin: () => path.join(process.env.HOME!, "Library/Caches", "typst/packages"),
+  win32: () => path.join(process.env.LOCALAPPDATA!, "typst/packages"),
 }[process.platform as string]!();
 
 async function cachePackages(cachePackage: string) {
@@ -184,7 +183,7 @@ async function downloadLocalPackages(packages: {
   await Promise.all(
     Object.entries(packages.local).map(async ([key, value]) => {
       core.info(`Downloading package: '${key}' from '${value}'.`);
-      const packageDir = join(packagesDir, key);
+      const packageDir = path.join(packagesDir, key);
       if (!fs.existsSync(packageDir)) {
         fs.mkdirSync(packageDir);
         core.debug(`Created directory for package: '${packageDir}'.`);
@@ -220,14 +219,14 @@ async function downloadLocalPackages(packages: {
         const innerPath = path.join(packageResponse, dirContent[0]);
         const stats = fs.statSync(innerPath);
         if (stats.isDirectory()) {
-          const packageVersion = getPackageVersion(join(innerPath, "typst.toml"));
-          move(innerPath, join(packageDir, packageVersion));
+          const packageVersion = getPackageVersion(path.join(innerPath, "typst.toml"));
+          move(innerPath, path.join(packageDir, packageVersion));
         }
       } else {
         const packageVersion = getPackageVersion(
-          join(packageResponse, "typst.toml")
+          path.join(packageResponse, "typst.toml")
         );
-        move(packageResponse, join(packageDir, packageVersion));
+        move(packageResponse, path.join(packageDir, packageVersion));
       }
       core.info(`Downloaded ${key} to ${packageDir}`);
     })
