@@ -93,7 +93,7 @@ const TYPST_PACKAGES_DIR = {
   win32: () => join(process.env.LOCALAPPDATA!, "typst/packages"),
 }[process.platform as string]!();
 
-async function handlePackages() {
+async function cachePackages() {
   const cachePackage = core.getInput("cache-dependency-path");
   if (cachePackage) {
     if (fs.existsSync(cachePackage)) {
@@ -122,6 +122,35 @@ async function handlePackages() {
       );
     }
   }
+}
+
+function getPackageVersion(toml: string): string {
+  let content;
+  try {
+    content = fs.readFileSync(toml, 'utf-8');
+  } catch (error) {
+    core.warning(
+      `Failed to find local package TOML file ${toml}: ${(error as Error).message}. Package version will be 0.0.0.`
+    );
+    return "0.0.0";
+  }
+  const lines = content.split(/\r?\n/);
+  let inPackageSection = false;
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+      const section = trimmed.slice(1, -1).trim();
+      inPackageSection = section === 'package';
+    } else if (inPackageSection) {
+      const versionRegex = /^\s*version\s*=\s*"(\d+\.\d+\.\d+)"/;
+      const match = trimmed.match(versionRegex);
+      if (match) return match[1];
+    }
+  }
+  core.warning(
+    `Failed to find version in local package TOML file ${toml}. Package version will be 0.0.0.`
+  );
+  return "0.0.0";
 }
 
 async function downloadLocalPackages(
@@ -168,11 +197,13 @@ async function downloadLocalPackages(
       const innerPath = path.join(packageResponse, dirContent[0]);
       const stats = fs.statSync(innerPath);
       if (stats.isDirectory()) {
-        fs.renameSync(innerPath, join(packageDir, '0.0.0'));
+        const packageVersion = getPackageVersion(join(innerPath, 'typst.toml'));
+        fs.renameSync(innerPath, join(packageDir, packageVersion));
         fs.rmdirSync(packageResponse);
       }
     } else {
-      fs.renameSync(packageResponse, join(packageDir, '0.0.0'));
+      const packageVersion = getPackageVersion(join(packageResponse, 'typst.toml'));
+      fs.renameSync(packageResponse, join(packageDir, packageVersion));
     }
   }
 }
@@ -205,7 +236,7 @@ core.addPath(found);
 core.setOutput("typst-version", versionExact);
 core.info(`✅ Typst v${version} installed!`);
 
-await handlePackages();
+await cachePackages();
 const localPackage = core.getInput("local-packages");
 if (localPackage) {
   let localPackages;
