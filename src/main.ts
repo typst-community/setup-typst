@@ -167,13 +167,13 @@ async function downloadLocalPackages(
     });
     if (dirContent.length === 1) {
       const innerPath = path.join(packageResponse, dirContent[0]);
-      const stats = await fs.statSync(innerPath);
+      const stats = fs.statSync(innerPath);
       if (stats.isDirectory()) {
-        await fs.renameSync(innerPath, packageDir);
+        fs.renameSync(innerPath, join(packageDir, '0.0.0'));
         fs.rmdirSync(packageResponse);
       }
     } else {
-      await fs.renameSync(packageResponse, packageDir);
+      fs.renameSync(packageResponse, join(packageDir, '0.0.0'));
     }
   }
 }
