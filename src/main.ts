@@ -142,20 +142,23 @@ if (package) {
     fs.mkdirSync(packagesDir);
   }
   Object.entries(packages.local).forEach(([key, value]) => {
+    core.debug(`Downloading ${key}.`);
     const packageDir = packagesDir + key;
     if (!fs.existsSync(packageDir)) {
       fs.mkdirSync(packageDir);
+    } else {
+      core.warning(`${packageDir} already exists, check if you are using duplicate local package names.`);
     }
     let packageResponse = await tc.downloadTool(value);
     if (process.platform == "win32") {
       if (!packageResponse.endsWith('.zip')) {
         fs.renameSync(
-        packageResponse,
+          packageResponse,
           path.join(path.dirname(packageResponse), `${path.basename(packageResponse)}.zip`),
         );
         packageResponse = path.join(path.dirname(packageResponse), `${path.basename(packageResponse)}.zip`);
       }
     }
-    packageResponse = await tc.extractZip(packageResponse);
+    packageResponse = await tc.extractZip(packageDir);
   });
 }
