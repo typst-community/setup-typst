@@ -51,7 +51,7 @@ async function downloadAndCacheTypst(version: string) {
     darwin: ".tar.xz",
     linux: ".tar.xz",
     win32: ".zip",
-  }[process.platform];
+  }[process.platform.toString()]!;
   const folder = `typst-${target}`;
   const file = `${folder}${archiveExt}`;
   let found = await tc.downloadTool(
@@ -75,17 +75,22 @@ async function downloadAndCacheTypst(version: string) {
   return found;
 }
 
-async function handlePackages() {
-  const packageDir = {
-    linux: join(process.env.XDG_CACHE_HOME || (os.homedir() ? join(os.homedir(), ".cache") : undefined)!, "typst/packages"),
-    darwin: join(process.env.HOME!, "Library/Caches", "typst/packages"),
-    win32: join(process.env.LOCALAPPDATA!, "typst/packages"),
-  }[process.platform];
+const TYPST_PACKAGES_DIR = {
+  linux: () =>
+    join(
+      process.env.XDG_CACHE_HOME ||
+      (os.homedir() ? join(os.homedir(), ".cache") : undefined)!,
+      "typst/packages"
+    ),
+  darwin: () => join(process.env.HOME!, "Library/Caches", "typst/packages"),
+  win32: () => join(process.env.LOCALAPPDATA!, "typst/packages"),
+}[process.platform as string]!();
 
+async function handlePackages() {
   const cachePackage = core.getInput("cache-dependency-path");
   if (cachePackage) {
     if (fs.existsSync(cachePackage)) {
-      const cacheDir = packageDir + "/preview";
+      const cacheDir = TYPST_PACKAGES_DIR + "/preview";
       const hash = await glob.hashFiles(cachePackage);
       const primaryKey = `typst-preview-packages-${hash}`;
       const cacheKey = await cache.restoreCache([cacheDir], primaryKey);
@@ -108,56 +113,6 @@ async function handlePackages() {
       core.warning(`${cachePackage} is not found. Packages will not be cached.`);
     }
   }
-
-  
-  const package = core.getInput("local-packages");
-  if (package) {
-    try {
-      const packages = JSON.parse(fs.readFileSync(package, 'utf8'));
-    } catch (error) {
-      core.warning(`Failed to parse local-packages json file: ${(error as Error).message}. Packages will not be downloaded.`);
-    }
-    const packagesDir = packageDir + "/local";
-    if (!fs.existsSync(packagesDir)) {
-      fs.mkdirSync(packagesDir);
-    }
-    Object.entries(packages.local).forEach(([key, value]) => {
-      core.debug(`Downloading ${key}.`);
-      const packageDir = packagesDir + key;
-      if (!fs.existsSync(packageDir)) {
-        fs.mkdirSync(packageDir);
-      } else {
-        core.warning(`${packageDir} already exists, check if you are using duplicate local package names.`);
-      }
-      let packageResponse = await tc.downloadTool(value);
-      if (process.platform == "win32") {
-        if (!packageResponse.endsWith('.zip')) {
-          fs.renameSync(
-            packageResponse,
-            path.join(path.dirname(packageResponse), `${path.basename(packageResponse)}.zip`),
-          );
-          packageResponse = path.join(path.dirname(packageResponse), `${path.basename(packageResponse)}.zip`);
-        }
-      }
-      packageResponse = await tc.extractZip(packageResponse);
-      const dirContent = await new Promise<string[]>((resolve, reject) => {
-        fs.readdir(packageResponse, (err, files) => {
-          if (err) reject(err);
-          else resolve(files);
-        });
-      });
-      if (dirContent.length === 1) {
-        const innerPath = path.join(packageResponse, dirContent[0]);
-        const stats = await fs.statSync(innerPath);
-        if (stats.isDirectory()) {
-          await fs.renameSync(innerPath, packageDir);
-          fs.rmdirSync(packageResponse);
-        }
-      } else {
-        await fs.renameSync(packageResponse, packageDir);
-      }
-    });
-  }
 }
 
 async function downloadLocalPackages(
@@ -175,7 +130,7 @@ async function downloadLocalPackages(
       fs.mkdirSync(packageDir);
     } else {
       core.warning(
-        `${packageDir} already exists, check if you are using duplicate local package names.`
+        `${packageDir} already exists, check if you are using duplicate local localPackage names.`
       );
     }
     let packageResponse = await tc.downloadTool(value);
@@ -243,3 +198,14 @@ core.setOutput("typst-version", versionExact);
 core.info(`✅ Typst v${version} installed!`);
 
 await handlePackages();
+const localPackage = core.getInput("local-packages");
+if (localPackage) {
+  let localPackages;
+  try {
+    localPackages = JSON.parse(fs.readFileSync(localPackage, 'utf8'));
+  } catch (error) {
+    core.warning(`Failed to parse local-packages json file: ${(error as Error).message}. Packages will not be downloaded.`);
+  }
+  const packagesDir = TYPST_PACKAGES_DIR + "/local";
+  await downloadLocalPackages(localPackages, packagesDir);
+}
