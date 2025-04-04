@@ -6,6 +6,7 @@ import * as github from "@actions/github";
 import * as glob from "@actions/glob";
 import * as tc from "@actions/tool-cache";
 import fs from "fs";
+import * as fse from "fs-extra";
 import path from "path";
 import * as os from "os";
 import { join } from "node:path";
@@ -192,13 +193,17 @@ async function downloadLocalPackages(packages: {
       const stats = fs.statSync(innerPath);
       if (stats.isDirectory()) {
         const packageVersion = getPackageVersion(join(innerPath, "typst.toml"));
-        fs.renameSync(innerPath, join(packageDir, packageVersion));
+        await fse.move(innerPath, join(packageDir, packageVersion), {
+          overwrite: true,
+        });
       }
     } else {
       const packageVersion = getPackageVersion(
         join(packageResponse, "typst.toml")
       );
-      fs.renameSync(packageResponse, join(packageDir, packageVersion));
+      fse.move(packageResponse, join(packageDir, packageVersion), {
+        overwrite: true,
+      });
     }
     core.info(`Downloaded ${key} ${versionExact} to ${packageDir}`);
   }
