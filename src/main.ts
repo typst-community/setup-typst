@@ -160,19 +160,21 @@ if (package) {
       }
     }
     packageResponse = await tc.extractZip(packageResponse);
-    const dirContent = await readdir(packageResponse);
-
+    const dirContent = await new Promise<string[]>((resolve, reject) => {
+      fs.readdir(packageResponse, (err, files) => {
+        if (err) reject(err);
+        else resolve(files);
+      });
+    });
     if (dirContent.length === 1) {
       const innerPath = path.join(packageResponse, dirContent[0]);
-      const stats = await stat(innerPath);
+      const stats = await fs.statSync(innerPath);
       if (stats.isDirectory()) {
-        await rename(innerPath, packageDir);
+        await fs.renameSync(innerPath, packageDir);
         fs.rmdirSync(packageResponse);
       }
+    } else {
+      await fs.renameSync(packageResponse, packageDir);
     }
-    await rename(packageResponse, packageDir);
-}
-
-
   });
 }
