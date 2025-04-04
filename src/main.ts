@@ -5,7 +5,7 @@ import * as exec from "@actions/exec";
 import * as github from "@actions/github";
 import * as glob from "@actions/glob";
 import * as tc from "@actions/tool-cache";
-import fs from "fs-extra";
+import fs from "fs";
 import path from "path";
 import * as os from "os";
 import { join } from "node:path";
