@@ -9,8 +9,27 @@ import fs from "fs";
 import path from "path";
 import * as os from "os";
 import { join } from "node:path";
-import { exit } from "process";
 import * as semver from "semver";
+
+function renameSync(oldPath: string, newPath: string): void {
+  try {
+    fs.renameSync(oldPath, newPath);
+  } catch (err: any) {
+    if (err.code === "EXDEV") {
+      const readStream = fs.createReadStream(oldPath);
+      const writeStream = fs.createWriteStream(newPath);
+      readStream.pipe(writeStream);
+      writeStream.on("close", () => {
+        fs.unlinkSync(oldPath);
+      });
+      writeStream.on("error", (error) => {
+        throw error;
+      });
+    } else {
+      throw err;
+    }
+  }
+}
 
 async function getReleases(
   octokit: any,
@@ -66,7 +85,7 @@ async function downloadAndCacheTypst(version: string) {
   );
   if (process.platform == "win32") {
     if (!found.endsWith(".zip")) {
-      fs.renameSync(
+      renameSync(
         found,
         path.join(path.dirname(found), `${path.basename(found)}.zip`)
       );
@@ -93,41 +112,36 @@ const TYPST_PACKAGES_DIR = {
   win32: () => join(process.env.LOCALAPPDATA!, "typst/packages"),
 }[process.platform as string]!();
 
-async function cachePackages() {
-  const cachePackage = core.getInput("cache-dependency-path");
-  if (cachePackage) {
-    if (fs.existsSync(cachePackage)) {
-      const cacheDir = TYPST_PACKAGES_DIR + "/preview";
-      const hash = await glob.hashFiles(cachePackage);
-      const primaryKey = `typst-preview-packages-${hash}`;
-      const cacheKey = await cache.restoreCache([cacheDir], primaryKey);
-      if (cacheKey != undefined) {
-        core.info(`✅ Packages downloaded from cache!`);
-      } else {
-        await exec.exec(`typst compile ${cachePackage}`);
-        let cacheId = 0;
-        try {
-          cacheId = await cache.saveCache([cacheDir], primaryKey);
-        } catch (error) {
-          core.warning(`Failed to save cache: ${(error as Error).message}.`);
-        }
-        if (cacheId != -1) {
-          core.info(`✅ Cache saved with the key: ${primaryKey}`);
-        }
-        exit(0);
-      }
+async function cachePackages(cachePackage: string) {
+  if (fs.existsSync(cachePackage)) {
+    const cacheDir = TYPST_PACKAGES_DIR + "/preview";
+    const hash = await glob.hashFiles(cachePackage);
+    const primaryKey = `typst-preview-packages-${hash}`;
+    const cacheKey = await cache.restoreCache([cacheDir], primaryKey);
+    if (cacheKey != undefined) {
+      core.info(`✅ Packages downloaded from cache!`);
     } else {
-      core.warning(
-        `${cachePackage} is not found. Packages will not be cached.`
-      );
+      await exec.exec(`typst compile ${cachePackage}`);
+      let cacheId = 0;
+      try {
+        cacheId = await cache.saveCache([cacheDir], primaryKey);
+      } catch (error) {
+        core.warning(`Failed to save cache: ${(error as Error).message}.`);
+        return;
+      }
+      if (cacheId != -1) {
+        core.info(`✅ Cache saved with the key: ${primaryKey}`);
+      }
     }
+  } else {
+    core.warning(`${cachePackage} is not found. Packages will not be cached.`);
   }
 }
 
 function getPackageVersion(toml: string): string {
   let content;
   try {
-    content = fs.readFileSync(toml, 'utf-8');
+    content = fs.readFileSync(toml, "utf-8");
   } catch (error) {
     core.warning(
       `Failed to find local package TOML file ${toml}: ${(error as Error).message}. Package version will be 0.0.0.`
@@ -138,9 +152,9 @@ function getPackageVersion(toml: string): string {
   let inPackageSection = false;
   for (const line of lines) {
     const trimmed = line.trim();
-    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+    if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
       const section = trimmed.slice(1, -1).trim();
-      inPackageSection = section === 'package';
+      inPackageSection = section === "package";
     } else if (inPackageSection) {
       const versionRegex = /^\s*version\s*=\s*"(\d+\.\d+\.\d+)"/;
       const match = trimmed.match(versionRegex);
@@ -158,7 +172,7 @@ async function downloadLocalPackages(
   packagesDir: string
 ) {
   if (!fs.existsSync(packagesDir)) {
-    fs.mkdirSync(packagesDir, {recursive: true});
+    fs.mkdirSync(packagesDir, { recursive: true });
   }
   for (const [key, value] of Object.entries(packages.local)) {
     core.debug(`Downloading ${key}.`);
@@ -173,7 +187,7 @@ async function downloadLocalPackages(
     let packageResponse = await tc.downloadTool(value);
     if (process.platform == "win32") {
       if (!packageResponse.endsWith(".zip")) {
-        fs.renameSync(
+        renameSync(
           packageResponse,
           path.join(
             path.dirname(packageResponse),
@@ -197,13 +211,15 @@ async function downloadLocalPackages(
       const innerPath = path.join(packageResponse, dirContent[0]);
       const stats = fs.statSync(innerPath);
       if (stats.isDirectory()) {
-        const packageVersion = getPackageVersion(join(innerPath, 'typst.toml'));
-        fs.renameSync(innerPath, join(packageDir, packageVersion));
+        const packageVersion = getPackageVersion(join(innerPath, "typst.toml"));
+        renameSync(innerPath, join(packageDir, packageVersion));
         fs.rmdirSync(packageResponse);
       }
     } else {
-      const packageVersion = getPackageVersion(join(packageResponse, 'typst.toml'));
-      fs.renameSync(packageResponse, join(packageDir, packageVersion));
+      const packageVersion = getPackageVersion(
+        join(packageResponse, "typst.toml")
+      );
+      renameSync(packageResponse, join(packageDir, packageVersion));
     }
   }
 }
@@ -235,18 +251,20 @@ if (!found) {
 core.addPath(found);
 core.setOutput("typst-version", versionExact);
 core.info(`✅ Typst v${version} installed!`);
-
-await cachePackages();
+const cachePackage = core.getInput("cache-dependency-path");
+if (cachePackage) {
+  await cachePackages(cachePackage);
+}
 const localPackage = core.getInput("local-packages");
 if (localPackage) {
   let localPackages;
   try {
     localPackages = JSON.parse(fs.readFileSync(localPackage, "utf8"));
+    const packagesDir = TYPST_PACKAGES_DIR + "/local";
+    await downloadLocalPackages(localPackages, packagesDir);
   } catch (error) {
     core.warning(
       `Failed to parse local-packages json file: ${(error as Error).message}. Packages will not be downloaded.`
     );
   }
-  const packagesDir = TYPST_PACKAGES_DIR + "/local";
-  await downloadLocalPackages(localPackages, packagesDir);
 }
