@@ -16,15 +16,15 @@ function renameSync(oldPath: string, newPath: string): void {
     fs.renameSync(oldPath, newPath);
   } catch (err: any) {
     if (err.code === "EXDEV") {
-      const readStream = fs.createReadStream(oldPath);
-      const writeStream = fs.createWriteStream(newPath);
-      readStream.pipe(writeStream);
-      writeStream.on("close", () => {
-        fs.unlinkSync(oldPath);
-      });
-      writeStream.on("error", (error) => {
-        throw error;
-      });
+      if (process.platform == "win32") {
+        import { exec } from "child_process";
+        exec(`move "${oldPath}" "${newPath}"`, (error, stdout, stderr) => {
+  if (error) {
+    core.warning(`Failed to moved ${oldPath} to ${newPath}: ${error.message}.`);
+    return;
+  }
+});
+      }
     } else {
       throw err;
     }
