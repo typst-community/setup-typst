@@ -61,18 +61,18 @@ if (!found) {
     "darwin,x64": "x86_64-apple-darwin",
     "win32,x64": "x86_64-pc-windows-msvc",
     "linux,arm64": "aarch64-unknown-linux-musl",
-  }[[process.platform, process.arch].toString()]!;
+  }[[process.platform, process.arch].join(',')]!;
   const archiveExt = {
     darwin: ".tar.xz",
     linux: ".tar.xz",
     win32: ".zip",
-  }[process.platform.toString()]!;
+  }[process.platform]!;
   const folder = `typst-${target}`;
   const file = `${folder}${archiveExt}`;
   found = await tc.downloadTool(
     `https://github.com/typst/typst/releases/download/v${version}/${file}`
   );
-  if (archiveExt == ".zip") {
+  if (process.platform == "win32") {
     if (!found.endsWith('.zip')) {
       fs.renameSync(
         found,
@@ -130,22 +130,32 @@ if (cachePackage) {
   }
 }
 
-const localPackage = core.getInput("local-packages");
-if (localPackage) {
+const package = core.getInput("local-packages");
+if (package) {
   try {
-    const localPackages = JSON.parse(fs.readFileSync(localPackage, 'utf8'));
+    const packages = JSON.parse(fs.readFileSync(package, 'utf8'));
   } catch (error) {
     core.warning(`Failed to parse local-packages json file: ${(error as Error).message}. Packages will not be downloaded.`);
   }
-  const localPackagesDir = packageDir + "/local";
-  if (!fs.existsSync(localPackagesDir)) {
-    fs.mkdirSync(localPackagesDir);
+  const packagesDir = packageDir + "/local";
+  if (!fs.existsSync(packagesDir)) {
+    fs.mkdirSync(packagesDir);
   }
-  Object.entries(localPackages).forEach(([key, value]) => {
-    const localPackageDir = localPackagesDir + key;
-    if (!fs.existsSync(localPackageDir)) {
-      fs.mkdirSync(localPackageDir);
+  Object.entries(packages.local).forEach(([key, value]) => {
+    const packageDir = packagesDir + key;
+    if (!fs.existsSync(packageDir)) {
+      fs.mkdirSync(packageDir);
     }
-    // more code here
+    let packageResponse = await tc.downloadTool(value);
+    if (process.platform == "win32") {
+      if (!packageResponse.endsWith('.zip')) {
+        fs.renameSync(
+        packageResponse,
+          path.join(path.dirname(packageResponse), `${path.basename(packageResponse)}.zip`),
+        );
+        packageResponse = path.join(path.dirname(packageResponse), `${path.basename(packageResponse)}.zip`);
+      }
+    }
+    packageResponse = await tc.extractZip(packageResponse);
   });
 }
