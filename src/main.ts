@@ -159,6 +159,20 @@ if (package) {
         packageResponse = path.join(path.dirname(packageResponse), `${path.basename(packageResponse)}.zip`);
       }
     }
-    packageResponse = await tc.extractZip(packageDir);
+    packageResponse = await tc.extractZip(packageResponse);
+    const dirContent = await readdir(packageResponse);
+
+    if (dirContent.length === 1) {
+      const innerPath = path.join(packageResponse, dirContent[0]);
+      const stats = await stat(innerPath);
+      if (stats.isDirectory()) {
+        await rename(innerPath, packageDir);
+        fs.rmdirSync(packageResponse);
+      }
+    }
+    await rename(packageResponse, packageDir);
+}
+
+
   });
 }
