@@ -17,7 +17,7 @@ function renameSync(oldPath: string, newPath: string): void {
   } catch (err: any) {
     if (err.code === "EXDEV") {
       if (process.platform == "win32") {
-        exec.exec(`move "${oldPath}" "${newPath}"`);
+        await exec.exec('cmd', ['/c', 'move', '/Y', oldPath, newPath]);
       }
     } else {
       throw err;
