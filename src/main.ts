@@ -218,5 +218,6 @@ if (localPackage) {
     );
   }
   const packagesDir = TYPST_PACKAGES_DIR + "/local";
+  core.info(packagesDir);
   await downloadLocalPackages(localPackages, packagesDir);
 }
