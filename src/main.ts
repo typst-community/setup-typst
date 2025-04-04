@@ -213,7 +213,6 @@ async function downloadLocalPackages(packages: {
       if (stats.isDirectory()) {
         const packageVersion = getPackageVersion(join(innerPath, "typst.toml"));
         renameSync(innerPath, join(packageDir, packageVersion));
-        fs.rmdirSync(packageResponse);
       }
     } else {
       const packageVersion = getPackageVersion(
