@@ -126,15 +126,14 @@ async function handlePackages() {
 
 async function downloadLocalPackages(
   packages: { local: { [key: string]: string } },
-  packageDir: string
+  packagesDir: string
 ) {
-  const packagesDir = packageDir + "/local";
   if (!fs.existsSync(packagesDir)) {
-    fs.mkdirSync(packagesDir);
+    fs.mkdirSync(packagesDir, {recursive: true});
   }
   for (const [key, value] of Object.entries(packages.local)) {
     core.debug(`Downloading ${key}.`);
-    const packageDir = packagesDir + key;
+    const packageDir = join(packagesDir, key);
     if (!fs.existsSync(packageDir)) {
       fs.mkdirSync(packageDir);
     } else {
@@ -218,6 +217,5 @@ if (localPackage) {
     );
   }
   const packagesDir = TYPST_PACKAGES_DIR + "/local";
-  core.info(packagesDir);
   await downloadLocalPackages(localPackages, packagesDir);
 }
