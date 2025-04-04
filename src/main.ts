@@ -17,8 +17,7 @@ function renameSync(oldPath: string, newPath: string): void {
   } catch (err: any) {
     if (err.code === "EXDEV") {
       if (process.platform == "win32") {
-        import { exec } from "child_process";
-        exec(`move "${oldPath}" "${newPath}"`, (error, stdout, stderr) => {
+        exec.exec(`move "${oldPath}" "${newPath}"`, (error, stdout, stderr) => {
   if (error) {
     core.warning(`Failed to moved ${oldPath} to ${newPath}: ${error.message}.`);
     return;
