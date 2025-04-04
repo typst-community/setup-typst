@@ -54,7 +54,7 @@ jobs:
       - run: typst compile test/basic.typ
   test-local-packages:
     runs-on: ${{ matrix.os }}
-    needs: build, test-basic
+    needs: build
     strategy:
       fail-fast: false
       matrix:
