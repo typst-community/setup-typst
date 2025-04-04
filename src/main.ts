@@ -181,55 +181,57 @@ async function downloadLocalPackages(packages: {
     fs.mkdirSync(packagesDir, { recursive: true });
     core.debug(`Created local packages directory: '${packagesDir}'.`);
   }
-  for (const [key, value] of Object.entries(packages.local)) {
-    core.info(`Downloading package: '${key}' from '${value}'.`);
-    const packageDir = join(packagesDir, key);
-    if (!fs.existsSync(packageDir)) {
-      fs.mkdirSync(packageDir);
-      core.debug(`Created directory for package: '${packageDir}'.`);
-    } else {
-      core.warning(`Directory '${packageDir}' already exists. Check for duplicate package names.`);
-    }
-    let packageResponse = await tc.downloadTool(value);
-    core.info(`Downloaded package: '${key}'.`);
-    if (process.platform == "win32") {
-      if (!packageResponse.endsWith(".zip")) {
-        fs.renameSync(
-          packageResponse,
-          path.join(
+  await Promise.all(
+    Object.entries(packages.local).map(async ([key, value]) => {
+      core.info(`Downloading package: '${key}' from '${value}'.`);
+      const packageDir = join(packagesDir, key);
+      if (!fs.existsSync(packageDir)) {
+        fs.mkdirSync(packageDir);
+        core.debug(`Created directory for package: '${packageDir}'.`);
+      } else {
+        core.warning(`Directory '${packageDir}' already exists. Check for duplicate package names.`);
+      }
+      let packageResponse = await tc.downloadTool(value);
+      core.info(`Downloaded package: '${key}'.`);
+      if (process.platform == "win32") {
+        if (!packageResponse.endsWith(".zip")) {
+          fs.renameSync(
+            packageResponse,
+            path.join(
+              path.dirname(packageResponse),
+              `${path.basename(packageResponse)}.zip`
+            )
+          );
+          packageResponse = path.join(
             path.dirname(packageResponse),
             `${path.basename(packageResponse)}.zip`
-          )
-        );
-        packageResponse = path.join(
-          path.dirname(packageResponse),
-          `${path.basename(packageResponse)}.zip`
-        );
+          );
+        }
       }
-    }
-    packageResponse = await tc.extractZip(packageResponse);
-    core.info(`Extracted package: '${key}'.`);
-    const dirContent = await new Promise<string[]>((resolve, reject) => {
-      fs.readdir(packageResponse, (err, files) => {
-        if (err) reject(err);
-        else resolve(files);
+      packageResponse = await tc.extractZip(packageResponse);
+      core.info(`Extracted package: '${key}'.`);
+      const dirContent = await new Promise<string[]>((resolve, reject) => {
+        fs.readdir(packageResponse, (err, files) => {
+          if (err) reject(err);
+          else resolve(files);
+        });
       });
-    });
-    if (dirContent.length === 1) {
-      const innerPath = path.join(packageResponse, dirContent[0]);
-      const stats = fs.statSync(innerPath);
-      if (stats.isDirectory()) {
-        const packageVersion = getPackageVersion(join(innerPath, "typst.toml"));
-        move(innerPath, join(packageDir, packageVersion));
+      if (dirContent.length === 1) {
+        const innerPath = path.join(packageResponse, dirContent[0]);
+        const stats = fs.statSync(innerPath);
+        if (stats.isDirectory()) {
+          const packageVersion = getPackageVersion(join(innerPath, "typst.toml"));
+          move(innerPath, join(packageDir, packageVersion));
+        }
+      } else {
+        const packageVersion = getPackageVersion(
+          join(packageResponse, "typst.toml")
+        );
+        move(packageResponse, join(packageDir, packageVersion));
       }
-    } else {
-      const packageVersion = getPackageVersion(
-        join(packageResponse, "typst.toml")
-      );
-      move(packageResponse, join(packageDir, packageVersion));
-    }
-    core.info(`Downloaded ${key} ${versionExact} to ${packageDir}`);
-  }
+      core.info(`Downloaded ${key} to ${packageDir}`);
+    })
+  );
 }
 
 const token = core.getInput("token");
