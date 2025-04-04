@@ -5,25 +5,11 @@ import * as exec from "@actions/exec";
 import * as github from "@actions/github";
 import * as glob from "@actions/glob";
 import * as tc from "@actions/tool-cache";
-import fs from "fs";
+import fs from "fs-extra";
 import path from "path";
 import * as os from "os";
 import { join } from "node:path";
 import * as semver from "semver";
-
-function renameSync(oldPath: string, newPath: string): void {
-  try {
-    fs.renameSync(oldPath, newPath);
-  } catch (err: any) {
-    if (err.code === "EXDEV") {
-      if (process.platform == "win32") {
-        exec.exec('cmd', ['/c', 'move', '/Y', oldPath, newPath]);
-      }
-    } else {
-      throw err;
-    }
-  }
-}
 
 async function getReleases(
   octokit: any,
@@ -79,7 +65,7 @@ async function downloadAndCacheTypst(version: string) {
   );
   if (process.platform == "win32") {
     if (!found.endsWith(".zip")) {
-      renameSync(
+      fs.renameSync(
         found,
         path.join(path.dirname(found), `${path.basename(found)}.zip`)
       );
@@ -181,7 +167,7 @@ async function downloadLocalPackages(packages: {
     let packageResponse = await tc.downloadTool(value);
     if (process.platform == "win32") {
       if (!packageResponse.endsWith(".zip")) {
-        renameSync(
+        fs.renameSync(
           packageResponse,
           path.join(
             path.dirname(packageResponse),
@@ -206,13 +192,13 @@ async function downloadLocalPackages(packages: {
       const stats = fs.statSync(innerPath);
       if (stats.isDirectory()) {
         const packageVersion = getPackageVersion(join(innerPath, "typst.toml"));
-        renameSync(innerPath, join(packageDir, packageVersion));
+        fs.renameSync(innerPath, join(packageDir, packageVersion));
       }
     } else {
       const packageVersion = getPackageVersion(
         join(packageResponse, "typst.toml")
       );
-      renameSync(packageResponse, join(packageDir, packageVersion));
+      fs.renameSync(packageResponse, join(packageDir, packageVersion));
     }
     core.info(`Downloaded ${key} ${versionExact} to ${packageDir}`);
   }
