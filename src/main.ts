@@ -12,7 +12,10 @@ import { join } from "node:path";
 import { exit } from "process";
 import * as semver from "semver";
 
-async function getReleases(octokit: any, repoSet: { owner: string; repo: string }) {
+async function getReleases(
+  octokit: any,
+  repoSet: { owner: string; repo: string }
+) {
   if (octokit) {
     return await octokit.paginate(octokit.rest.repos.listReleases, repoSet);
   } else {
@@ -29,7 +32,11 @@ async function getReleases(octokit: any, repoSet: { owner: string; repo: string 
   }
 }
 
-async function getVersion(releases: any[], version: string, allowPrereleases: boolean) {
+async function getVersion(
+  releases: any[],
+  version: string,
+  allowPrereleases: boolean
+) {
   const versions = releases
     .map((release) => release.tag_name.slice(1))
     .filter((v) => semver.valid(v));
@@ -79,7 +86,7 @@ const TYPST_PACKAGES_DIR = {
   linux: () =>
     join(
       process.env.XDG_CACHE_HOME ||
-      (os.homedir() ? join(os.homedir(), ".cache") : undefined)!,
+        (os.homedir() ? join(os.homedir(), ".cache") : undefined)!,
       "typst/packages"
     ),
   darwin: () => join(process.env.HOME!, "Library/Caches", "typst/packages"),
@@ -110,7 +117,9 @@ async function handlePackages() {
         exit(0);
       }
     } else {
-      core.warning(`${cachePackage} is not found. Packages will not be cached.`);
+      core.warning(
+        `${cachePackage} is not found. Packages will not be cached.`
+      );
     }
   }
 }
@@ -202,9 +211,11 @@ const localPackage = core.getInput("local-packages");
 if (localPackage) {
   let localPackages;
   try {
-    localPackages = JSON.parse(fs.readFileSync(localPackage, 'utf8'));
+    localPackages = JSON.parse(fs.readFileSync(localPackage, "utf8"));
   } catch (error) {
-    core.warning(`Failed to parse local-packages json file: ${(error as Error).message}. Packages will not be downloaded.`);
+    core.warning(
+      `Failed to parse local-packages json file: ${(error as Error).message}. Packages will not be downloaded.`
+    );
   }
   const packagesDir = TYPST_PACKAGES_DIR + "/local";
   await downloadLocalPackages(localPackages, packagesDir);

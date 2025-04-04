@@ -50,5 +50,6 @@ jobs:
       - uses: ./
         with:
           cache-dependency-path: test/requirements.typ
+          local-packages: test/local-packages.json
       - run: typst --version
       - run: typst compile test/test.typ
