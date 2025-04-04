@@ -167,15 +167,15 @@ function getPackageVersion(toml: string): string {
   return "0.0.0";
 }
 
-async function downloadLocalPackages(
-  packages: { local: { [key: string]: string } },
-  packagesDir: string
-) {
+async function downloadLocalPackages(packages: {
+  local: { [key: string]: string };
+}) {
+  const packagesDir = TYPST_PACKAGES_DIR + "/local";
   if (!fs.existsSync(packagesDir)) {
     fs.mkdirSync(packagesDir, { recursive: true });
   }
   for (const [key, value] of Object.entries(packages.local)) {
-    core.debug(`Downloading ${key}.`);
+    core.info(`Downloading ${key}.`);
     const packageDir = join(packagesDir, key);
     if (!fs.existsSync(packageDir)) {
       fs.mkdirSync(packageDir);
@@ -221,6 +221,7 @@ async function downloadLocalPackages(
       );
       renameSync(packageResponse, join(packageDir, packageVersion));
     }
+    core.info(`Downloaded ${key} ${versionExact} to ${packageDir}`);
   }
 }
 
@@ -237,9 +238,7 @@ const allowPrereleases = core.getBooleanInput("allow-prereleases");
 const version = core.getInput("typst-version");
 const versionExact = await getVersion(releases, version, allowPrereleases);
 if (!versionExact) {
-  core.setFailed(
-    `Typst ${core.getInput("typst-version")} could not be resolved.`
-  );
+  core.setFailed(`Typst ${version} could not be resolved.`);
   process.exit(1);
 }
 core.debug(`Resolved version: v${versionExact}`);
@@ -260,11 +259,10 @@ if (localPackage) {
   let localPackages;
   try {
     localPackages = JSON.parse(fs.readFileSync(localPackage, "utf8"));
-    const packagesDir = TYPST_PACKAGES_DIR + "/local";
-    await downloadLocalPackages(localPackages, packagesDir);
   } catch (error) {
     core.warning(
       `Failed to parse local-packages json file: ${(error as Error).message}. Packages will not be downloaded.`
     );
   }
+  await downloadLocalPackages(localPackages);
 }
