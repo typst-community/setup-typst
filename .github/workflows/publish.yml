@@ -1,4 +1,4 @@
-name: Publish action
+name: Publish
 on:
   release:
     types: released
@@ -32,7 +32,6 @@ jobs:
           script: |
             const tagName = context.payload.release.tag_name;
             const [major, minor, patch] = tagName.split('.');
-            const { exec } = require('@actions/exec');
             async function tag(tag) {
               await exec('git', ['tag', '-f', tag]);
               await exec('git', ['push', '-f', 'origin', tag]);

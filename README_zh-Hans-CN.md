@@ -6,22 +6,16 @@
 
 此操作为 GitHub Actions 用户提供以下功能：
 
-- 安装指定版本的 Typst
-- （可选）缓存依赖的 [第三方包](https://github.com/typst/packages)
-
-<table align=center><td>
+- **安装**指定版本的 Typst
+- **缓存**依赖的[包](https://github.com/typst/packages)
+- **下载** ZIP 压缩文件作为本地包
 
 ```yaml
 - uses: typst-community/setup-typst@v4
 - run: typst compile paper.typ paper.pdf
 ```
 
-</table>
-
 ## 用法
-
-[![GitHub Actions](https://img.shields.io/static/v1?style=for-the-badge&message=GitHub+Actions&color=2088FF&logo=GitHub+Actions&logoColor=FFFFFF&label=)](https://github.com/marketplace/actions/setup-typst)
-[![GitHub](https://img.shields.io/static/v1?style=for-the-badge&message=GitHub&color=181717&logo=GitHub&logoColor=FFFFFF&label=)](https://github.com/typst-community/setup-typst)
 
 ### 基本用法
 
@@ -34,18 +28,70 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: typst-community/setup-typst@v4
-        with:
-          cache-dependency-path: requirements.typ
-      # Typst 被安装，且第三方包将被缓存！
+      # 🎉 Typst 被安装！
       - run: typst compile paper.typ paper.pdf
 ```
 
 ### 输入
 
+#### Typst 版本控制
+
 - **`typst-version`:** 使用的 Typst 版本范围或确切版本，采用 SemVer 语义化版本范围语法。默认使用最新版本。
 - **`allow-prereleases`:** 当设置为 `true` 时，传递给 `typst-version` 的版本范围（包含 `latest`）将匹配预发布版本。
-- **`cache-dependency-path`:** 依赖的第三方包列表文件的文件名。该文件应该是一个含有 `import` 关键字的 Typst 文件。
-- **`token`:** 当从 [typst/typst] 拉取版本时使用的 GitHub 令牌。当在 github.com 上运行操作时，使用默认值；当在 GitHub Enterprise Server（GHES）上运行，可以传递一个 github.com 的个人访问令牌规避速率限制问题。
+
+```yaml
+# Example 1
+- uses: typst-community/setup-typst@v4
+  with:
+    typst-version: ^0.13.0
+
+# Example 2
+- uses: typst-community/setup-typst@v4
+  with:
+    typst-version: 0.13.0-rc1
+    allow-prereleases: true
+```
+
+#### 包缓存
+
+**`cache-dependency-path`:** 指向一个含有 `import` 关键字的 Typst 文件。
+
+```yaml
+# Example workflow YAML file
+- uses: typst-community/setup-typst@v4
+  with:
+    cache-dependency-path: requirements.typ
+```
+
+```typst
+// Example Typst file (requirements.typ)
+#import "@preview/example:0.1.0": *
+```
+
+#### ZIP 压缩文件作为包下载
+
+**`local-packages`:** 指向一个在 `local` 键下有包名称与对应 ZIP 压缩文件 URL 的 JSON 文件。
+
+```yaml
+# Example workflow YAML file
+- uses: typst-community/setup-typst@v4
+  with:
+    local-packages: packages.json
+```
+
+```js
+// Example JSON file (packages.js)
+{
+  "local": {
+    "glossarium": "https://github.com/typst-community/glossarium/archive/refs/tags/v0.5.4.zip",
+    "touying": "https://github.com/touying-typ/touying/archive/refs/tags/0.6.1.zip"
+  }
+}
+```
+
+#### 令牌
+
+**`token`:** 当从 [typst/typst] 拉取版本时使用的 GitHub 令牌。当在 github.com 上运行操作时，使用默认值；当在 GitHub Enterprise Server（GHES）上运行，可以传递一个 github.com 的个人访问令牌规避速率限制问题。
 
 ### 输出
 
@@ -58,8 +104,6 @@ jobs:
 
 ```yaml
 - uses: typst-community/setup-typst@v4
-  with:
-    cache-dependency-path: requirements.typ
 - run: typst compile paper.typ paper.pdf
 - uses: actions/upload-artifact@v4
   with:
@@ -75,18 +119,8 @@ jobs:
 - uses: fontist/setup-fontist@v2
 - run: fontist install "Fira Code"
 - uses: typst-community/setup-typst@v4
-  with:
-    cache-dependency-path: requirements.typ
 - run: typst compile paper.typ paper.pdf --font-path ~/.fontist/fonts
 ```
-
-## 开发
-
-![Node.js](https://img.shields.io/static/v1?style=for-the-badge&message=Node.js&color=339933&logo=Node.js&logoColor=FFFFFF&label=)
-
-**我应该如何测试我的贡献？**
-
-开启拉取请求后，GitHub Actions 测试项将在管理员的许可后运行。
 
 [Typst]: https://typst.app/
 [typst/typst]: https://github.com/typst/typst
