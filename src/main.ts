@@ -11,6 +11,22 @@ import * as os from "os";
 import { join } from "node:path";
 import * as semver from "semver";
 
+async function move(src: string, dest: string) {
+  try {
+    fs.renameSync(src, dest);
+  } catch (error) {
+    try {
+      fs.mkdirSync(path.dirname(dest), { recursive: true });
+      fs.cpSync(src, dest, { recursive: true, force: true });
+      fs.rmSync(src, { recursive: true, force: true });
+    } catch (error) {
+      core.warning(
+        `Failed to move ${src} to ${dest}: ${(error as Error).message}.`
+      );
+    }
+  }
+}
+
 async function getReleases(
   octokit: any,
   repoSet: { owner: string; repo: string }
@@ -192,13 +208,13 @@ async function downloadLocalPackages(packages: {
       const stats = fs.statSync(innerPath);
       if (stats.isDirectory()) {
         const packageVersion = getPackageVersion(join(innerPath, "typst.toml"));
-        fs.renameSync(innerPath, join(packageDir, packageVersion));
+        move(innerPath, join(packageDir, packageVersion));
       }
     } else {
       const packageVersion = getPackageVersion(
         join(packageResponse, "typst.toml")
       );
-      fs.renameSync(packageResponse, join(packageDir, packageVersion));
+      move(packageResponse, join(packageDir, packageVersion));
     }
     core.info(`Downloaded ${key} ${versionExact} to ${packageDir}`);
   }
