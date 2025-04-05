@@ -7,7 +7,7 @@
 此操作为 GitHub Actions 用户提供以下功能：
 
 - **安装**指定版本的 Typst
-- **缓存**依赖的[包](https://github.com/typst/packages)
+- **缓存**依赖的[包]
 - **下载** ZIP 压缩文件作为本地包
 
 ```yaml
@@ -70,17 +70,19 @@ jobs:
 
 #### ZIP 压缩文件作为包下载
 
-**`local-packages`:** 指向一个在 `local` 键下有包名称与对应 ZIP 压缩文件 URL 的 JSON 文件。
+- **`local-packages`:** 指向一个在 `local` 键下有包名称与对应 ZIP 压缩文件 URL 的 JSON 文件。
+- **`cache-local-packages`:** 当设置为 `true` 时，在 `local-packages` 中设定的包将被缓存（缓存独立于 `@preview` 包）。
 
 ```yaml
 # Example workflow YAML file
 - uses: typst-community/setup-typst@v4
   with:
     local-packages: packages.json
+    cache-local-packages: true
 ```
 
 ```js
-// Example JSON file (packages.js)
+// Example JSON file (packages.json)
 {
   "local": {
     "glossarium": "https://github.com/typst-community/glossarium/archive/refs/tags/v0.5.4.zip",
@@ -88,6 +90,10 @@ jobs:
   }
 }
 ```
+
+> [!NOTE]
+> - 对于下载 GitHub 存储库需要的链接，请参阅 [《下载源代码存档》]。
+> - 本地包的命名空间为 `local`，SemVer 版本号从 `typst.toml` 读取。
 
 #### 令牌
 
@@ -100,7 +106,9 @@ jobs:
 
 ### 自定义组合
 
-#### 上传到工作流工件
+#### 上传到工作流构件
+
+如果需要从工作流存储和共享数据，可以使用[构件]。
 
 ```yaml
 - uses: typst-community/setup-typst@v4
@@ -111,9 +119,9 @@ jobs:
     path: paper.pdf
 ```
 
-#### 使用 Fontist 拓展字体支持
+#### 使用 Fontist 安装字体
 
-如需为 GitHub Actions 运行器拓展字体库，可使用 Fontist 进行自定义字体安装。以下是使用 [fontist/setup-fontist] 添加新字体的范例：
+如果需要在 GitHub Actions 运行器中安装字体，可以使用 [Fontist]。
 
 ```yaml
 - uses: fontist/setup-fontist@v2
@@ -124,4 +132,7 @@ jobs:
 
 [Typst]: https://typst.app/
 [typst/typst]: https://github.com/typst/typst
-[fontist/setup-fontist]: https://github.com/fontist/setup-fontist
+[包]: https://github.com/typst/packages
+[《下载源代码存档》]: https://docs.github.com/zh/repositories/working-with-files/using-files/downloading-source-code-archives
+[构件]: https://docs.github.com/zh/actions/writing-workflows/choosing-what-your-workflow-does/storing-and-sharing-data-from-a-workflow#comparing-artifacts-and-dependency-caching
+[Fontist]: https://www.fontist.org/

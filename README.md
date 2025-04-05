@@ -7,8 +7,8 @@
 This action provides the following functionality for GitHub Actions users:
 
 - **Installing** a version of Typst and adding it to the PATH
-- **Caching** [packages](https://github.com/typst/packages) dependencies
-- **Downloading** ZIP archive as local packages
+- **Caching** [packages] dependencies
+- **Downloading** ZIP archives as local packages
 
 ```yaml
 - uses: typst-community/setup-typst@v4
@@ -70,17 +70,19 @@ jobs:
 
 #### ZIP archive packages download
 
-**`local-packages`:** Used to specify the path to a JSON file containing names and ZIP archive URLs of packages as local packages under the `local` key.
+- **`local-packages`:** Used to specify the path to a JSON file containing names and ZIP archive URLs of packages as local packages under the `local` key.
+- **`cache-local-packages`:** When `true`, local packages set by `local-packages` will be cached independently of `@preview` packages.
 
 ```yaml
 # Example workflow YAML file
 - uses: typst-community/setup-typst@v4
   with:
     local-packages: packages.json
+    cache-local-packages: true
 ```
 
 ```js
-// Example JSON file (packages.js)
+// Example JSON file (packages.json)
 {
   "local": {
     "glossarium": "https://github.com/typst-community/glossarium/archive/refs/tags/v0.5.4.zip",
@@ -88,6 +90,10 @@ jobs:
   }
 }
 ```
+
+> [!NOTE]
+> - For links to download GitHub repositories, please refer to [_Downloading source code archives_].
+> - The namespace for local packages is `local`. The SemVer versions of local packages are read from its `typst.toml`.
 
 #### Token
 
@@ -102,6 +108,8 @@ jobs:
 
 #### Uploading workflow artifact
 
+If you require storing and sharing data from a workflow, you can use [artifacts].
+
 ```yaml
 - uses: typst-community/setup-typst@v4
 - run: typst compile paper.typ paper.pdf
@@ -111,9 +119,9 @@ jobs:
     path: paper.pdf
 ```
 
-#### Expanding font support with Fontist
+#### Installing fonts with Fontist
 
-If your tasks require extending beyond the set of fonts in GitHub Actions runner, you can employ the Fontist to facilitate custom font installations. Here's an example showcasing how to use [fontist/setup-fontist] to add new fonts:
+If you require installing fonts in GitHub Actions runner, you can use [Fontist].
 
 ```yaml
 - uses: fontist/setup-fontist@v2
@@ -124,4 +132,7 @@ If your tasks require extending beyond the set of fonts in GitHub Actions runner
 
 [Typst]: https://typst.app/
 [typst/typst]: https://github.com/typst/typst
-[fontist/setup-fontist]: https://github.com/fontist/setup-fontist
+[packages]: https://github.com/typst/packages
+[_Downloading source code archives_]: https://docs.github.com/en/repositories/working-with-files/using-files/downloading-source-code-archives
+[artifacts]: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/storing-and-sharing-data-from-a-workflow
+[Fontist]: https://www.fontist.org/
