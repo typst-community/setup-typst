@@ -7,7 +7,7 @@
 This action provides the following functionality for GitHub Actions users:
 
 - **Installing** a version of Typst and adding it to the PATH
-- **Caching** [packages](https://github.com/typst/packages) dependencies
+- **Caching** [packages] dependencies
 - **Downloading** ZIP archives as local packages
 
 ```yaml
@@ -80,7 +80,7 @@ jobs:
 ```
 
 ```js
-// Example JSON file (packages.js)
+// Example JSON file (packages.json)
 {
   "local": {
     "glossarium": "https://github.com/typst-community/glossarium/archive/refs/tags/v0.5.4.zip",
@@ -124,4 +124,5 @@ If your tasks require extending beyond the set of fonts in GitHub Actions runner
 
 [Typst]: https://typst.app/
 [typst/typst]: https://github.com/typst/typst
+[packages]: https://github.com/typst/packages
 [fontist/setup-fontist]: https://github.com/fontist/setup-fontist
