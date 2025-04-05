@@ -8,7 +8,7 @@ This action provides the following functionality for GitHub Actions users:
 
 - **Installing** a version of Typst and adding it to the PATH
 - **Caching** [packages](https://github.com/typst/packages) dependencies
-- **Downloading** ZIP archive as local packages
+- **Downloading** ZIP archives as local packages
 
 ```yaml
 - uses: typst-community/setup-typst@v4
