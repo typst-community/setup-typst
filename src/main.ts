@@ -24,19 +24,19 @@ async function move(src: string, dest: string) {
   }
 }
 
-async function getReleases(
+async function listReleases(
   octokit: any,
   repoSet: { owner: string; repo: string }
 ) {
-  core.info(`Fetching releases for repository '${repoSet.owner}/${repoSet.repo}'.`);
+  core.info(`Fetching releases list for repository '${repoSet.owner}/${repoSet.repo}'.`);
   if (octokit) {
     return await octokit.paginate(octokit.rest.repos.listReleases, repoSet);
   } else {
     const releasesUrl = `https://api.github.com/repos/${repoSet.owner}/${repoSet.repo}/releases`;
-    core.debug(`Fetching releases from '${releasesUrl}' without authentication.`);
+    core.debug(`Fetching releases list from '${releasesUrl}' without authentication.`);
     const releasesResponse = await tc.downloadTool(releasesUrl);
     try {
-      core.info(`Successfully downloaded releases from '${releasesUrl}'.`);
+      core.debug(`Successfully downloaded releases list from '${releasesUrl}'.`);
       return JSON.parse(fs.readFileSync(releasesResponse, "utf8"));
     } catch (error) {
       core.setFailed(`Failed to parse releases from '${releasesUrl}': ${(error as Error).message}. This may be caused by API rate limit exceeded.`);
@@ -45,7 +45,7 @@ async function getReleases(
   }
 }
 
-async function getVersion(
+async function getVersionExact(
   releases: any[],
   version: string,
   allowPrereleases: boolean
@@ -66,7 +66,7 @@ async function getVersion(
 }
 
 async function downloadAndCacheTypst(version: string) {
-  core.info(`Downloading and caching Typst version: '${version}'.`);
+  core.info(`Downloading and caching Typst ${version}.`);
   const target = {
     "darwin,arm64": "aarch64-apple-darwin",
     "linux,x64": "x86_64-unknown-linux-musl",
@@ -97,7 +97,7 @@ async function downloadAndCacheTypst(version: string) {
     found = await tc.extractZip(found);
   } else {
     found = await tc.extractTar(found, undefined, "xJ");
-    core.debug(`Extracted archive for Typst version: '${version}'.`);
+    core.debug(`Extracted archive for Typst version ${version}.`);
   }
   found = path.join(found, folder);
   found = await tc.cacheDir(found, "typst", version);
@@ -117,7 +117,6 @@ const TYPST_PACKAGES_DIR = {
 }[process.platform as string]!();
 
 async function cachePackages(cachePackage: string) {
-  core.debug(`Checking if dependency path exists: '${cachePackage}'.`);
   if (fs.existsSync(cachePackage)) {
     const cacheDir = TYPST_PACKAGES_DIR + "/preview";
     const hash = await glob.hashFiles(cachePackage);
@@ -229,7 +228,7 @@ async function downloadLocalPackages(packages: {
         );
         move(packageResponse, path.join(packageDir, packageVersion));
       }
-      core.info(`Downloaded ${key} to ${packageDir}`);
+      core.info(`✅ Downloaded ${key} to ${packageDir}`);
     })
   );
 }
@@ -242,10 +241,10 @@ const repoSet = {
   owner: "typst",
   repo: "typst",
 };
-const releases = await getReleases(octokit, repoSet);
-const allowPrereleases = core.getBooleanInput("allow-prereleases");
+const releases = await listReleases(octokit, repoSet);
 const version = core.getInput("typst-version");
-const versionExact = await getVersion(releases, version, allowPrereleases);
+const allowPrereleases = core.getBooleanInput("allow-prereleases");
+const versionExact = await getVersionExact(releases, version, allowPrereleases);
 let found = tc.find("typst", versionExact);
 core.setOutput("cache-hit", !!found);
 if (!found) {
@@ -260,13 +259,17 @@ if (cachePackage) {
 }
 const localPackage = core.getInput("local-packages");
 if (localPackage) {
-  let localPackages;
-  try {
-    localPackages = JSON.parse(fs.readFileSync(localPackage, "utf8"));
-  } catch (error) {
-    core.warning(
-      `Failed to parse local-packages json file: ${(error as Error).message}. Packages will not be downloaded.`
-    );
+  if (fs.existsSync(localPackage)) {
+    let localPackages;
+    try {
+      localPackages = JSON.parse(fs.readFileSync(localPackage, "utf8"));
+    } catch (error) {
+      core.warning(
+        `Failed to parse local-packages json file: ${(error as Error).message}. Packages will not be downloaded.`
+      );
+    }
+    await downloadLocalPackages(localPackages);
+  } else {
+    core.warning(`Local packages path '${localPackage}' not found. Skipping downloading.`);
   }
-  await downloadLocalPackages(localPackages);
 }
