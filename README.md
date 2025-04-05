@@ -78,6 +78,7 @@ jobs:
 - uses: typst-community/setup-typst@v4
   with:
     local-packages: packages.json
+    cache-local-packages: true
 ```
 
 ```js
