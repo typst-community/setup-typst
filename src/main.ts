@@ -130,30 +130,30 @@ const TYPST_PACKAGES_DIR = {
 }[process.platform as string]!();
 
 async function cachePackages(cachePackage: string) {
-  if (fs.existsSync(cachePackage)) {
-    const cacheDir = TYPST_PACKAGES_DIR + "/preview";
-    const hash = await hashFiles(cachePackage);
-    const primaryKey = `typst-preview-packages-${hash}`;
-    core.info(`Computed cache key: ${primaryKey}.`);
-    const cacheKey = await cache.restoreCache([cacheDir], primaryKey);
-    if (cacheKey != undefined) {
-      core.info(`✅ Packages restored from cache.`);
-    } else {
-      core.info(`Cache miss. Compiling Typst packages.`);
-      await exec.exec(`typst compile ${cachePackage}`);
-      try {
-        let cacheId = await cache.saveCache([cacheDir], primaryKey);
-        core.info(`✅ Cache saved successfully with key: ${primaryKey}.`);
-        core.debug(`Cache ID: ${cacheId}`);
-      } catch (error) {
-        core.warning(`Failed to save cache: ${(error as Error).message}.`);
-        return;
-      }
-    }
-  } else {
+  if (!fs.existsSync(cachePackage)) {
     core.warning(
       `Dependency path '${cachePackage}' not found. Skipping caching.`
     );
+    return;
+  }
+  const cacheDir = TYPST_PACKAGES_DIR + "/preview";
+  const hash = await hashFiles(cachePackage);
+  const primaryKey = `typst-preview-packages-${hash}`;
+  core.info(`Computed cache key: ${primaryKey}.`);
+  const cacheKey = await cache.restoreCache([cacheDir], primaryKey);
+  if (cacheKey != undefined) {
+    core.info(`✅ Packages restored from cache.`);
+  } else {
+    core.debug(`Cache miss. Compiling Typst packages.`);
+    await exec.exec(`typst compile ${cachePackage}`);
+    try {
+      let cacheId = await cache.saveCache([cacheDir], primaryKey);
+      core.info(`✅ Cache saved successfully with key: ${primaryKey}.`);
+      core.debug(`Cache ID: ${cacheId}`);
+    } catch (error) {
+      core.warning(`Failed to save cache: ${(error as Error).message}.`);
+    }
+    return;
   }
 }
 
@@ -243,11 +243,22 @@ async function downloadLocalPackage(name: string, url: string) {
   core.info(`✅ Downloaded ${name} to '${packageDir}'`);
 }
 
-async function downloadLocalPackages(localpackage : string){
+async function downloadAndCacheLocalPackages(localpackage: string) {
   if (!fs.existsSync(localpackage)) {
-    core.warning(`Local packages path '${localpackage}' not found. Skipping downloading.`);
+    core.warning(
+      `Local packages path '${localpackage}' not found. Skipping downloading.`
+    );
     return;
   }
+  const hash = await hashFiles(localpackage);
+  const primaryKey = `typst-local-packages-${hash}`;
+  core.info(`Computed cache key: ${primaryKey}.`);
+  const cacheKey = await cache.restoreCache([packagesDir], primaryKey);
+  if (cacheKey != undefined) {
+    core.info(`✅ Local packages restored from cache.`);
+    return;
+  }
+  core.debug(`Cache miss. Downloading local packages.`);
   let packages;
   try {
     packages = JSON.parse(fs.readFileSync(localpackage, "utf8"));
@@ -272,6 +283,14 @@ async function downloadLocalPackages(localpackage : string){
       }
     })
   );
+  try {
+    let cacheId = await cache.saveCache([packagesDir], primaryKey);
+    core.info(`✅ Cache saved successfully with key: ${primaryKey}.`);
+    core.debug(`Cache ID: ${cacheId}`);
+  } catch (error) {
+    core.warning(`Failed to save cache: ${(error as Error).message}.`);
+  }
+  return;
 }
 
 const token = core.getInput("token");
@@ -300,5 +319,5 @@ if (cachePackage) {
 }
 const localPackage = core.getInput("local-packages");
 if (localPackage) {
-  await downloadLocalPackages(localPackage);
+  await downloadAndCacheLocalPackages(localPackage);
 }
