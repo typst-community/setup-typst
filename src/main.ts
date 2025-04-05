@@ -79,19 +79,28 @@ async function getVersionExact(
 
 async function downloadAndCacheTypst(version: string) {
   core.info(`Downloading and caching Typst ${version}.`);
-  const target = {
-    "darwin,arm64": "aarch64-apple-darwin",
-    "linux,x64": "x86_64-unknown-linux-musl",
-    "linux,arm": "armv7-unknown-linux-musleabi",
-    "darwin,x64": "x86_64-apple-darwin",
-    "win32,x64": "x86_64-pc-windows-msvc",
-    "linux,arm64": "aarch64-unknown-linux-musl",
-  }[[process.platform, process.arch].join(",")];
-  const archiveExt = {
-    darwin: ".tar.xz",
-    linux: ".tar.xz",
-    win32: ".zip",
-  }[process.platform.toString()]!;
+  let target, archiveExt;
+  if (semver.gte(version, "0.3.0") || process.platform == "win32") {
+    target = {
+      "darwin,arm64": "aarch64-apple-darwin",
+      "linux,x64": "x86_64-unknown-linux-musl",
+      "linux,arm": "armv7-unknown-linux-musleabi",
+      "darwin,x64": "x86_64-apple-darwin",
+      "win32,x64": "x86_64-pc-windows-msvc",
+      "linux,arm64": "aarch64-unknown-linux-musl",
+    }[[process.platform, process.arch].join(",")];
+    archiveExt = {
+      darwin: ".tar.xz",
+      linux: ".tar.xz",
+      win32: ".zip",
+    }[process.platform.toString()]!;
+  } else {
+    target = {
+      darwin: "x86_64-apple-darwin",
+      linux: "x86_64-unknown-linux-gnu"
+    }[process.platform.toString()]!;
+    archiveExt = ".tar.gz";
+  }
   const folder = `typst-${target}`;
   const file = `${folder}${archiveExt}`;
   core.debug(`Determined target: ${target}, archive extension: ${archiveExt}.`);
@@ -108,7 +117,7 @@ async function downloadAndCacheTypst(version: string) {
     }
     found = await tc.extractZip(found);
   } else {
-    found = await tc.extractTar(found, undefined, "xJ");
+    found = await tc.extractTar(found, undefined, semver.gte(version, "0.3.0") ? "xJ" : "xz");
     core.debug(`Extracted archive for Typst version ${version}.`);
   }
   found = path.join(found, folder);
