@@ -3,7 +3,7 @@ import * as cache from "@actions/cache";
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import * as github from "@actions/github";
-import * as glob from "@actions/glob";
+import { hashFiles } from "@actions/glob";
 import * as tc from "@actions/tool-cache";
 import fs from "fs";
 import path from "path";
@@ -119,7 +119,7 @@ const TYPST_PACKAGES_DIR = {
 async function cachePackages(cachePackage: string) {
   if (fs.existsSync(cachePackage)) {
     const cacheDir = TYPST_PACKAGES_DIR + "/preview";
-    const hash = await glob.hashFiles(cachePackage);
+    const hash = await hashFiles(cachePackage);
     const primaryKey = `typst-preview-packages-${hash}`;
     core.info(`Computed cache key: ${primaryKey}.`);
     const cacheKey = await cache.restoreCache([cacheDir], primaryKey);
