@@ -19,7 +19,9 @@ async function move(src: string, dest: string) {
       fs.cpSync(src, dest, { recursive: true, force: true });
       fs.rmSync(src, { recursive: true, force: true });
     } catch (error) {
-      core.warning(`Failed to move '${src}' to '${dest}': ${(error as Error).message}.`);
+      core.warning(
+        `Failed to move '${src}' to '${dest}': ${(error as Error).message}.`
+      );
     }
   }
 }
@@ -28,18 +30,24 @@ async function listReleases(
   octokit: any,
   repoSet: { owner: string; repo: string }
 ) {
-  core.info(`Fetching releases list for repository ${repoSet.owner}/${repoSet.repo}.`);
+  core.info(
+    `Fetching releases list for repository ${repoSet.owner}/${repoSet.repo}.`
+  );
   if (octokit) {
     return await octokit.paginate(octokit.rest.repos.listReleases, repoSet);
   } else {
     const releasesUrl = `https://api.github.com/repos/${repoSet.owner}/${repoSet.repo}/releases`;
-    core.debug(`Fetching releases list from ${releasesUrl} without authentication.`);
+    core.debug(
+      `Fetching releases list from ${releasesUrl} without authentication.`
+    );
     const releasesResponse = await tc.downloadTool(releasesUrl);
     try {
       core.debug(`Successfully downloaded releases list from ${releasesUrl}.`);
       return JSON.parse(fs.readFileSync(releasesResponse, "utf8"));
     } catch (error) {
-      core.setFailed(`Failed to parse releases from ${releasesUrl}: ${(error as Error).message}. This may be caused by API rate limit exceeded.`);
+      core.setFailed(
+        `Failed to parse releases from ${releasesUrl}: ${(error as Error).message}. This may be caused by API rate limit exceeded.`
+      );
       process.exit(1);
     }
   }
@@ -53,9 +61,13 @@ async function getVersionExact(
   const versions = releases
     .map((release) => release.tag_name.slice(1))
     .filter((v) => semver.valid(v));
-  const resolvedVersion = semver.maxSatisfying(versions, version === "latest" ? "*" : version, {
-    includePrerelease: allowPrereleases,
-  });
+  const resolvedVersion = semver.maxSatisfying(
+    versions,
+    version === "latest" ? "*" : version,
+    {
+      includePrerelease: allowPrereleases,
+    }
+  );
   if (resolvedVersion) {
     core.info(`Resolved Typst version: ${resolvedVersion}.`);
   } else {
@@ -112,7 +124,8 @@ const TYPST_PACKAGES_DIR = {
         (os.homedir() ? path.join(os.homedir(), ".cache") : undefined)!,
       "typst/packages"
     ),
-  darwin: () => path.join(process.env.HOME!, "Library/Caches", "typst/packages"),
+  darwin: () =>
+    path.join(process.env.HOME!, "Library/Caches", "typst/packages"),
   win32: () => path.join(process.env.LOCALAPPDATA!, "typst/packages"),
 }[process.platform as string]!();
 
@@ -138,7 +151,9 @@ async function cachePackages(cachePackage: string) {
       }
     }
   } else {
-    core.warning(`Dependency path '${cachePackage}' not found. Skipping caching.`);
+    core.warning(
+      `Dependency path '${cachePackage}' not found. Skipping caching.`
+    );
   }
 }
 
@@ -149,7 +164,9 @@ function getPackageVersion(toml: string): string {
     content = fs.readFileSync(toml, "utf-8");
     core.info(`Successfully read TOML file: '${toml}'.`);
   } catch (error) {
-    core.warning(`Failed to read TOML file '${toml}': ${(error as Error).message}. Defaulting to version '0.0.0'.`);
+    core.warning(
+      `Failed to read TOML file '${toml}': ${(error as Error).message}. Defaulting to version '0.0.0'.`
+    );
     return "0.0.0";
   }
   const lines = content.split(/\r?\n/);
@@ -171,64 +188,73 @@ function getPackageVersion(toml: string): string {
   return "0.0.0";
 }
 
+const packagesDir = path.join(TYPST_PACKAGES_DIR, "/local");
+
+async function downloadPackage(name: string, url: string) {
+  const packageDir = path.join(packagesDir, name);
+  if (!fs.existsSync(packageDir)) {
+    fs.mkdirSync(packageDir);
+    core.debug(`Created directory '${packageDir}' for package ${name}.`);
+  } else {
+    core.warning(
+      `Directory '${packageDir}' already exists. Check for duplicate package names.`
+    );
+  }
+  core.info(`Downloading package ${name} from ${url}.`);
+  let packageResponse = await tc.downloadTool(url);
+  if (process.platform == "win32") {
+    if (!packageResponse.endsWith(".zip")) {
+      fs.renameSync(
+        packageResponse,
+        path.join(
+          path.dirname(packageResponse),
+          `${path.basename(packageResponse)}.zip`
+        )
+      );
+      packageResponse = path.join(
+        path.dirname(packageResponse),
+        `${path.basename(packageResponse)}.zip`
+      );
+    }
+  }
+  packageResponse = await tc.extractZip(packageResponse);
+  core.debug(`Extracted package ${name}.`);
+  const dirContent = await new Promise<string[]>((resolve, reject) => {
+    fs.readdir(packageResponse, (err, files) => {
+      if (err) reject(err);
+      else resolve(files);
+    });
+  });
+  if (dirContent.length === 1) {
+    const innerPath = path.join(packageResponse, dirContent[0]);
+    const stats = fs.statSync(innerPath);
+    if (stats.isDirectory()) {
+      const packageVersion = getPackageVersion(
+        path.join(innerPath, "typst.toml")
+      );
+      move(innerPath, path.join(packageDir, packageVersion));
+    }
+  } else {
+    const packageVersion = getPackageVersion(
+      path.join(packageResponse, "typst.toml")
+    );
+    move(packageResponse, path.join(packageDir, packageVersion));
+  }
+  core.info(`✅ Downloaded ${name} to '${packageDir}'`);
+}
+
 async function downloadLocalPackages(packages: {
   local: { [key: string]: string };
 }) {
   core.info(`Downloading local packages.`);
-  const packagesDir = TYPST_PACKAGES_DIR + "/local";
   if (!fs.existsSync(packagesDir)) {
     fs.mkdirSync(packagesDir, { recursive: true });
     core.debug(`Created local packages directory: '${packagesDir}'.`);
   }
   await Promise.all(
-    Object.entries(packages.local).map(async ([key, value]) => {
-      const packageDir = path.join(packagesDir, key);
-      if (!fs.existsSync(packageDir)) {
-        fs.mkdirSync(packageDir);
-        core.debug(`Created directory '${packageDir}' for package ${key}.`);
-      } else {
-        core.warning(`Directory '${packageDir}' already exists. Check for duplicate package names.`);
-      }
-      core.info(`Downloading package ${key} from ${value}.`);
-      let packageResponse = await tc.downloadTool(value);
-      if (process.platform == "win32") {
-        if (!packageResponse.endsWith(".zip")) {
-          fs.renameSync(
-            packageResponse,
-            path.join(
-              path.dirname(packageResponse),
-              `${path.basename(packageResponse)}.zip`
-            )
-          );
-          packageResponse = path.join(
-            path.dirname(packageResponse),
-            `${path.basename(packageResponse)}.zip`
-          );
-        }
-      }
-      packageResponse = await tc.extractZip(packageResponse);
-      core.debug(`Extracted package ${key}.`);
-      const dirContent = await new Promise<string[]>((resolve, reject) => {
-        fs.readdir(packageResponse, (err, files) => {
-          if (err) reject(err);
-          else resolve(files);
-        });
-      });
-      if (dirContent.length === 1) {
-        const innerPath = path.join(packageResponse, dirContent[0]);
-        const stats = fs.statSync(innerPath);
-        if (stats.isDirectory()) {
-          const packageVersion = getPackageVersion(path.join(innerPath, "typst.toml"));
-          move(innerPath, path.join(packageDir, packageVersion));
-        }
-      } else {
-        const packageVersion = getPackageVersion(
-          path.join(packageResponse, "typst.toml")
-        );
-        move(packageResponse, path.join(packageDir, packageVersion));
-      }
-      core.info(`✅ Downloaded ${key} to '${packageDir}'`);
-    })
+    Object.entries(packages.local).map(([key, value]) =>
+      downloadPackage(key, value)
+    )
   );
 }
 
@@ -269,6 +295,8 @@ if (localPackage) {
     }
     await downloadLocalPackages(localPackages);
   } else {
-    core.warning(`Local packages path '${localPackage}' not found. Skipping downloading.`);
+    core.warning(
+      `Local packages path '${localPackage}' not found. Skipping downloading.`
+    );
   }
 }
