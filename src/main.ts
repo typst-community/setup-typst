@@ -243,15 +243,18 @@ async function downloadLocalPackage(name: string, url: string) {
   core.info(`✅ Downloaded ${name} to '${packageDir}'`);
 }
 
-async function downloadAndCacheLocalPackages(localpackage: string, cacheLocalPackages: boolean) {
-  if (!fs.existsSync(localpackage)) {
+async function downloadAndCacheLocalPackages(
+  localPackage: string,
+  cacheLocalPackages: boolean
+) {
+  if (!fs.existsSync(localPackage)) {
     core.warning(
-      `Local packages path '${localpackage}' not found. Skipping downloading.`
+      `Local packages path '${localPackage}' not found. Skipping downloading.`
     );
     return;
   }
   if (cacheLocalPackages) {
-    const hash = await hashFiles(localpackage);
+    const hash = await hashFiles(localPackage);
     const primaryKey = `typst-local-packages-${hash}`;
     core.info(`Computed cache key: ${primaryKey}.`);
     const cacheKey = await cache.restoreCache([packagesDir], primaryKey);
@@ -263,7 +266,7 @@ async function downloadAndCacheLocalPackages(localpackage: string, cacheLocalPac
   }
   let packages;
   try {
-    packages = JSON.parse(fs.readFileSync(localpackage, "utf8"));
+    packages = JSON.parse(fs.readFileSync(localPackage, "utf8"));
   } catch (error) {
     core.warning(
       `Failed to parse local-packages json file: ${(error as Error).message}. Skipping downloading.`
@@ -287,6 +290,8 @@ async function downloadAndCacheLocalPackages(localpackage: string, cacheLocalPac
   );
   if (cacheLocalPackages) {
     try {
+      const hash = await hashFiles(localPackage);
+      const primaryKey = `typst-local-packages-${hash}`;
       let cacheId = await cache.saveCache([packagesDir], primaryKey);
       core.info(`✅ Cache saved successfully with key: ${primaryKey}.`);
       core.debug(`Cache ID: ${cacheId}`);
