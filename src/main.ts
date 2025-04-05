@@ -57,9 +57,10 @@ async function getVersion(
     includePrerelease: allowPrereleases,
   });
   if (resolvedVersion) {
-    core.info(`Resolved version: '${resolvedVersion}'.`);
+    core.info(`Resolved Typst version: '${resolvedVersion}'.`);
   } else {
-    core.warning(`No matching version found for input: '${version}'.`);
+    core.setFailed(`Typst ${version} could not be resolved.`);
+    process.exit(1);
   }
   return resolvedVersion;
 }
@@ -245,11 +246,6 @@ const releases = await getReleases(octokit, repoSet);
 const allowPrereleases = core.getBooleanInput("allow-prereleases");
 const version = core.getInput("typst-version");
 const versionExact = await getVersion(releases, version, allowPrereleases);
-if (!versionExact) {
-  core.setFailed(`Typst ${version} could not be resolved.`);
-  process.exit(1);
-}
-core.debug(`Resolved version: v${versionExact}`);
 let found = tc.find("typst", versionExact);
 core.setOutput("cache-hit", !!found);
 if (!found) {
