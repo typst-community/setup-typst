@@ -68,5 +68,6 @@ jobs:
       - uses: ./
         with:
           local-packages: test/local-packages.json
+          cache-local-packages: true;
       - run: typst --version
       - run: typst compile test/local-packages.typ
