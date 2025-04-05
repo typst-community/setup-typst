@@ -89,6 +89,12 @@ jobs:
 }
 ```
 
+> [!TIP]
+> - For links to download GitHub repositories, please refer to [_Downloading source code archives_].
+> - The namespace for local packages is `local`.
+> - The SemVer versions of local packages will be read from its `typst.toml`.
+> - Local Packages set by `local-packages` will all be cached independently of `@preview` packages.
+
 #### Token
 
 **`token`:** The token used to authenticate when fetching Typst distributions from [typst/typst]. When running this action on github.com, the default value is sufficient. When running on GHES, you can pass a personal access token for github.com if you are experiencing rate limiting.
@@ -113,7 +119,7 @@ jobs:
 
 #### Expanding font support with Fontist
 
-If your tasks require extending beyond the set of fonts in GitHub Actions runner, you can employ the Fontist to facilitate custom font installations. Here's an example showcasing how to use [fontist/setup-fontist] to add new fonts:
+If your tasks require extending beyond the set of fonts in GitHub Actions runner, you can employ the Fontist to facilitate custom font installations. Here's an example showcasing how to use [`fontist/setup-fontist`] to add new fonts:
 
 ```yaml
 - uses: fontist/setup-fontist@v2
@@ -125,4 +131,5 @@ If your tasks require extending beyond the set of fonts in GitHub Actions runner
 [Typst]: https://typst.app/
 [typst/typst]: https://github.com/typst/typst
 [packages]: https://github.com/typst/packages
-[fontist/setup-fontist]: https://github.com/fontist/setup-fontist
+[_Downloading source code archives_]: https://docs.github.com/en/repositories/working-with-files/using-files/downloading-source-code-archives
+[`fontist/setup-fontist`]: https://github.com/fontist/setup-fontist
