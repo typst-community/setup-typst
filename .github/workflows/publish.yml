@@ -33,8 +33,8 @@ jobs:
             const tagName = context.payload.release.tag_name;
             const [major, minor, patch] = tagName.split('.');
             async function tag(tag) {
-              await exec('git', ['tag', '-f', tag]);
-              await exec('git', ['push', '-f', 'origin', tag]);
+              await exec.exec('git', ['tag', '-f', tag]);
+              await exec.exec('git', ['push', '-f', 'origin', tag]);
             }
             await tag(`${major}.${minor}`);
             await tag(`${major}`);
