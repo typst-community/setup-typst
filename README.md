@@ -91,8 +91,7 @@ jobs:
 
 > [!TIP]
 > - For links to download GitHub repositories, please refer to [_Downloading source code archives_].
-> - The namespace for local packages is `local`.
-> - The SemVer versions of local packages will be read from its `typst.toml`.
+> - The namespace for local packages is `local`. The SemVer versions of local packages are read from its `typst.toml`.
 > - Local Packages set by `local-packages` will all be cached independently of `@preview` packages.
 
 #### Token
