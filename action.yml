@@ -18,6 +18,9 @@ inputs:
   local-packages:
     description: "Used to specify the path to a JSON file containing names and ZIP archive URLs of packages as local packages under the 'local' key."
     required: false
+  cache-local-packages:
+    description: "When 'true', local packages set by 'local-packages' will be cached independently of '@preview' packages."
+    default: false
   token:
     description: "The token used to authenticate when fetching Typst distributions from typst/typst. When running this action on github.com, the default value is sufficient. When running on GHES, you can pass a personal access token for github.com if you are experiencing rate limiting."
     default: ${{ github.server_url == 'https://github.com' && github.token || '' }}
