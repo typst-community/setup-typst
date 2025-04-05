@@ -107,6 +107,8 @@ jobs:
 
 #### Uploading workflow artifact
 
+If you require storing and sharing data from a workflow, you can use [artifacts].
+
 ```yaml
 - uses: typst-community/setup-typst@v4
 - run: typst compile paper.typ paper.pdf
@@ -116,9 +118,9 @@ jobs:
     path: paper.pdf
 ```
 
-#### Expanding font support with Fontist
+#### Installing fonts with Fontist
 
-If your tasks require extending beyond the set of fonts in GitHub Actions runner, you can employ the Fontist to facilitate custom font installations. Here's an example showcasing how to use [`fontist/setup-fontist`] to add new fonts:
+If you require installing fonts in GitHub Actions runner, you can use [Fontist].
 
 ```yaml
 - uses: fontist/setup-fontist@v2
@@ -131,4 +133,5 @@ If your tasks require extending beyond the set of fonts in GitHub Actions runner
 [typst/typst]: https://github.com/typst/typst
 [packages]: https://github.com/typst/packages
 [_Downloading source code archives_]: https://docs.github.com/en/repositories/working-with-files/using-files/downloading-source-code-archives
-[`fontist/setup-fontist`]: https://github.com/fontist/setup-fontist
+[artifacts]: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/storing-and-sharing-data-from-a-workflow
+[Fontist]: https://www.fontist.org/
