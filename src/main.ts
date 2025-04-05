@@ -28,18 +28,18 @@ async function listReleases(
   octokit: any,
   repoSet: { owner: string; repo: string }
 ) {
-  core.info(`Fetching releases list for repository '${repoSet.owner}/${repoSet.repo}'.`);
+  core.info(`Fetching releases list for repository ${repoSet.owner}/${repoSet.repo}.`);
   if (octokit) {
     return await octokit.paginate(octokit.rest.repos.listReleases, repoSet);
   } else {
     const releasesUrl = `https://api.github.com/repos/${repoSet.owner}/${repoSet.repo}/releases`;
-    core.debug(`Fetching releases list from '${releasesUrl}' without authentication.`);
+    core.debug(`Fetching releases list from ${releasesUrl} without authentication.`);
     const releasesResponse = await tc.downloadTool(releasesUrl);
     try {
-      core.debug(`Successfully downloaded releases list from '${releasesUrl}'.`);
+      core.debug(`Successfully downloaded releases list from ${releasesUrl}.`);
       return JSON.parse(fs.readFileSync(releasesResponse, "utf8"));
     } catch (error) {
-      core.setFailed(`Failed to parse releases from '${releasesUrl}': ${(error as Error).message}. This may be caused by API rate limit exceeded.`);
+      core.setFailed(`Failed to parse releases from ${releasesUrl}: ${(error as Error).message}. This may be caused by API rate limit exceeded.`);
       process.exit(1);
     }
   }
@@ -57,7 +57,7 @@ async function getVersionExact(
     includePrerelease: allowPrereleases,
   });
   if (resolvedVersion) {
-    core.info(`Resolved Typst version: '${resolvedVersion}'.`);
+    core.info(`Resolved Typst version: ${resolvedVersion}.`);
   } else {
     core.setFailed(`Typst ${version} could not be resolved.`);
     process.exit(1);
@@ -82,7 +82,7 @@ async function downloadAndCacheTypst(version: string) {
   }[process.platform.toString()]!;
   const folder = `typst-${target}`;
   const file = `${folder}${archiveExt}`;
-  core.debug(`Determined target: '${target}', archive extension: '${archiveExt}'.`);
+  core.debug(`Determined target: ${target}, archive extension: ${archiveExt}.`);
   let found = await tc.downloadTool(
     `https://github.com/typst/typst/releases/download/v${version}/${file}`
   );
@@ -121,7 +121,7 @@ async function cachePackages(cachePackage: string) {
     const cacheDir = TYPST_PACKAGES_DIR + "/preview";
     const hash = await glob.hashFiles(cachePackage);
     const primaryKey = `typst-preview-packages-${hash}`;
-    core.info(`Computed cache key: '${primaryKey}'.`);
+    core.info(`Computed cache key: ${primaryKey}.`);
     const cacheKey = await cache.restoreCache([cacheDir], primaryKey);
     if (cacheKey != undefined) {
       core.info(`✅ Packages restored from cache.`);
@@ -130,7 +130,7 @@ async function cachePackages(cachePackage: string) {
       await exec.exec(`typst compile ${cachePackage}`);
       try {
         let cacheId = await cache.saveCache([cacheDir], primaryKey);
-        core.info(`✅ Cache saved successfully with key: '${primaryKey}'.`);
+        core.info(`✅ Cache saved successfully with key: ${primaryKey}.`);
         core.debug(`Cache ID: ${cacheId}`);
       } catch (error) {
         core.warning(`Failed to save cache: ${(error as Error).message}.`);
@@ -182,16 +182,15 @@ async function downloadLocalPackages(packages: {
   }
   await Promise.all(
     Object.entries(packages.local).map(async ([key, value]) => {
-      core.info(`Downloading package: '${key}' from '${value}'.`);
       const packageDir = path.join(packagesDir, key);
       if (!fs.existsSync(packageDir)) {
         fs.mkdirSync(packageDir);
-        core.debug(`Created directory for package: '${packageDir}'.`);
+        core.debug(`Created directory '${packageDir}' for package ${key}.`);
       } else {
         core.warning(`Directory '${packageDir}' already exists. Check for duplicate package names.`);
       }
+      core.info(`Downloading package ${key} from ${value}.`);
       let packageResponse = await tc.downloadTool(value);
-      core.info(`Downloaded package: '${key}'.`);
       if (process.platform == "win32") {
         if (!packageResponse.endsWith(".zip")) {
           fs.renameSync(
@@ -208,7 +207,7 @@ async function downloadLocalPackages(packages: {
         }
       }
       packageResponse = await tc.extractZip(packageResponse);
-      core.info(`Extracted package: '${key}'.`);
+      core.debug(`Extracted package ${key}.`);
       const dirContent = await new Promise<string[]>((resolve, reject) => {
         fs.readdir(packageResponse, (err, files) => {
           if (err) reject(err);
@@ -228,7 +227,7 @@ async function downloadLocalPackages(packages: {
         );
         move(packageResponse, path.join(packageDir, packageVersion));
       }
-      core.info(`✅ Downloaded ${key} to ${packageDir}`);
+      core.info(`✅ Downloaded ${key} to '${packageDir}'`);
     })
   );
 }
