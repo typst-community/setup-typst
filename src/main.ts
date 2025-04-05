@@ -190,7 +190,7 @@ function getPackageVersion(toml: string): string {
 
 const packagesDir = path.join(TYPST_PACKAGES_DIR, "/local");
 
-async function downloadPackage(name: string, url: string) {
+async function downloadLocalPackage(name: string, url: string) {
   const packageDir = path.join(packagesDir, name);
   if (!fs.existsSync(packageDir)) {
     fs.mkdirSync(packageDir);
@@ -243,18 +243,34 @@ async function downloadPackage(name: string, url: string) {
   core.info(`✅ Downloaded ${name} to '${packageDir}'`);
 }
 
-async function downloadLocalPackages(packages: {
-  local: { [key: string]: string };
-}) {
+async function downloadLocalPackages(localpackage : string){
+  if (!fs.existsSync(localpackage)) {
+    core.warning(`Local packages path '${localpackage}' not found. Skipping downloading.`);
+    return;
+  }
+  let packages;
+  try {
+    packages = JSON.parse(fs.readFileSync(localpackage, "utf8"));
+  } catch (error) {
+    core.warning(
+      `Failed to parse local-packages json file: ${(error as Error).message}. Skipping downloading.`
+    );
+    return;
+  }
   core.info(`Downloading local packages.`);
   if (!fs.existsSync(packagesDir)) {
     fs.mkdirSync(packagesDir, { recursive: true });
     core.debug(`Created local packages directory: '${packagesDir}'.`);
   }
   await Promise.all(
-    Object.entries(packages.local).map(([key, value]) =>
-      downloadPackage(key, value)
-    )
+    Object.entries(packages.local).map(([key, value]) => {
+      if (typeof value === "string") {
+        return downloadLocalPackage(key, value);
+      } else {
+        core.warning(`Invalid package URL for ${key}: Expected a string.`);
+        return Promise.resolve();
+      }
+    })
   );
 }
 
@@ -284,19 +300,5 @@ if (cachePackage) {
 }
 const localPackage = core.getInput("local-packages");
 if (localPackage) {
-  if (fs.existsSync(localPackage)) {
-    let localPackages;
-    try {
-      localPackages = JSON.parse(fs.readFileSync(localPackage, "utf8"));
-    } catch (error) {
-      core.warning(
-        `Failed to parse local-packages json file: ${(error as Error).message}. Packages will not be downloaded.`
-      );
-    }
-    await downloadLocalPackages(localPackages);
-  } else {
-    core.warning(
-      `Local packages path '${localPackage}' not found. Skipping downloading.`
-    );
-  }
+  await downloadLocalPackages(localPackage);
 }
