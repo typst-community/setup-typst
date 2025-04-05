@@ -243,22 +243,24 @@ async function downloadLocalPackage(name: string, url: string) {
   core.info(`✅ Downloaded ${name} to '${packageDir}'`);
 }
 
-async function downloadAndCacheLocalPackages(localpackage: string) {
+async function downloadAndCacheLocalPackages(localpackage: string, cacheLocalPackages: boolean) {
   if (!fs.existsSync(localpackage)) {
     core.warning(
       `Local packages path '${localpackage}' not found. Skipping downloading.`
     );
     return;
   }
-  const hash = await hashFiles(localpackage);
-  const primaryKey = `typst-local-packages-${hash}`;
-  core.info(`Computed cache key: ${primaryKey}.`);
-  const cacheKey = await cache.restoreCache([packagesDir], primaryKey);
-  if (cacheKey != undefined) {
-    core.info(`✅ Local packages restored from cache.`);
-    return;
+  if (cacheLocalPackages) {
+    const hash = await hashFiles(localpackage);
+    const primaryKey = `typst-local-packages-${hash}`;
+    core.info(`Computed cache key: ${primaryKey}.`);
+    const cacheKey = await cache.restoreCache([packagesDir], primaryKey);
+    if (cacheKey != undefined) {
+      core.info(`✅ Local packages restored from cache.`);
+      return;
+    }
+    core.debug(`Cache miss. Downloading local packages.`);
   }
-  core.debug(`Cache miss. Downloading local packages.`);
   let packages;
   try {
     packages = JSON.parse(fs.readFileSync(localpackage, "utf8"));
@@ -283,12 +285,14 @@ async function downloadAndCacheLocalPackages(localpackage: string) {
       }
     })
   );
-  try {
-    let cacheId = await cache.saveCache([packagesDir], primaryKey);
-    core.info(`✅ Cache saved successfully with key: ${primaryKey}.`);
-    core.debug(`Cache ID: ${cacheId}`);
-  } catch (error) {
-    core.warning(`Failed to save cache: ${(error as Error).message}.`);
+  if (cacheLocalPackages) {
+    try {
+      let cacheId = await cache.saveCache([packagesDir], primaryKey);
+      core.info(`✅ Cache saved successfully with key: ${primaryKey}.`);
+      core.debug(`Cache ID: ${cacheId}`);
+    } catch (error) {
+      core.warning(`Failed to save cache: ${(error as Error).message}.`);
+    }
   }
   return;
 }
@@ -318,6 +322,7 @@ if (cachePackage) {
   await cachePackages(cachePackage);
 }
 const localPackage = core.getInput("local-packages");
+const cacheLocalPackages = core.getBooleanInput("cache-local-packages");
 if (localPackage) {
-  await downloadAndCacheLocalPackages(localPackage);
+  await downloadAndCacheLocalPackages(localPackage, cacheLocalPackages);
 }
