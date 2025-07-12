@@ -6,9 +6,9 @@
 
 This action provides the following functionality for GitHub Actions users:
 
-- **Installing** a version of Typst and adding it to the PATH
+- **Installing** a version of [Typst] and adding it to the PATH
 - **Caching** [packages] dependencies
-- **Downloading** ZIP archives as local packages
+- **Downloading** ZIP archives as packages
 
 ```yaml
 - uses: typst-community/setup-typst@v4
@@ -17,7 +17,7 @@ This action provides the following functionality for GitHub Actions users:
 
 ## Usage
 
-### Basic usage
+### Basic Usage
 
 ```yaml
 name: Render paper.pdf
@@ -34,7 +34,7 @@ jobs:
 
 ### Inputs
 
-#### Typst version control
+#### Specifying Typst Versions
 
 - **`typst-version`:** Version range or exact version of Typst to use, using SemVer's version range syntax. Uses the latest version if unset.
 - **`allow-prereleases`:** When `true`, a version range including `latest` passed to `typst-version` input will match prerelease versions.
@@ -52,7 +52,7 @@ jobs:
     allow-prereleases: true
 ```
 
-#### Packages cache
+#### Managing Packages with Cache
 
 **`cache-dependency-path`:** Used to specify the path to a Typst file containing lines of `import` keyword.
 
@@ -68,7 +68,7 @@ jobs:
 #import "@preview/example:0.1.0": *
 ```
 
-#### ZIP archive packages download
+#### ZIP Archive Packages Management
 
 - **`zip-packages`:** Used to specify the path to a JSON file containing names and ZIP archive URLs of packages.
 - **`cache-local-packages`:** When `true`, local packages set by `zip-packages` will be cached independently of `@preview` packages.
@@ -106,9 +106,9 @@ jobs:
 - **`typst-version`:** The installed Typst version. Useful when given a version range as input.
 - **`cache-hit`:** A boolean value to indicate a cache entry was found.
 
-### Custom combinations
+### Integration with Other Actions
 
-#### Uploading workflow artifact
+#### Uploading Artifacts
 
 If you require storing and sharing data from a workflow, you can use [artifacts].
 
@@ -121,7 +121,7 @@ If you require storing and sharing data from a workflow, you can use [artifacts]
     path: paper.pdf
 ```
 
-#### Installing fonts with Fontist
+#### Installing Fonts with Fontist
 
 If you require installing fonts in GitHub Actions runner, you can use [Fontist].
 
