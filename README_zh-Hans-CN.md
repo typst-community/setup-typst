@@ -7,7 +7,7 @@
 此操作为 GitHub Actions 用户提供以下功能：
 
 - **安装**指定版本的 Typst
-- **缓存**依赖的[包]
+- **缓存**依赖的 [包]
 - **下载** ZIP 压缩文件作为本地包
 
 ```yaml
@@ -70,30 +70,32 @@ jobs:
 
 #### ZIP 压缩文件作为包下载
 
-- **`local-packages`:** 指向一个在 `local` 键下有包名称与对应 ZIP 压缩文件 URL 的 JSON 文件。
-- **`cache-local-packages`:** 当设置为 `true` 时，在 `local-packages` 中设定的包将被缓存（缓存独立于 `@preview` 包）。
+- **`zip-packages`:** 指向一个含包名称及其对应 ZIP 压缩文件 URL 的 JSON 文件。
+- **`cache-local-packages`:** 当设置为 `true` 时，在 `zip-packages` 中设定的 `local` 包将被缓存（缓存独立于 `@preview` 包）。
 
 ```yaml
 # Example workflow YAML file
 - uses: typst-community/setup-typst@v4
   with:
-    local-packages: packages.json
+    zip-packages: requirements.json
     cache-local-packages: true
 ```
 
 ```js
-// Example JSON file (packages.json)
+// Example JSON file (requirements.json)
 {
+  "preview": {
+    "algorithmic": "https://github.com/typst-community/typst-algorithmic/archive/refs/tags/v1.0.0.zip"
+  },
   "local": {
-    "glossarium": "https://github.com/typst-community/glossarium/archive/refs/tags/v0.5.4.zip",
-    "touying": "https://github.com/touying-typ/touying/archive/refs/tags/0.6.1.zip"
+    "glossarium": "https://github.com/typst-community/glossarium/archive/refs/tags/v0.5.7.zip"
   }
 }
 ```
 
 > [!NOTE]
-> - 对于下载 GitHub 存储库需要的链接，请参阅 [《下载源代码存档》]。
-> - 本地包的命名空间为 `local`，SemVer 版本号从 `typst.toml` 读取。
+> - 对于下载 GitHub 存储库需要的链接，请参阅[《下载源代码存档》]。
+> - 仅支持将 ZIP 包下载到命名空间 `local` 或 `preview`。SemVer 版本号从 `typst.toml` 读取。
 
 #### 令牌
 
@@ -108,7 +110,7 @@ jobs:
 
 #### 上传到工作流构件
 
-如果需要从工作流存储和共享数据，可以使用[构件]。
+如果需要从工作流存储和共享数据，可以使用 [构件]。
 
 ```yaml
 - uses: typst-community/setup-typst@v4

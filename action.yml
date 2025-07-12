@@ -15,8 +15,11 @@ inputs:
   cache-dependency-path:
     description: "Used to specify the path to a Typst file containing lines of 'import' keyword."
     required: false
+  zip-packages:
+    description: "Used to specify the path to a JSON file containing names and ZIP archive URLs of packages."
+    required: false
   local-packages:
-    description: "Used to specify the path to a JSON file containing names and ZIP archive URLs of packages as local packages under the 'local' key."
+    description: "[Deprecated] Used to specify the path to a JSON file containing names and ZIP archive URLs of packages."
     required: false
   cache-local-packages:
     description: "When 'true', local packages set by 'local-packages' will be cached independently of '@preview' packages."

@@ -70,30 +70,32 @@ jobs:
 
 #### ZIP archive packages download
 
-- **`local-packages`:** Used to specify the path to a JSON file containing names and ZIP archive URLs of packages as local packages under the `local` key.
-- **`cache-local-packages`:** When `true`, local packages set by `local-packages` will be cached independently of `@preview` packages.
+- **`zip-packages`:** Used to specify the path to a JSON file containing names and ZIP archive URLs of packages.
+- **`cache-local-packages`:** When `true`, local packages set by `zip-packages` will be cached independently of `@preview` packages.
 
 ```yaml
 # Example workflow YAML file
 - uses: typst-community/setup-typst@v4
   with:
-    local-packages: packages.json
+    zip-packages: requirements.json
     cache-local-packages: true
 ```
 
 ```js
-// Example JSON file (packages.json)
+// Example JSON file (requirements.json)
 {
+  "preview": {
+    "algorithmic": "https://github.com/typst-community/typst-algorithmic/archive/refs/tags/v1.0.0.zip"
+  },
   "local": {
-    "glossarium": "https://github.com/typst-community/glossarium/archive/refs/tags/v0.5.4.zip",
-    "touying": "https://github.com/touying-typ/touying/archive/refs/tags/0.6.1.zip"
+    "glossarium": "https://github.com/typst-community/glossarium/archive/refs/tags/v0.5.7.zip"
   }
 }
 ```
 
 > [!NOTE]
 > - For links to download GitHub repositories, please refer to [_Downloading source code archives_].
-> - The namespace for local packages is `local`. The SemVer versions of local packages are read from its `typst.toml`.
+> - The supported namespaces are only `local` and `preview`. The SemVer versions of packages are read from its `typst.toml`.
 
 #### Token
 

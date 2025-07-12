@@ -1,20 +1,26 @@
 name: Test
 on:
   push:
-    branches: "main"
+    branches: [ main ]
     paths-ignore:
+      - .gitattributes
       - .gitignore
-      - README*.md
+      - '**.md'
       - LICENSE
       - .github/**
-      - "!.github/workflows/test-action.yml"
+      - '!.github/workflows/test.yml'
   pull_request:
     paths-ignore:
+      - .gitattributes
       - .gitignore
-      - README*.md
+      - '**.md'
       - LICENSE
       - .github/**
-      - "!.github/workflows/test-action.yml"
+      - '!.github/workflows/test.yml'
+    types:
+      - opened
+      - synchronize
+      - reopened
   workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -26,7 +32,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
           cache: npm
       - run: npm ci
       - run: npm run build
@@ -49,10 +55,10 @@ jobs:
           path: ./dist
       - uses: ./
         with:
-          cache-dependency-path: test/basic-requirements.typ
+          cache-dependency-path: test/basic/requirements.typ
       - run: typst --version
-      - run: typst compile test/basic.typ
-  test-local-packages:
+      - run: typst compile test/basic/main.typ
+  test-zip-packages:
     runs-on: ${{ matrix.os }}
     needs: build
     strategy:
@@ -67,7 +73,8 @@ jobs:
           path: ./dist
       - uses: ./
         with:
-          local-packages: test/local-packages.json
+          typst-version: v0.13
+          zip-packages: test/zip-packages/requirements.json
           cache-local-packages: true
       - run: typst --version
-      - run: typst compile test/local-packages.typ
+      - run: typst compile test/zip-packages/main.typ
