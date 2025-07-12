@@ -10,6 +10,23 @@ import path from "path";
 import * as os from "os";
 import * as semver from "semver";
 
+function getCompatibleInput(newParam: string, oldParams: string[]): string {
+  const value = core.getInput(newParam);
+  if (value) {
+    return value;
+  }
+  for (const oldParam of oldParams) {
+    const oldValue = core.getInput(oldParam);
+    if (oldValue) {
+      core.warning(
+        `Parameter "${oldParam}" is deprecated, please use "${newParam}" instead.`,
+      );
+      return oldValue;
+    }
+  }
+  return "";
+}
+
 async function move(src: string, dest: string) {
   try {
     fs.renameSync(src, dest);
@@ -20,7 +37,7 @@ async function move(src: string, dest: string) {
       fs.rmSync(src, { recursive: true, force: true });
     } catch (error) {
       core.warning(
-        `Failed to move '${src}' to '${dest}': ${(error as Error).message}.`
+        `Failed to move '${src}' to '${dest}': ${(error as Error).message}.`,
       );
     }
   }
@@ -28,17 +45,17 @@ async function move(src: string, dest: string) {
 
 async function listReleases(
   octokit: any,
-  repoSet: { owner: string; repo: string }
+  repoSet: { owner: string; repo: string },
 ) {
   core.info(
-    `Fetching releases list for repository ${repoSet.owner}/${repoSet.repo}.`
+    `Fetching releases list for repository ${repoSet.owner}/${repoSet.repo}.`,
   );
   if (octokit) {
     return await octokit.paginate(octokit.rest.repos.listReleases, repoSet);
   } else {
     const releasesUrl = `https://api.github.com/repos/${repoSet.owner}/${repoSet.repo}/releases`;
     core.debug(
-      `Fetching releases list from ${releasesUrl} without authentication.`
+      `Fetching releases list from ${releasesUrl} without authentication.`,
     );
     const releasesResponse = await tc.downloadTool(releasesUrl);
     try {
@@ -46,17 +63,17 @@ async function listReleases(
       return JSON.parse(fs.readFileSync(releasesResponse, "utf8"));
     } catch (error) {
       core.setFailed(
-        `Failed to parse releases from ${releasesUrl}: ${(error as Error).message}. This may be caused by API rate limit exceeded.`
+        `Failed to parse releases from ${releasesUrl}: ${(error as Error).message}. This may be caused by API rate limit exceeded.`,
       );
       process.exit(1);
     }
   }
 }
 
-async function getVersionExact(
+async function getExactVersion(
   releases: any[],
   version: string,
-  allowPrereleases: boolean
+  allowPrereleases: boolean,
 ) {
   const versions = releases
     .map((release) => release.tag_name.slice(1))
@@ -66,7 +83,7 @@ async function getVersionExact(
     version === "latest" ? "*" : version,
     {
       includePrerelease: allowPrereleases,
-    }
+    },
   );
   if (resolvedVersion) {
     core.info(`Resolved Typst version: ${resolvedVersion}.`);
@@ -97,7 +114,7 @@ async function downloadAndCacheTypst(version: string) {
   } else {
     target = {
       darwin: "x86_64-apple-darwin",
-      linux: "x86_64-unknown-linux-gnu"
+      linux: "x86_64-unknown-linux-gnu",
     }[process.platform.toString()]!;
     archiveExt = ".tar.gz";
   }
@@ -105,19 +122,23 @@ async function downloadAndCacheTypst(version: string) {
   const file = `${folder}${archiveExt}`;
   core.debug(`Determined target: ${target}, archive extension: ${archiveExt}.`);
   let found = await tc.downloadTool(
-    `https://github.com/typst/typst/releases/download/v${version}/${file}`
+    `https://github.com/typst/typst/releases/download/v${version}/${file}`,
   );
   if (process.platform == "win32") {
     if (!found.endsWith(".zip")) {
       fs.renameSync(
         found,
-        path.join(path.dirname(found), `${path.basename(found)}.zip`)
+        path.join(path.dirname(found), `${path.basename(found)}.zip`),
       );
       found = path.join(path.dirname(found), `${path.basename(found)}.zip`);
     }
     found = await tc.extractZip(found);
   } else {
-    found = await tc.extractTar(found, undefined, semver.gte(version, "0.3.0") ? "xJ" : "xz");
+    found = await tc.extractTar(
+      found,
+      undefined,
+      semver.gte(version, "0.3.0") ? "xJ" : "xz",
+    );
     core.debug(`Extracted archive for Typst version ${version}.`);
   }
   found = path.join(found, folder);
@@ -131,7 +152,7 @@ const TYPST_PACKAGES_DIR = {
     path.join(
       process.env.XDG_CACHE_HOME ||
         (os.homedir() ? path.join(os.homedir(), ".cache") : undefined)!,
-      "typst/packages"
+      "typst/packages",
     ),
   darwin: () =>
     path.join(process.env.HOME!, "Library/Caches", "typst/packages"),
@@ -141,7 +162,7 @@ const TYPST_PACKAGES_DIR = {
 async function cachePackages(cachePackage: string) {
   if (!fs.existsSync(cachePackage)) {
     core.warning(
-      `Dependency path '${cachePackage}' not found. Skipping caching.`
+      `Dependency path '${cachePackage}' not found. Skipping caching.`,
     );
     return;
   }
@@ -174,7 +195,7 @@ function getPackageVersion(toml: string): string {
     core.info(`Successfully read TOML file: '${toml}'.`);
   } catch (error) {
     core.warning(
-      `Failed to read TOML file '${toml}': ${(error as Error).message}. Defaulting to version '0.0.0'.`
+      `Failed to read TOML file '${toml}': ${(error as Error).message}. Defaulting to version '0.0.0'.`,
     );
     return "0.0.0";
   }
@@ -192,21 +213,26 @@ function getPackageVersion(toml: string): string {
     }
   }
   core.warning(
-    `Failed to find version in local package TOML file ${toml}. Package version will be 0.0.0.`
+    `Failed to find version in local package TOML file ${toml}. Package version will be 0.0.0.`,
   );
   return "0.0.0";
 }
 
-const packagesDir = path.join(TYPST_PACKAGES_DIR, "/local");
+const packagesLocalDir = path.join(TYPST_PACKAGES_DIR, "/local");
+const packagesPreviewDir = path.join(TYPST_PACKAGES_DIR, "/preview");
 
-async function downloadLocalPackage(name: string, url: string) {
+async function downloadZipPackage(
+  packagesDir: string,
+  name: string,
+  url: string,
+) {
   const packageDir = path.join(packagesDir, name);
   if (!fs.existsSync(packageDir)) {
     fs.mkdirSync(packageDir);
     core.debug(`Created directory '${packageDir}' for package ${name}.`);
   } else {
     core.warning(
-      `Directory '${packageDir}' already exists. Check for duplicate package names.`
+      `Directory '${packageDir}' already exists. Check for duplicate package names.`,
     );
   }
   core.info(`Downloading package ${name} from ${url}.`);
@@ -217,12 +243,12 @@ async function downloadLocalPackage(name: string, url: string) {
         packageResponse,
         path.join(
           path.dirname(packageResponse),
-          `${path.basename(packageResponse)}.zip`
-        )
+          `${path.basename(packageResponse)}.zip`,
+        ),
       );
       packageResponse = path.join(
         path.dirname(packageResponse),
-        `${path.basename(packageResponse)}.zip`
+        `${path.basename(packageResponse)}.zip`,
       );
     }
   }
@@ -239,26 +265,26 @@ async function downloadLocalPackage(name: string, url: string) {
     const stats = fs.statSync(innerPath);
     if (stats.isDirectory()) {
       const packageVersion = getPackageVersion(
-        path.join(innerPath, "typst.toml")
+        path.join(innerPath, "typst.toml"),
       );
       move(innerPath, path.join(packageDir, packageVersion));
     }
   } else {
     const packageVersion = getPackageVersion(
-      path.join(packageResponse, "typst.toml")
+      path.join(packageResponse, "typst.toml"),
     );
     move(packageResponse, path.join(packageDir, packageVersion));
   }
   core.info(`✅ Downloaded ${name} to '${packageDir}'`);
 }
 
-async function downloadAndCacheLocalPackages(
+async function downloadZipLocalPackages(
   localPackage: string,
-  cacheLocalPackages: boolean
+  cacheLocalPackages: boolean,
 ) {
   if (!fs.existsSync(localPackage)) {
     core.warning(
-      `Local packages path '${localPackage}' not found. Skipping downloading.`
+      `Zip packages path '${localPackage}' not found. Skipping downloading.`,
     );
     return;
   }
@@ -266,7 +292,7 @@ async function downloadAndCacheLocalPackages(
     const hash = await hashFiles(localPackage);
     const primaryKey = `typst-local-packages-${hash}`;
     core.info(`Computed cache key: ${primaryKey}.`);
-    const cacheKey = await cache.restoreCache([packagesDir], primaryKey);
+    const cacheKey = await cache.restoreCache([packagesLocalDir], primaryKey);
     if (cacheKey != undefined) {
       core.info(`✅ Local packages restored from cache.`);
       return;
@@ -278,30 +304,30 @@ async function downloadAndCacheLocalPackages(
     packages = JSON.parse(fs.readFileSync(localPackage, "utf8"));
   } catch (error) {
     core.warning(
-      `Failed to parse local-packages json file: ${(error as Error).message}. Skipping downloading.`
+      `Failed to parse local-packages json file: ${(error as Error).message}. Skipping downloading.`,
     );
     return;
   }
-  core.info(`Downloading local packages.`);
-  if (!fs.existsSync(packagesDir)) {
-    fs.mkdirSync(packagesDir, { recursive: true });
-    core.debug(`Created local packages directory: '${packagesDir}'.`);
+  core.info(`Downloading Zip @local packages.`);
+  if (!fs.existsSync(packagesLocalDir)) {
+    fs.mkdirSync(packagesLocalDir, { recursive: true });
+    core.debug(`Created Zip @local packages directory: '${packagesLocalDir}'.`);
   }
   await Promise.all(
     Object.entries(packages.local).map(([key, value]) => {
       if (typeof value === "string") {
-        return downloadLocalPackage(key, value);
+        return downloadZipPackage(packagesLocalDir, key, value);
       } else {
         core.warning(`Invalid package URL for ${key}: Expected a string.`);
         return Promise.resolve();
       }
-    })
+    }),
   );
   if (cacheLocalPackages) {
     try {
       const hash = await hashFiles(localPackage);
       const primaryKey = `typst-local-packages-${hash}`;
-      let cacheId = await cache.saveCache([packagesDir], primaryKey);
+      let cacheId = await cache.saveCache([packagesLocalDir], primaryKey);
       core.info(`✅ Cache saved successfully with key: ${primaryKey}.`);
       core.debug(`Cache ID: ${cacheId}`);
     } catch (error) {
@@ -311,10 +337,47 @@ async function downloadAndCacheLocalPackages(
   return;
 }
 
-const token = core.getInput("token");
+async function downloadZipPreviewPackages(previewPackages: string) {
+  if (!fs.existsSync(previewPackages)) {
+    core.warning(
+      `Zip packages path '${previewPackages}' not found. Skipping downloading.`,
+    );
+    return;
+  }
+  let packages;
+  try {
+    packages = JSON.parse(fs.readFileSync(previewPackages, "utf8"));
+  } catch (error) {
+    core.warning(
+      `Failed to parse local-packages json file: ${(error as Error).message}. Skipping downloading.`,
+    );
+    return;
+  }
+  core.info(`Downloading Zip @preview packages.`);
+  if (!fs.existsSync(packagesPreviewDir)) {
+    fs.mkdirSync(packagesPreviewDir, { recursive: true });
+    core.debug(
+      `Created Zip @preview packages directory: '${packagesPreviewDir}'.`,
+    );
+  }
+  await Promise.all(
+    Object.entries(packages.preview).map(([key, value]) => {
+      if (typeof value === "string") {
+        return downloadZipPackage(packagesPreviewDir, key, value);
+      } else {
+        core.warning(`Invalid package URL for ${key}: Expected a string.`);
+        return Promise.resolve();
+      }
+    }),
+  );
+  return;
+}
+
+const token = core.getInput("token")
 const octokit = token
   ? github.getOctokit(token, { baseUrl: "https://api.github.com" })
   : null;
+
 const repoSet = {
   owner: "typst",
   repo: "typst",
@@ -322,7 +385,7 @@ const repoSet = {
 const releases = await listReleases(octokit, repoSet);
 const version = core.getInput("typst-version");
 const allowPrereleases = core.getBooleanInput("allow-prereleases");
-const versionExact = await getVersionExact(releases, version, allowPrereleases);
+const versionExact = await getExactVersion(releases, version, allowPrereleases);
 let found = tc.find("typst", versionExact);
 core.setOutput("cache-hit", !!found);
 if (!found) {
@@ -331,12 +394,15 @@ if (!found) {
 core.addPath(found);
 core.setOutput("typst-version", versionExact);
 core.info(`✅ Typst v${versionExact} installed!`);
+
 const cachePackage = core.getInput("cache-dependency-path");
 if (cachePackage) {
   await cachePackages(cachePackage);
 }
-const localPackage = core.getInput("local-packages");
+
+const localPackages = getCompatibleInput("zip-packages", ["local-packages"]);
 const cacheLocalPackages = core.getBooleanInput("cache-local-packages");
-if (localPackage) {
-  await downloadAndCacheLocalPackages(localPackage, cacheLocalPackages);
+if (localPackages) {
+  await downloadZipLocalPackages(localPackages, cacheLocalPackages);
+  await downloadZipPreviewPackages(localPackages);
 }
