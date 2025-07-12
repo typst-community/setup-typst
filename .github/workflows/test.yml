@@ -5,6 +5,8 @@ on:
     paths-ignore:
       - .gitattributes
       - .gitignore
+      - action.yml
+      - LICENSE
       - '**.md'
       - LICENSE
       - .github/**
@@ -13,8 +15,9 @@ on:
     paths-ignore:
       - .gitattributes
       - .gitignore
-      - '**.md'
+      - action.yml
       - LICENSE
+      - '**.md'
       - .github/**
       - '!.github/workflows/test.yml'
     types:
