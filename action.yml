@@ -1,5 +1,5 @@
 name: Setup Typst
-description: 📑 Install Typst for use in GitHub Actions
+description: 📑 Install Typst and add it to the PATH with package management
 
 branding:
   icon: terminal
@@ -19,10 +19,10 @@ inputs:
     description: "Used to specify the path to a JSON file containing names and ZIP archive URLs of packages."
     required: false
   local-packages:
-    description: "[Deprecated] Used to specify the path to a JSON file containing names and ZIP archive URLs of packages."
+    description: "[Deprecated] Used to specify the path to a JSON file containing names and ZIP archive URLs of packages. Use 'zip-packages' instead."
     required: false
   cache-local-packages:
-    description: "When 'true', local packages set by 'local-packages' will be cached independently of '@preview' packages."
+    description: "When 'true', local packages set by 'zip-packages' will be cached independently of '@preview' packages."
     default: false
   token:
     description: "The token used to authenticate when fetching Typst distributions from typst/typst. When running this action on github.com, the default value is sufficient. When running on GHES, you can pass a personal access token for github.com if you are experiencing rate limiting."
