@@ -78,7 +78,7 @@ jobs:
           cache-dependency-path: test/basic/requirements.typ
           executable-name: typst-013
       - run: typst-latest --version
-      - run: typst-latest compile test/basic/
+      - run: typst-latest compile test/basic/main.typ
       - run: typst-013 --version
       - run: typst-013 compile test/basic/main.typ
   test-zip-packages:
