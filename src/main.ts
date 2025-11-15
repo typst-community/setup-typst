@@ -403,7 +403,7 @@ const executableName = core.getInput("executable-name");
 const sourceName = process.platform === "win32" ? "typst.exe" : "typst";
 const destName =
   process.platform === "win32" ? `${executableName}.exe` : executableName;
-move(path.join(found, sourceName), path.join(found, destName));
+fs.copyFileSync(path.join(found, sourceName), path.join(found, destName));
 core.addPath(found);
 core.setOutput("typst-version", versionExact);
 core.info(`✅ Typst v${versionExact} installed!`);
