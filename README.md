@@ -42,13 +42,24 @@ jobs:
 # Example 1
 - uses: typst-community/setup-typst@v4
   with:
-    typst-version: ^0.13.0
+    typst-version: ^0.14.0
 
 # Example 2
 - uses: typst-community/setup-typst@v4
   with:
-    typst-version: 0.13.0-rc1
+    typst-version: 0.14.0-rc1
     allow-prereleases: true
+```
+
+#### Specifying Typst Executable File Name
+
+**`executable-name`:** Used to specify the executable file name of Typst.
+
+```yaml
+- uses: typst-community/setup-typst@v4
+  with:
+    executable-name: typst-latest
+- run: typst-latest compile paper.typ paper.pdf
 ```
 
 #### Managing Packages with Cache

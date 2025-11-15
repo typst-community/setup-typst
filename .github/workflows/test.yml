@@ -5,7 +5,6 @@ on:
     paths-ignore:
       - .gitattributes
       - .gitignore
-      - action.yml
       - LICENSE
       - '**.md'
       - LICENSE
@@ -15,15 +14,10 @@ on:
     paths-ignore:
       - .gitattributes
       - .gitignore
-      - action.yml
       - LICENSE
       - '**.md'
       - .github/**
       - '!.github/workflows/test.yml'
-    types:
-      - opened
-      - synchronize
-      - reopened
   workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -59,8 +53,9 @@ jobs:
       - uses: ./
         with:
           cache-dependency-path: test/basic/requirements.typ
-      - run: typst --version
-      - run: typst compile test/basic/main.typ
+          executable-name: typst-latest
+      - run: typst-latest --version
+      - run: typst-latest compile test/basic/main.typ
   test-zip-packages:
     runs-on: ${{ matrix.os }}
     needs: build
@@ -76,7 +71,7 @@ jobs:
           path: ./dist
       - uses: ./
         with:
-          typst-version: v0.13
+          typst-version: v0.14
           zip-packages: test/zip-packages/requirements.json
           cache-local-packages: true
       - run: typst --version
