@@ -42,13 +42,24 @@ jobs:
 # Example 1
 - uses: typst-community/setup-typst@v4
   with:
-    typst-version: ^0.13.0
+    typst-version: ^0.14.0
 
 # Example 2
 - uses: typst-community/setup-typst@v4
   with:
-    typst-version: 0.13.0-rc1
+    typst-version: 0.14.0-rc1
     allow-prereleases: true
+```
+
+#### 指定 Typst 可执行文件名
+
+**`executable-name`:** 指定的 Typst 可执行文件的名称。
+
+```yaml
+- uses: typst-community/setup-typst@v4
+  with:
+      executable-name: typst-latest
+      - run: typst-latest compile paper.typ paper.pdf
 ```
 
 #### 包管理与缓存

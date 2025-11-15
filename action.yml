@@ -1,5 +1,5 @@
 name: Setup Typst
-description: 📑 Install Typst and add it to the PATH with package management
+description: 📑 Install Typst and add it to the PATH with package management
 
 branding:
   icon: terminal
@@ -12,6 +12,9 @@ inputs:
   allow-prereleases:
     description: "When 'true', a version range including 'latest' passed to 'typst-version' input will match prerelease versions."
     default: false
+  executable-name:
+    description: "Used to specify the executable file name of Typst."
+    default: typst
   cache-dependency-path:
     description: "Used to specify the path to a Typst file containing lines of 'import' keyword."
     required: false

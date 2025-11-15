@@ -19,7 +19,7 @@ function getCompatibleInput(newParam: string, oldParams: string[]): string {
     const oldValue = core.getInput(oldParam);
     if (oldValue) {
       core.warning(
-        `Parameter "${oldParam}" is deprecated, please use "${newParam}" instead.`,
+        `Parameter "${oldParam}" is deprecated, please use "${newParam}" instead.`
       );
       return oldValue;
     }
@@ -27,7 +27,7 @@ function getCompatibleInput(newParam: string, oldParams: string[]): string {
   return "";
 }
 
-async function move(src: string, dest: string) {
+function move(src: string, dest: string) {
   try {
     fs.renameSync(src, dest);
   } catch (error) {
@@ -37,7 +37,7 @@ async function move(src: string, dest: string) {
       fs.rmSync(src, { recursive: true, force: true });
     } catch (error) {
       core.warning(
-        `Failed to move '${src}' to '${dest}': ${(error as Error).message}.`,
+        `Failed to move '${src}' to '${dest}': ${(error as Error).message}.`
       );
     }
   }
@@ -45,17 +45,17 @@ async function move(src: string, dest: string) {
 
 async function listReleases(
   octokit: any,
-  repoSet: { owner: string; repo: string },
+  repoSet: { owner: string; repo: string }
 ) {
   core.info(
-    `Fetching releases list for repository ${repoSet.owner}/${repoSet.repo}.`,
+    `Fetching releases list for repository ${repoSet.owner}/${repoSet.repo}.`
   );
   if (octokit) {
     return await octokit.paginate(octokit.rest.repos.listReleases, repoSet);
   } else {
     const releasesUrl = `https://api.github.com/repos/${repoSet.owner}/${repoSet.repo}/releases`;
     core.debug(
-      `Fetching releases list from ${releasesUrl} without authentication.`,
+      `Fetching releases list from ${releasesUrl} without authentication.`
     );
     const releasesResponse = await tc.downloadTool(releasesUrl);
     try {
@@ -63,7 +63,9 @@ async function listReleases(
       return JSON.parse(fs.readFileSync(releasesResponse, "utf8"));
     } catch (error) {
       core.setFailed(
-        `Failed to parse releases from ${releasesUrl}: ${(error as Error).message}. This may be caused by API rate limit exceeded.`,
+        `Failed to parse releases from ${releasesUrl}: ${
+          (error as Error).message
+        }. This may be caused by API rate limit exceeded.`
       );
       process.exit(1);
     }
@@ -73,7 +75,7 @@ async function listReleases(
 async function getExactVersion(
   releases: any[],
   version: string,
-  allowPrereleases: boolean,
+  allowPrereleases: boolean
 ) {
   const versions = releases
     .map((release) => release.tag_name.slice(1))
@@ -83,7 +85,7 @@ async function getExactVersion(
     version === "latest" ? "*" : version,
     {
       includePrerelease: allowPrereleases,
-    },
+    }
   );
   if (resolvedVersion) {
     core.info(`Resolved Typst version: ${resolvedVersion}.`);
@@ -122,13 +124,13 @@ async function downloadAndCacheTypst(version: string) {
   const file = `${folder}${archiveExt}`;
   core.debug(`Determined target: ${target}, archive extension: ${archiveExt}.`);
   let found = await tc.downloadTool(
-    `https://github.com/typst/typst/releases/download/v${version}/${file}`,
+    `https://github.com/typst/typst/releases/download/v${version}/${file}`
   );
   if (process.platform == "win32") {
     if (!found.endsWith(".zip")) {
       fs.renameSync(
         found,
-        path.join(path.dirname(found), `${path.basename(found)}.zip`),
+        path.join(path.dirname(found), `${path.basename(found)}.zip`)
       );
       found = path.join(path.dirname(found), `${path.basename(found)}.zip`);
     }
@@ -137,7 +139,7 @@ async function downloadAndCacheTypst(version: string) {
     found = await tc.extractTar(
       found,
       undefined,
-      semver.gte(version, "0.3.0") ? "xJ" : "xz",
+      semver.gte(version, "0.3.0") ? "xJ" : "xz"
     );
     core.debug(`Extracted archive for Typst version ${version}.`);
   }
@@ -152,7 +154,7 @@ const TYPST_PACKAGES_DIR = {
     path.join(
       process.env.XDG_CACHE_HOME ||
         (os.homedir() ? path.join(os.homedir(), ".cache") : undefined)!,
-      "typst/packages",
+      "typst/packages"
     ),
   darwin: () =>
     path.join(process.env.HOME!, "Library/Caches", "typst/packages"),
@@ -162,7 +164,7 @@ const TYPST_PACKAGES_DIR = {
 async function cachePackages(cachePackage: string) {
   if (!fs.existsSync(cachePackage)) {
     core.warning(
-      `Dependency path '${cachePackage}' not found. Skipping caching.`,
+      `Dependency path '${cachePackage}' not found. Skipping caching.`
     );
     return;
   }
@@ -195,7 +197,9 @@ function getPackageVersion(toml: string): string {
     core.info(`Successfully read TOML file: '${toml}'.`);
   } catch (error) {
     core.warning(
-      `Failed to read TOML file '${toml}': ${(error as Error).message}. Defaulting to version '0.0.0'.`,
+      `Failed to read TOML file '${toml}': ${
+        (error as Error).message
+      }. Defaulting to version '0.0.0'.`
     );
     return "0.0.0";
   }
@@ -213,7 +217,7 @@ function getPackageVersion(toml: string): string {
     }
   }
   core.warning(
-    `Failed to find version in local package TOML file ${toml}. Package version will be 0.0.0.`,
+    `Failed to find version in local package TOML file ${toml}. Package version will be 0.0.0.`
   );
   return "0.0.0";
 }
@@ -224,7 +228,7 @@ const packagesPreviewDir = path.join(TYPST_PACKAGES_DIR, "/preview");
 async function downloadZipPackage(
   packagesDir: string,
   name: string,
-  url: string,
+  url: string
 ) {
   const packageDir = path.join(packagesDir, name);
   if (!fs.existsSync(packageDir)) {
@@ -232,7 +236,7 @@ async function downloadZipPackage(
     core.debug(`Created directory '${packageDir}' for package ${name}.`);
   } else {
     core.warning(
-      `Directory '${packageDir}' already exists. Check for duplicate package names.`,
+      `Directory '${packageDir}' already exists. Check for duplicate package names.`
     );
   }
   core.info(`Downloading package ${name} from ${url}.`);
@@ -243,12 +247,12 @@ async function downloadZipPackage(
         packageResponse,
         path.join(
           path.dirname(packageResponse),
-          `${path.basename(packageResponse)}.zip`,
-        ),
+          `${path.basename(packageResponse)}.zip`
+        )
       );
       packageResponse = path.join(
         path.dirname(packageResponse),
-        `${path.basename(packageResponse)}.zip`,
+        `${path.basename(packageResponse)}.zip`
       );
     }
   }
@@ -265,13 +269,13 @@ async function downloadZipPackage(
     const stats = fs.statSync(innerPath);
     if (stats.isDirectory()) {
       const packageVersion = getPackageVersion(
-        path.join(innerPath, "typst.toml"),
+        path.join(innerPath, "typst.toml")
       );
       move(innerPath, path.join(packageDir, packageVersion));
     }
   } else {
     const packageVersion = getPackageVersion(
-      path.join(packageResponse, "typst.toml"),
+      path.join(packageResponse, "typst.toml")
     );
     move(packageResponse, path.join(packageDir, packageVersion));
   }
@@ -280,11 +284,11 @@ async function downloadZipPackage(
 
 async function downloadZipLocalPackages(
   localPackage: string,
-  cacheLocalPackages: boolean,
+  cacheLocalPackages: boolean
 ) {
   if (!fs.existsSync(localPackage)) {
     core.warning(
-      `Zip packages path '${localPackage}' not found. Skipping downloading.`,
+      `Zip packages path '${localPackage}' not found. Skipping downloading.`
     );
     return;
   }
@@ -304,7 +308,9 @@ async function downloadZipLocalPackages(
     packages = JSON.parse(fs.readFileSync(localPackage, "utf8"));
   } catch (error) {
     core.warning(
-      `Failed to parse local-packages json file: ${(error as Error).message}. Skipping downloading.`,
+      `Failed to parse local-packages json file: ${
+        (error as Error).message
+      }. Skipping downloading.`
     );
     return;
   }
@@ -321,7 +327,7 @@ async function downloadZipLocalPackages(
         core.warning(`Invalid package URL for ${key}: Expected a string.`);
         return Promise.resolve();
       }
-    }),
+    })
   );
   if (cacheLocalPackages) {
     try {
@@ -340,7 +346,7 @@ async function downloadZipLocalPackages(
 async function downloadZipPreviewPackages(previewPackages: string) {
   if (!fs.existsSync(previewPackages)) {
     core.warning(
-      `Zip packages path '${previewPackages}' not found. Skipping downloading.`,
+      `Zip packages path '${previewPackages}' not found. Skipping downloading.`
     );
     return;
   }
@@ -349,7 +355,9 @@ async function downloadZipPreviewPackages(previewPackages: string) {
     packages = JSON.parse(fs.readFileSync(previewPackages, "utf8"));
   } catch (error) {
     core.warning(
-      `Failed to parse local-packages json file: ${(error as Error).message}. Skipping downloading.`,
+      `Failed to parse local-packages json file: ${
+        (error as Error).message
+      }. Skipping downloading.`
     );
     return;
   }
@@ -357,7 +365,7 @@ async function downloadZipPreviewPackages(previewPackages: string) {
   if (!fs.existsSync(packagesPreviewDir)) {
     fs.mkdirSync(packagesPreviewDir, { recursive: true });
     core.debug(
-      `Created Zip @preview packages directory: '${packagesPreviewDir}'.`,
+      `Created Zip @preview packages directory: '${packagesPreviewDir}'.`
     );
   }
   await Promise.all(
@@ -368,12 +376,12 @@ async function downloadZipPreviewPackages(previewPackages: string) {
         core.warning(`Invalid package URL for ${key}: Expected a string.`);
         return Promise.resolve();
       }
-    }),
+    })
   );
   return;
 }
 
-const token = core.getInput("token")
+const token = core.getInput("token");
 const octokit = token
   ? github.getOctokit(token, { baseUrl: "https://api.github.com" })
   : null;
@@ -391,6 +399,11 @@ core.setOutput("cache-hit", !!found);
 if (!found) {
   found = await downloadAndCacheTypst(versionExact);
 }
+const executableName = core.getInput("executable-name");
+const sourceName = process.platform === "win32" ? "typst.exe" : "typst";
+const destName =
+  process.platform === "win32" ? `${executableName}.exe` : executableName;
+fs.copyFileSync(path.join(found, sourceName), path.join(found, destName));
 core.addPath(found);
 core.setOutput("typst-version", versionExact);
 core.info(`✅ Typst v${versionExact} installed!`);
