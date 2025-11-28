@@ -5,6 +5,7 @@
 # Setup Typst
 
 Setup Typst 操作为 GitHub Actions 用户提供以下功能：
+
 - **安装**指定版本的 [Typst]
 - **缓存**依赖的 [包]
 - **下载** ZIP 压缩文件作为包
@@ -62,6 +63,12 @@ jobs:
       - run: typst-latest compile paper.typ paper.pdf
 ```
 
+> [!TIP]
+>
+> - `executable-name` 默认为 `typst`。
+> - 一份名为 `typst-${version}` 的 Typst 可执行文件总是被保存。
+> - 可以为同一版本 Typst 设置多个不同的 `executable-name`。**不推荐** 对不同版本 Typst 设置相同的 `executable-name`（包括默认的 `typst`），因为这可能导致版本管理混乱。
+
 #### 包管理与缓存
 
 **`cache-dependency-path`:** 指向一个含有 `import` 关键字的 Typst 文件。
@@ -104,6 +111,7 @@ jobs:
 ```
 
 > [!TIP]
+>
 > - 对于下载 GitHub 存储库需要的链接，请参阅[《下载源代码存档》]。
 > - 仅支持将 ZIP 包下载到命名空间 `local` 或 `preview`。
 > - SemVer 版本号从 `typst.toml` 读取。
@@ -166,6 +174,7 @@ Setup Typst 操作使用 TypeScript 开发，所以你需要 Nodejs.20 和 npm �
 此存储库使用 GitHub Actions 进行持续集成测试。工作流将对拉取请求和对主分支的推送自动运行。
 
 CI 工作流包括两种工作：
+
 - 构建：编译操作并上传到构件
 - 测试：跨系统测试操作
   - 基础测试：测试基础功能
