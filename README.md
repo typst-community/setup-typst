@@ -5,6 +5,7 @@
 # Setup Typst
 
 This action provides the following functionality for GitHub Actions users:
+
 - **Installing** a version of [Typst] and adding it to the PATH
 - **Caching** [packages] dependencies
 - **Downloading** ZIP archives as packages
@@ -62,6 +63,13 @@ jobs:
 - run: typst-latest compile paper.typ paper.pdf
 ```
 
+> [!TIP]
+>
+> - `executable-name` defaults to `typst`.
+> - A Typst executable named `typst-${version}` is always kept.
+> - For Windows, there is no need to include the executable file extension `.exe` in the parameters.
+> - Multiple distinct `executable-name` values can be set for the same Typst version. Setting the same `executable-name` (including the default `typst`) for different Typst versions is **not recommended**, as it may lead to version management confusion.
+
 #### Managing Packages with Cache
 
 **`cache-dependency-path`:** Used to specify the path to a Typst file containing lines of `import` keyword.
@@ -70,7 +78,7 @@ jobs:
 # Example workflow YAML file
 - uses: typst-community/setup-typst@v4
   with:
-   cache-dependency-path: requirements.typ
+    cache-dependency-path: requirements.typ
 ```
 
 ```typst
@@ -104,6 +112,7 @@ jobs:
 ```
 
 > [!TIP]
+>
 > - For links to download GitHub repositories, please refer to [_Downloading source code archives_].
 > - The supported namespaces are only `local` and `preview`.
 > - The SemVer versions of packages are read from its `typst.toml`.
@@ -166,6 +175,7 @@ You can also use `npm run lint` to run type checking and format code with `npm r
 The repository uses GitHub Actions for continuous integration testing. The workflow automatically runs on pull requests and pushes to the main branch.
 
 The CI workflow consists of two kinds of jobs:
+
 - Build: Compiles the action and uploads artifacts
 - Test: Tests the action across all platforms
   - Basic Test: Tests basic functionality
