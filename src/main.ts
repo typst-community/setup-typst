@@ -146,11 +146,13 @@ async function downloadAndCacheTypst(version: string, executableName: string) {
   found = path.join(found, folder);
   const sourceName = process.platform === "win32" ? "typst.exe" : "typst";
   const standardName =
-    process.platform === "win32" ? `typst-{version}.exe` : `typst-{version}`;
+    process.platform === "win32" ? `typst-${version}.exe` : `typst-${version}`;
   const destName =
     process.platform === "win32" ? `${executableName}.exe` : executableName;
   fs.copyFileSync(path.join(found, sourceName), path.join(found, standardName));
-  fs.renameSync(path.join(found, sourceName), path.join(found, destName));
+  if (sourceName != destName) {
+    fs.renameSync(path.join(found, sourceName), path.join(found, destName));
+  }
   found = await tc.cacheDir(found, "typst", version);
   core.info(`Typst ${version} added to cache at '${found}'.`);
   return found;
@@ -405,11 +407,13 @@ let found = tc.find("typst", versionExact);
 core.setOutput("cache-hit", !!found);
 const executableName = core.getInput("executable-name");
 if (found) {
-  if (!fs.existsSync(path.join(found, executableName))) {
+  const destName =
+    process.platform === "win32" ? `${executableName}.exe` : executableName;
+  if (!fs.existsSync(path.join(found, destName))) {
     const standardName =
-      process.platform === "win32" ? `typst-{version}.exe` : `typst-{version}`;
-    const destName =
-      process.platform === "win32" ? `${executableName}.exe` : executableName;
+      process.platform === "win32"
+        ? `typst-{versionExact}.exe`
+        : `typst-{versionExact}`;
     fs.copyFileSync(path.join(found, standardName), path.join(found, destName));
   }
 } else {

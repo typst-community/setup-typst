@@ -66,7 +66,8 @@ jobs:
 > [!TIP]
 >
 > - `executable-name` defaults to `typst`.
-> - A Typst executable named `typst-${version}` is always preserved.
+> - A Typst executable named `typst-${version}` is always kept.
+> - For Windows, there is no need to include the executable file extension `.exe` in the parameters.
 > - Multiple distinct `executable-name` values can be set for the same Typst version. Setting the same `executable-name` (including the default `typst`) for different Typst versions is **not recommended**, as it may lead to version management confusion.
 
 #### Managing Packages with Cache

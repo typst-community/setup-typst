@@ -7,7 +7,6 @@ on:
       - .gitignore
       - LICENSE
       - "**.md"
-
       - .github/**
       - "!.github/workflows/test.yml"
   pull_request:

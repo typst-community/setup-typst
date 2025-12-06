@@ -67,6 +67,7 @@ jobs:
 >
 > - `executable-name` 默认为 `typst`。
 > - 一份名为 `typst-${version}` 的 Typst 可执行文件总是被保存。
+> - 对于 Windows，不需要在参数中设置可执行文件后缀名 `.exe`。
 > - 可以为同一版本 Typst 设置多个不同的 `executable-name`。**不推荐** 对不同版本 Typst 设置相同的 `executable-name`（包括默认的 `typst`），因为这可能导致版本管理混乱。
 
 #### 包管理与缓存
