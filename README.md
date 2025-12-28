@@ -174,13 +174,6 @@ You can also use `npm run lint` to run type checking and format code with `npm r
 
 The repository uses GitHub Actions for continuous integration testing. The workflow automatically runs on pull requests and pushes to the main branch.
 
-The CI workflow consists of two kinds of jobs:
-
-- Build: Compiles the action and uploads artifacts
-- Test: Tests the action across all platforms
-  - Basic Test: Tests basic functionality
-  - ZIP Packages Test: Tests ZIP package handling
-
 [Typst]: https://typst.app/
 [typst/typst]: https://github.com/typst/typst
 [packages]: https://github.com/typst/packages

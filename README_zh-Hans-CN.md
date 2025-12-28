@@ -174,13 +174,6 @@ Setup Typst 操作使用 TypeScript 开发，所以你需要 Nodejs.20 和 npm �
 
 此存储库使用 GitHub Actions 进行持续集成测试。工作流将对拉取请求和对主分支的推送自动运行。
 
-CI 工作流包括两种工作：
-
-- 构建：编译操作并上传到构件
-- 测试：跨系统测试操作
-  - 基础测试：测试基础功能
-  - ZIP 包测试：测试 ZIP 压缩文件作为包处理能力
-
 [Typst]: https://typst.app/
 [typst/typst]: https://github.com/typst/typst
 [包]: https://github.com/typst/packages
