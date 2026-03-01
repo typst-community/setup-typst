@@ -13,23 +13,6 @@ import {
   downloadZipPreviewPackages,
 } from "./package";
 
-function getCompatibleInput(newParam: string, oldParams: string[]): string {
-  const value = core.getInput(newParam);
-  if (value) {
-    return value;
-  }
-  for (const oldParam of oldParams) {
-    const oldValue = core.getInput(oldParam);
-    if (oldValue) {
-      core.warning(
-        `Parameter "${oldParam}" is deprecated, please use "${newParam}" instead.`,
-      );
-      return oldValue;
-    }
-  }
-  return "";
-}
-
 async function listReleases(
   octokit: any,
   repoSet: { owner: string; repo: string },
@@ -181,7 +164,7 @@ if (cachePackage) {
   await cachePackages(cachePackage);
 }
 
-const localPackages = getCompatibleInput("zip-packages", ["local-packages"]);
+const localPackages = core.getInput("zip-packages");
 const cacheLocalPackages = core.getBooleanInput("cache-local-packages");
 if (localPackages) {
   await downloadZipLocalPackages(localPackages, cacheLocalPackages);
