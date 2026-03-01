@@ -15,6 +15,9 @@ inputs:
   executable-name:
     description: "Used to specify the executable file name of Typst."
     default: typst
+  typst-versions-map:
+    description: "Used to specify a JSON map of executable names to Typst version configurations, for installing multiple Typst versions at once. Each value is an object with a required 'version' field and an optional 'allowPrerelease' field."
+    required: false
   cache-dependency-path:
     description: "Used to specify the path to a Typst file containing lines of 'import' keyword."
     required: false

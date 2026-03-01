@@ -34,10 +34,11 @@ jobs:
 
 ### 输入
 
-#### 指定 Typst 版本
+#### 安装单个 Typst 版本
 
 - **`typst-version`:** 使用的 Typst 版本范围或确切版本，采用 SemVer 语义化版本范围语法。默认使用最新版本。
 - **`allow-prereleases`:** 当设置为 `true` 时，传递给 `typst-version` 的版本范围（包含 `latest`）将匹配预发布版本。
+**`executable-name`:** 指定的 Typst 可执行文件的名称。
 
 ```yaml
 # Example 1
@@ -50,17 +51,11 @@ jobs:
   with:
     typst-version: 0.14.0-rc1
     allow-prereleases: true
-```
 
-#### 指定 Typst 可执行文件名
-
-**`executable-name`:** 指定的 Typst 可执行文件的名称。
-
-```yaml
+# Example 3
 - uses: typst-community/setup-typst@v4
   with:
-      executable-name: typst-latest
-      - run: typst-latest compile paper.typ paper.pdf
+    executable-name: typst-latest
 ```
 
 > [!TIP]
@@ -68,7 +63,29 @@ jobs:
 > - `executable-name` 默认为 `typst`。
 > - 一份名为 `typst-${version}` 的 Typst 可执行文件总是被保存。
 > - 对于 Windows，不需要在参数中设置可执行文件后缀名 `.exe`。
-> - 可以为同一版本 Typst 设置多个不同的 `executable-name`。**不推荐** 对不同版本 Typst 设置相同的 `executable-name`（包括默认的 `typst`），因为这可能导致版本管理混乱。
+> - 可以为同一版本 Typst 设置多个不同的 `executable-name`。
+> - **不推荐** 对不同版本 Typst 设置相同的 `executable-name`（包括默认的 `typst`），因为这可能导致版本管理混乱。
+
+#### 同时安装多个 Typst 版本
+
+**`typst-versions-map`:** 用于指定一个以可执行文件名为键、Typst 版本配置为值的 JSON 映射，以同时安装多个 Typst 版本。每个值是一个包含必填 `version` 字段和可选 `allowPrerelease` 字段的对象。
+
+> [!NOTE]
+>
+> 当 `typst-versions-map` 被设置时，`typst-version` 和 `executable-name` 将被**忽略**。`allow-prereleases` 输入将作为映射中所有条目的**默认值**，但可被各条目中的 `allowPrerelease` 字段**覆盖**。
+
+```yaml
+- uses: typst-community/setup-typst@v4
+  with:
+    typst-versions-map: |
+      {
+        "typst-latest": {"version": "latest"},
+        "typst-013": {
+          "version": "v0.13",
+          "allowPrerelease": true
+        }
+      }
+```
 
 #### 包管理与缓存
 

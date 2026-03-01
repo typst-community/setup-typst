@@ -34,10 +34,11 @@ jobs:
 
 ### Inputs
 
-#### Specifying Typst Versions
+#### Installing A Typst Version
 
 - **`typst-version`:** Version range or exact version of Typst to use, using SemVer's version range syntax. Uses the latest version if unset.
 - **`allow-prereleases`:** When `true`, a version range including `latest` passed to `typst-version` input will match prerelease versions.
+**`executable-name`:** Used to specify the executable file name of Typst.
 
 ```yaml
 # Example 1
@@ -50,17 +51,11 @@ jobs:
   with:
     typst-version: 0.14.0-rc1
     allow-prereleases: true
-```
 
-#### Specifying Typst Executable File Name
-
-**`executable-name`:** Used to specify the executable file name of Typst.
-
-```yaml
+# Example 3
 - uses: typst-community/setup-typst@v4
   with:
     executable-name: typst-latest
-- run: typst-latest compile paper.typ paper.pdf
 ```
 
 > [!TIP]
@@ -68,7 +63,29 @@ jobs:
 > - `executable-name` defaults to `typst`.
 > - A Typst executable named `typst-${version}` is always kept.
 > - For Windows, there is no need to include the executable file extension `.exe` in the parameters.
-> - Multiple distinct `executable-name` values can be set for the same Typst version. Setting the same `executable-name` (including the default `typst`) for different Typst versions is **not recommended**, as it may lead to version management confusion.
+> - Multiple distinct `executable-name` values can be set for the same Typst version.
+> - Setting the same `executable-name` (including the default `typst`) for different Typst versions is **not recommended**, as it may lead to version management confusion.
+
+#### Installing Multiple Typst Versions
+
+**`typst-versions-map`:** Used to specify a JSON map of executable names to Typst version configurations, for installing multiple Typst versions at once. Each value is an object with a required `version` field and an optional `allowPrerelease` field.
+
+> [!NOTE]
+>
+> When `typst-versions-map` is set, `typst-version` and `executable-name` are **ignored**. The `allow-prereleases` input is used as the **default value** for all entries in the map, but can be **overridden** by `allowPrerelease` in each individual config object.
+
+```yaml
+- uses: typst-community/setup-typst@v4
+  with:
+    typst-versions-map: |
+      {
+        "typst-latest": {"version": "latest"},
+        "typst-013": {
+          "version": "v0.13",
+          "allowPrerelease": true
+        }
+      }
+```
 
 #### Managing Packages with Cache
 
