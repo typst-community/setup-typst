@@ -30,6 +30,13 @@ function getCompatibleInput(newParam: string, oldParams: string[]): string {
   return "";
 }
 
+/**
+ * Fetches all releases for a given GitHub repository.
+ * Uses authenticated Octokit if available, otherwise falls back to unauthenticated API fetch.
+ * @param octokit Authenticated Octokit instance or null
+ * @param repoSet Repository owner and repo name
+ * @returns List of repository releases
+ */
 async function listReleases(
   octokit: any,
   repoSet: { owner: string; repo: string },
@@ -59,6 +66,14 @@ async function listReleases(
   }
 }
 
+/**
+ * Resolves an exact Typst version from release tags using semver matching.
+ * Supports "latest" and version ranges with optional prerelease inclusion.
+ * @param releases Array of GitHub releases
+ * @param version Target version or version range
+ * @param allowPrereleases Whether to include prerelease versions
+ * @returns Exact resolved version string
+ */
 async function getExactVersion(
   releases: any[],
   version: string,
@@ -83,6 +98,12 @@ async function getExactVersion(
   return resolvedVersion;
 }
 
+/**
+ * Downloads, extracts, and caches a single Typst binary for the current platform.
+ * @param version Exact Typst version to install
+ * @param executableName Desired name for the final executable
+ * @returns Path to the cached directory
+ */
 async function downloadAndCacheTypst(version: string, executableName: string) {
   core.info(`Downloading and caching Typst ${version}.`);
   let target, archiveExt;
@@ -141,6 +162,21 @@ async function downloadAndCacheTypst(version: string, executableName: string) {
   found = await tc.cacheDir(found, "typst", version);
   core.info(`Typst ${version} added to cache at '${found}'.`);
   return found;
+}
+
+/**
+ * Installs multiple Typst binaries in parallel.
+ * @param versionToNameMap Object with exact Typst versions as keys and executable names as values
+ * @returns Array of paths to cached directories
+ */
+async function installMultipleTypstBinaries(
+  versionToNameMap: Record<string, string>
+): Promise<string[]> {
+  const promises = Object.entries(versionToNameMap).map(([version, executableName]) =>
+    downloadAndCacheTypst(version, executableName)
+  );
+  const founds = await Promise.all(promises);
+  return founds;
 }
 
 const token = core.getInput("token");
