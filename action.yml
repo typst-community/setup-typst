@@ -38,5 +38,5 @@ outputs:
     description: "A boolean value to indicate a cache entry was found."
 
 runs:
-  using: node20
+  using: node24
   main: dist/main/index.js
