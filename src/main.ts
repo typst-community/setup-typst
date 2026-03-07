@@ -67,6 +67,17 @@ async function listReleases(
 }
 
 /**
+ * Validates whether a string is a valid semver version, version range, or the "latest" identifier.
+ * @param version Input string to validate
+ * @returns True if valid semver string, false otherwise
+ */
+function isValidSemverString(version: string): boolean {
+  return version === "latest"
+    || semver.valid(version) !== null
+    || semver.validRange(version) !== null;
+}
+
+/**
  * Resolves an exact Typst version from release tags using semver matching.
  * Supports "latest" and version ranges with optional prerelease inclusion.
  * @param releases Array of GitHub releases
@@ -189,28 +200,31 @@ const repoSet = {
   repo: "typst",
 };
 const releases = await listReleases(octokit, repoSet);
+
 const version = core.getInput("typst-version");
-const allowPrereleases = core.getBooleanInput("allow-prereleases");
-const versionExact = await getExactVersion(releases, version, allowPrereleases);
-let found = tc.find("typst", versionExact);
-core.setOutput("cache-hit", !!found);
-const executableName = core.getInput("executable-name");
-if (found) {
-  const destName =
-    process.platform === "win32" ? `${executableName}.exe` : executableName;
-  if (!fs.existsSync(path.join(found, destName))) {
-    const standardName =
-      process.platform === "win32"
-        ? `typst-{versionExact}.exe`
-        : `typst-{versionExact}`;
-    fs.copyFileSync(path.join(found, standardName), path.join(found, destName));
+if (isValidSemverString(version)) {
+  const allowPrereleases = core.getBooleanInput("allow-prereleases");
+  const versionExact = await getExactVersion(releases, version, allowPrereleases);
+  let found = tc.find("typst", versionExact);
+  core.setOutput("cache-hit", !!found);
+  const executableName = core.getInput("executable-name");
+  if (found) {
+    const destName =
+      process.platform === "win32" ? `${executableName}.exe` : executableName;
+    if (!fs.existsSync(path.join(found, destName))) {
+      const standardName =
+        process.platform === "win32"
+          ? `typst-{versionExact}.exe`
+          : `typst-{versionExact}`;
+      fs.copyFileSync(path.join(found, standardName), path.join(found, destName));
+    }
+  } else {
+    found = await downloadAndCacheTypst(versionExact, executableName);
   }
-} else {
-  found = await downloadAndCacheTypst(versionExact, executableName);
+  core.addPath(found);
+  core.setOutput("typst-version", versionExact);
+  core.info(`✅ Typst v${versionExact} installed!`);
 }
-core.addPath(found);
-core.setOutput("typst-version", versionExact);
-core.info(`✅ Typst v${versionExact} installed!`);
 
 const cachePackage = core.getInput("cache-dependency-path");
 if (cachePackage) {
