@@ -110,13 +110,11 @@ async function getExactVersion(
 }
 
 /**
- * Downloads, extracts, and caches a single Typst binary for the current platform.
- * @param version Exact Typst version to install
- * @param executableName Desired name for the final executable
- * @returns Path to the cached directory
- */
-async function downloadAndCacheTypst(version: string, executableName: string) {
-  core.info(`Downloading and caching Typst ${version}.`);
+  * Get build target triple and archive extension by version and current platform
+  * @param version Package version
+  * @returns Build target and archive extension
+  */
+function getBuildTarget(version: string) {
   let target, archiveExt;
   if (semver.gte(version, "0.3.0") || process.platform == "win32") {
     target = {
@@ -139,6 +137,18 @@ async function downloadAndCacheTypst(version: string, executableName: string) {
     }[process.platform.toString()]!;
     archiveExt = ".tar.gz";
   }
+  return { target, archiveExt };
+}
+
+/**
+ * Downloads, extracts, and caches a single Typst binary for the current platform.
+ * @param version Exact Typst version to install
+ * @param executableName Desired name for the final executable
+ * @returns Path to the cached directory
+ */
+async function downloadAndCacheTypst(version: string, executableName: string) {
+  core.info(`Downloading and caching Typst ${version}.`);
+  let { target, archiveExt } = getBuildTarget(version);
   const folder = `typst-${target}`;
   const file = `${folder}${archiveExt}`;
   core.debug(`Determined target: ${target}, archive extension: ${archiveExt}.`);
