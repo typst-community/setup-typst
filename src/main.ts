@@ -216,7 +216,6 @@ if (isValidSemverString(version)) {
   const allowPrereleases = core.getBooleanInput("allow-prereleases");
   const versionExact = await getExactVersion(releases, version, allowPrereleases);
   let found = tc.find("typst", versionExact);
-  core.setOutput("cache-hit", !!found);
   const executableName = core.getInput("executable-name");
   if (found) {
     const destName =
