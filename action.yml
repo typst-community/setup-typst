@@ -32,5 +32,5 @@ inputs:
     default: ${{ github.server_url == 'https://github.com' && github.token || '' }}
 
 runs:
-  using: node20
+  using: node24
   main: dist/main/index.js
