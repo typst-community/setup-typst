@@ -11,7 +11,7 @@ Setup Typst 操作为 GitHub Actions 用户提供以下功能：
 - **下载** ZIP 压缩文件作为包
 
 ```yaml
-- uses: typst-community/setup-typst@v4
+- uses: typst-community/setup-typst@v5
 - run: typst compile paper.typ paper.pdf
 ```
 
@@ -26,8 +26,8 @@ jobs:
   render-paper:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: typst-community/setup-typst@v4
+      - uses: actions/checkout@v6
+      - uses: typst-community/setup-typst@v5
       # 🎉 Typst 被安装！
       - run: typst compile paper.typ paper.pdf
 ```
@@ -42,18 +42,18 @@ jobs:
 
 ```yaml
 # Example 1
-- uses: typst-community/setup-typst@v4
+- uses: typst-community/setup-typst@v5
   with:
     typst-version: ^0.14.0
 
 # Example 2
-- uses: typst-community/setup-typst@v4
+- uses: typst-community/setup-typst@v5
   with:
     typst-version: 0.14.0-rc1
     allow-prereleases: true
 
 # Example 3
-- uses: typst-community/setup-typst@v4
+- uses: typst-community/setup-typst@v5
   with:
     executable-name: typst-latest
 ```
@@ -75,7 +75,7 @@ jobs:
 > 当 `typst-versions-map` 被设置时，`typst-version` 和 `executable-name` 将被**忽略**。`allow-prereleases` 输入将作为映射中所有条目的**默认值**，但可被各条目中的 `allowPrerelease` 字段**覆盖**。
 
 ```yaml
-- uses: typst-community/setup-typst@v4
+- uses: typst-community/setup-typst@v5
   with:
     typst-versions-map: |
       {
@@ -93,7 +93,7 @@ jobs:
 
 ```yaml
 # Example workflow YAML file
-- uses: typst-community/setup-typst@v4
+- uses: typst-community/setup-typst@v5
   with:
     cache-dependency-path: requirements.typ
 ```
@@ -110,7 +110,7 @@ jobs:
 
 ```yaml
 # Example workflow YAML file
-- uses: typst-community/setup-typst@v4
+- uses: typst-community/setup-typst@v5
   with:
     zip-packages: requirements.json
     cache-local-packages: true
@@ -145,9 +145,9 @@ jobs:
 如果需要从工作流存储和共享数据，可以使用 [构件]。
 
 ```yaml
-- uses: typst-community/setup-typst@v4
+- uses: typst-community/setup-typst@v5
 - run: typst compile paper.typ paper.pdf
-- uses: actions/upload-artifact@v4
+- uses: actions/upload-artifact@v6
   with:
     name: paper
     path: paper.pdf
@@ -160,7 +160,7 @@ jobs:
 ```yaml
 - uses: fontist/setup-fontist@v2
 - run: fontist install "Fira Code"
-- uses: typst-community/setup-typst@v4
+- uses: typst-community/setup-typst@v5
 - run: typst compile paper.typ paper.pdf --font-path ~/.fontist/fonts
 ```
 

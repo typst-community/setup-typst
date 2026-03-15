@@ -11,7 +11,7 @@ This action provides the following functionality for GitHub Actions users:
 - **Downloading** ZIP archives as packages
 
 ```yaml
-- uses: typst-community/setup-typst@v4
+- uses: typst-community/setup-typst@v5
 - run: typst compile paper.typ paper.pdf
 ```
 
@@ -26,8 +26,8 @@ jobs:
   render-paper:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: typst-community/setup-typst@v4
+      - uses: actions/checkout@v6
+      - uses: typst-community/setup-typst@v5
       # 🎉 Now Typst is installed!
       - run: typst compile paper.typ paper.pdf
 ```
@@ -42,18 +42,18 @@ jobs:
 
 ```yaml
 # Example 1
-- uses: typst-community/setup-typst@v4
+- uses: typst-community/setup-typst@v5
   with:
     typst-version: ^0.14.0
 
 # Example 2
-- uses: typst-community/setup-typst@v4
+- uses: typst-community/setup-typst@v5
   with:
     typst-version: 0.14.0-rc1
     allow-prereleases: true
 
 # Example 3
-- uses: typst-community/setup-typst@v4
+- uses: typst-community/setup-typst@v5
   with:
     executable-name: typst-latest
 ```
@@ -75,7 +75,7 @@ jobs:
 > When `typst-versions-map` is set, `typst-version` and `executable-name` are **ignored**. The `allow-prereleases` input is used as the **default value** for all entries in the map, but can be **overridden** by `allowPrerelease` in each individual config object.
 
 ```yaml
-- uses: typst-community/setup-typst@v4
+- uses: typst-community/setup-typst@v5
   with:
     typst-versions-map: |
       {
@@ -93,7 +93,7 @@ jobs:
 
 ```yaml
 # Example workflow YAML file
-- uses: typst-community/setup-typst@v4
+- uses: typst-community/setup-typst@v5
   with:
     cache-dependency-path: requirements.typ
 ```
@@ -110,7 +110,7 @@ jobs:
 
 ```yaml
 # Example workflow YAML file
-- uses: typst-community/setup-typst@v4
+- uses: typst-community/setup-typst@v5
   with:
     zip-packages: requirements.json
     cache-local-packages: true
@@ -145,9 +145,9 @@ jobs:
 If you require storing and sharing data from a workflow, you can use [artifacts].
 
 ```yaml
-- uses: typst-community/setup-typst@v4
+- uses: typst-community/setup-typst@v5
 - run: typst compile paper.typ paper.pdf
-- uses: actions/upload-artifact@v4
+- uses: actions/upload-artifact@v6
   with:
     name: paper
     path: paper.pdf
@@ -160,7 +160,7 @@ If you require installing fonts in GitHub Actions runner, you can use [Fontist].
 ```yaml
 - uses: fontist/setup-fontist@v2
 - run: fontist install "Fira Code"
-- uses: typst-community/setup-typst@v4
+- uses: typst-community/setup-typst@v5
 - run: typst compile paper.typ paper.pdf --font-path ~/.fontist/fonts
 ```
 
