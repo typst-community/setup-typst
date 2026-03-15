@@ -138,11 +138,6 @@ jobs:
 
 **`token`:** The token used to authenticate when fetching Typst distributions from [typst/typst]. When running this action on github.com, the default value is sufficient. When running on GHES, you can pass a personal access token for github.com if you are experiencing rate limiting.
 
-### Outputs
-
-- **`typst-version`:** The installed Typst version. Useful when given a version range as input.
-- **`cache-hit`:** A boolean value to indicate a cache entry was found.
-
 ### Integration with Other Actions
 
 #### Uploading Artifacts

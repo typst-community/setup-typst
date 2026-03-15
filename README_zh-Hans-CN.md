@@ -138,11 +138,6 @@ jobs:
 
 **`token`:** 当从 [typst/typst] 拉取版本时使用的 GitHub 令牌。当在 github.com 上运行操作时，使用默认值；当在 GitHub Enterprise Server（GHES）上运行，可以传递一个 github.com 的个人访问令牌规避速率限制问题。
 
-### 输出
-
-- **`typst-version`:** 安装的 Typst 的确切版本。在输入时给定版本范围时可能有用。
-- **`cache-hit`:** 一个表示是否找到 Typst 缓存的布尔值。
-
 ### 与其它操作组合使用
 
 #### 上传构件
