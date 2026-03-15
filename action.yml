@@ -24,9 +24,6 @@ inputs:
   zip-packages:
     description: "Used to specify the path to a JSON file containing names and ZIP archive URLs of packages."
     required: false
-  local-packages:
-    description: "[Deprecated] Used to specify the path to a JSON file containing names and ZIP archive URLs of packages. Use 'zip-packages' instead."
-    required: false
   cache-local-packages:
     description: "When 'true', local packages set by 'zip-packages' will be cached independently of '@preview' packages."
     default: false
