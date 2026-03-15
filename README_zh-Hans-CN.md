@@ -38,7 +38,7 @@ jobs:
 
 - **`typst-version`:** 使用的 Typst 版本范围或确切版本，采用 SemVer 语义化版本范围语法。默认使用最新版本。
 - **`allow-prereleases`:** 当设置为 `true` 时，传递给 `typst-version` 的版本范围（包含 `latest`）将匹配预发布版本。
-**`executable-name`:** 指定的 Typst 可执行文件的名称。
+  **`executable-name`:** 指定的 Typst 可执行文件的名称。
 
 ```yaml
 # Example 1

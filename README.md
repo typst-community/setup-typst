@@ -38,7 +38,7 @@ jobs:
 
 - **`typst-version`:** Version range or exact version of Typst to use, using SemVer's version range syntax. Uses the latest version if unset.
 - **`allow-prereleases`:** When `true`, a version range including `latest` passed to `typst-version` input will match prerelease versions.
-**`executable-name`:** Used to specify the executable file name of Typst.
+  **`executable-name`:** Used to specify the executable file name of Typst.
 
 ```yaml
 # Example 1

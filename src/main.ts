@@ -7,7 +7,7 @@ import path from "path";
 import * as semver from "semver";
 
 import { move } from "./move";
-import { 
+import {
   cachePackages,
   downloadZipLocalPackages,
   downloadZipPreviewPackages,
@@ -99,10 +99,10 @@ async function getExactVersion(
 }
 
 /**
-  * Get build target triple and archive extension by version and current platform
-  * @param version Package version
-  * @returns Build target and archive extension
-  */
+ * Get build target triple and archive extension by version and current platform
+ * @param version Package version
+ * @returns Build target and archive extension
+ */
 function getBuildTarget(version: string): {
   target: string | undefined;
   archiveExt: string;
@@ -138,7 +138,10 @@ function getBuildTarget(version: string): {
  * @param executableName Desired name for the final executable
  * @returns Path to the cached directory
  */
-async function downloadAndCacheTypst(version: string, executableName: string): Promise<string> {
+async function downloadAndCacheTypst(
+  version: string,
+  executableName: string,
+): Promise<string> {
   core.info(`Downloading and caching Typst ${version}.`);
   let { target, archiveExt } = getBuildTarget(version);
   const folder = `typst-${target}`;
@@ -170,7 +173,10 @@ async function downloadAndCacheTypst(version: string, executableName: string): P
     process.platform === "win32" ? `typst-${version}.exe` : `typst-${version}`;
   const destName =
     process.platform === "win32" ? `${executableName}.exe` : executableName;
-  await fs.copyFile(path.join(found, sourceName), path.join(found, standardName));
+  await fs.copyFile(
+    path.join(found, sourceName),
+    path.join(found, standardName),
+  );
   move(path.join(found, sourceName), path.join(found, destName));
   found = await tc.cacheDir(found, "typst", version);
   core.info(`Typst ${version} added to cache at '${found}'.`);
@@ -184,7 +190,7 @@ async function downloadAndCacheTypst(version: string, executableName: string): P
  */
 async function ensureTypstInstalled(
   versionExact: string,
-  executableName: string
+  executableName: string,
 ): Promise<void> {
   let found = tc.find("typst", versionExact);
   if (found) {
@@ -194,7 +200,10 @@ async function ensureTypstInstalled(
       process.platform === "win32"
         ? `typst-${versionExact}.exe`
         : `typst-${versionExact}`;
-    await fs.copyFile(path.join(found, standardName), path.join(found, destName));
+    await fs.copyFile(
+      path.join(found, standardName),
+      path.join(found, destName),
+    );
   } else {
     found = await downloadAndCacheTypst(versionExact, executableName);
   }
@@ -208,17 +217,26 @@ async function ensureTypstInstalled(
  * @param releases Array of GitHub releases
  */
 async function ensureMultipleTypstInstalled(
-  versionsMap: Record<string, {
-    version: string;
-    allowPrerelease?: boolean;
-  }>,
-  releases: any[]
+  versionsMap: Record<
+    string,
+    {
+      version: string;
+      allowPrerelease?: boolean;
+    }
+  >,
+  releases: any[],
 ): Promise<void> {
   const allowPrereleases = core.getBooleanInput("allow-prereleases");
-  const promises = Object.entries(versionsMap).map(async ([executableName, config]) => {
-    const versionExact = await getExactVersion(releases, config.version, config.allowPrerelease ?? allowPrereleases);
-    await ensureTypstInstalled(versionExact, executableName);
-  });
+  const promises = Object.entries(versionsMap).map(
+    async ([executableName, config]) => {
+      const versionExact = await getExactVersion(
+        releases,
+        config.version,
+        config.allowPrerelease ?? allowPrereleases,
+      );
+      await ensureTypstInstalled(versionExact, executableName);
+    },
+  );
   await Promise.all(promises);
 }
 
@@ -233,20 +251,26 @@ const repoSet = {
 };
 const releases = await listReleases(octokit, repoSet);
 
-const versionsMapStr = core.getInput('typst-versions-map');
+const versionsMapStr = core.getInput("typst-versions-map");
 if (versionsMapStr) {
   let versionsMap;
   try {
     versionsMap = JSON.parse(versionsMapStr);
   } catch (error) {
-    core.setFailed(`Failed to parse versionsMap from typst-versions-map: ${(error as Error).message}.`);
+    core.setFailed(
+      `Failed to parse versionsMap from typst-versions-map: ${(error as Error).message}.`,
+    );
     process.exit(1);
   }
   await ensureMultipleTypstInstalled(versionsMap, releases);
 } else {
   const version = core.getInput("typst-version");
   const allowPrereleases = core.getBooleanInput("allow-prereleases");
-  const versionExact = await getExactVersion(releases, version, allowPrereleases);
+  const versionExact = await getExactVersion(
+    releases,
+    version,
+    allowPrereleases,
+  );
   const executableName = core.getInput("executable-name");
   await ensureTypstInstalled(versionExact, executableName);
 }
