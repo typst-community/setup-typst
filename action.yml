@@ -15,6 +15,9 @@ inputs:
   executable-name:
     description: "Used to specify the executable file name of Typst."
     default: typst
+  typst-versions-map:
+    description: "Used to specify a JSON map of executable names to Typst version configurations, for installing multiple Typst versions at once. Each value is an object with a required 'version' field and an optional 'allowPrerelease' field."
+    required: false
   cache-dependency-path:
     description: "Used to specify the path to a Typst file containing lines of 'import' keyword."
     required: false
@@ -30,12 +33,6 @@ inputs:
   token:
     description: "The token used to authenticate when fetching Typst distributions from typst/typst. When running this action on github.com, the default value is sufficient. When running on GHES, you can pass a personal access token for github.com if you are experiencing rate limiting."
     default: ${{ github.server_url == 'https://github.com' && github.token || '' }}
-
-outputs:
-  typst-version:
-    description: "The installed Typst version. Useful when given a version range as input."
-  cache-hit:
-    description: "A boolean value to indicate a cache entry was found."
 
 runs:
   using: node20

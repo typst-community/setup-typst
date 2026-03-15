@@ -80,6 +80,30 @@ jobs:
       - run: typst-latest compile test/basic/main.typ
       - run: typst-013 --version
       - run: typst-013 compile test/basic/main.typ
+  test-versions-map:
+    runs-on: ${{ matrix.os }}
+    needs: [build, test-basic]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: action-dist
+          path: ./dist
+      - uses: ./
+        with:
+          typst-versions-map: |
+            {
+              "typst-latest": {"version": "latest"},
+              "typst-013": {"version": "v0.13"}
+            }
+      - run: typst-latest --version
+      - run: typst-latest compile test/basic/main.typ
+      - run: typst-013 --version
+      - run: typst-013 compile test/basic/main.typ
   test-zip-packages:
     runs-on: ${{ matrix.os }}
     needs: [build, test-basic]
