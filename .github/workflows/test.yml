@@ -1,26 +1,29 @@
 name: Test
+
 on:
   push:
     branches: [main]
     paths-ignore:
       - .gitattributes
       - .gitignore
-      - LICENSE
       - "**.md"
+      - LICENSE
       - .github/**
       - "!.github/workflows/test.yml"
   pull_request:
     paths-ignore:
       - .gitattributes
       - .gitignore
-      - LICENSE
       - "**.md"
+      - LICENSE
       - .github/**
       - "!.github/workflows/test.yml"
   workflow_dispatch:
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -50,10 +53,7 @@ jobs:
           name: action-dist
           path: ./dist
       - uses: ./
-        with:
-          cache-dependency-path: test/basic/requirements.typ
       - run: typst --version
-      - run: typst compile test/basic/main.typ
   test-executable-name:
     runs-on: ${{ matrix.os }}
     needs: [build, test-basic]
@@ -80,7 +80,7 @@ jobs:
       - run: typst-latest compile test/basic/main.typ
       - run: typst-013 --version
       - run: typst-013 compile test/basic/main.typ
-  test-versions-map:
+  test-typst-versions:
     runs-on: ${{ matrix.os }}
     needs: [build, test-basic]
     strategy:
@@ -95,15 +95,32 @@ jobs:
           path: ./dist
       - uses: ./
         with:
-          typst-versions-map: |
-            {
-              "typst-latest": {"version": "latest"},
-              "typst-013": {"version": "v0.13"}
-            }
-      - run: typst-latest --version
-      - run: typst-latest compile test/basic/main.typ
-      - run: typst-013 --version
-      - run: typst-013 compile test/basic/main.typ
+          typst-versions-file: test/typst-versions/config.json
+      - uses: ./
+        with:
+          typst-versions-file: test/typst-versions/config.hjson
+      - uses: ./
+        with:
+          typst-versions-file: test/typst-versions/config.yaml
+      - uses: ./
+        with:
+          typst-versions-file: test/typst-versions/config.toml
+      - uses: ./
+        with:
+          typst-versions-file: test/typst-versions/config.xml
+      - uses: ./
+        with:
+          typst-versions-file: test/typst-versions/config.ini
+      - uses: ./
+        with:
+          typst-versions-file: test/typst-versions/config.hcl
+      - run: typst-test-1 --version
+      - run: typst-test-2 --version
+      - run: typst-test-3 --version
+      - run: typst-test-4 --version
+      - run: typst-test-5 --version
+      - run: typst-test-6 --version
+      - run: typst-test-7 --version
   test-zip-packages:
     runs-on: ${{ matrix.os }}
     needs: [build, test-basic]

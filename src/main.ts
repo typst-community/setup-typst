@@ -1,12 +1,15 @@
 #!/usr/bin/env node
+import fs from "fs/promises";
+import path from "path";
+
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 import * as tc from "@actions/tool-cache";
-import fs from "fs/promises";
-import path from "path";
+
 import * as semver from "semver";
 
 import { move } from "./move";
+import { parseInputToObject } from "./config-parser";
 import {
   cachePackages,
   downloadZipLocalPackages,
@@ -234,33 +237,42 @@ const repoSet = {
 };
 const releases = await listReleases(octokit, repoSet);
 
-const versionsMapStr = core.getInput("typst-versions-map");
-if (versionsMapStr) {
-  let versionsMap;
-  try {
-    versionsMap = JSON.parse(versionsMapStr);
-  } catch (error) {
-    core.setFailed(
-      `Failed to parse versionsMap from typst-versions-map: ${(error as Error).message}.`,
-    );
-    process.exit(1);
-  }
+const versionsMap = (await parseInputToObject("typst-versions")) as any;
+if (versionsMap) {
   await ensureMultipleTypstInstalled(versionsMap, releases);
 } else {
-  const version = core.getInput("typst-version");
-  const allowPrereleases = core.getBooleanInput("allow-prereleases");
-  const versionExact = await getExactVersion(
-    releases,
-    version,
-    allowPrereleases,
-  );
-  const executableName = core.getInput("executable-name");
-  await ensureTypstInstalled(versionExact, executableName);
+  const versionsMapStr = core.getInput("typst-versions-map");
+  if (versionsMapStr) {
+    core.warning(
+      "The typst-versions-map input will be deprecated and removed. Use typst-versions-json directly as a replacement.",
+    );
+    let versionsMap;
+    try {
+      versionsMap = JSON.parse(versionsMapStr);
+    } catch (error) {
+      core.setFailed(
+        `Failed to parse versionsMap from typst-versions-map: ${(error as Error).message}.`,
+      );
+      process.exit(1);
+    }
+    await ensureMultipleTypstInstalled(versionsMap, releases);
+  } else {
+    const version = core.getInput("typst-version");
+    const allowPrereleases = core.getBooleanInput("allow-prereleases");
+    const versionExact = await getExactVersion(
+      releases,
+      version,
+      allowPrereleases,
+    );
+    const executableName = core.getInput("executable-name");
+    await ensureTypstInstalled(versionExact, executableName);
+  }
 }
 
+const typstMax = semver.maxSatisfying(tc.findAllVersions("typst"), "*");
 const cachePackage = core.getInput("cache-dependency-path");
 if (cachePackage) {
-  await cachePackages(cachePackage);
+  await cachePackages(cachePackage, `typst-${typstMax}`);
 }
 
 const localPackages = core.getInput("zip-packages");

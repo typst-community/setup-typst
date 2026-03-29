@@ -1,7 +1,3 @@
-<p align=center>
-  <b>English</b> | <a href="https://github.com/typst-community/setup-typst/blob/main/README_zh-Hans-CN.md" hreflang="zh-Hans-CN" lang="zh-Hans-CN">简体中文</a>
-</p>
-
 # Setup Typst
 
 This action provides the following functionality for GitHub Actions users:
@@ -34,7 +30,7 @@ jobs:
 
 ### Inputs
 
-#### Installing A Typst Version
+#### Installing Single Typst Version
 
 - **`typst-version`:** Version range or exact version of Typst to use, using SemVer's version range syntax. Uses the latest version if unset.
 - **`allow-prereleases`:** When `true`, a version range including `latest` passed to `typst-version` input will match prerelease versions.
@@ -68,16 +64,45 @@ jobs:
 
 #### Installing Multiple Typst Versions
 
-**`typst-versions-map`:** Used to specify a JSON map of executable names to Typst version configurations, for installing multiple Typst versions at once. Each value is an object with a required `version` field and an optional `allowPrerelease` field.
+To install multiple Typst versions, you can provide the configuration map in two ways. You may either use the `typst-versions-file` input to reference an external configuration file, or use the `typst-versions-*` inputs to define the settings inline directly within your workflow file.
 
-> [!NOTE]
+Both methods support the same configuration formats. Multiple input formats are supported for both methods — see the [Supported Input Formats for `typst-versions-*`](#supported-input-formats-for-typst-versions-) appendix for details.
+
+> [!TIP]
 >
-> When `typst-versions-map` is set, `typst-version` and `executable-name` are **ignored**. The `allow-prereleases` input is used as the **default value** for all entries in the map, but can be **overridden** by `allowPrerelease` in each individual config object.
+> When any `typst-versions-*` input is set, `typst-version` and `executable-name` are **ignored**. The `allow-prereleases` input is used as the **default value** for all entries in the map, but can be **overridden** by `allowPrerelease` in each individual config object.
+
+##### Option 1: External File Configuration
+
+**`typst-versions-file`:** Used to specify a path to a configuration file mapping executable names to Typst version configurations. The format is detected automatically from the file extension.
 
 ```yaml
+# Example workflow YAML file
 - uses: typst-community/setup-typst@v5
   with:
-    typst-versions-map: |
+    typst-versions-file: config.json
+```
+
+```js
+// Example JSON file (config.json)
+{
+  "typst-latest": {"version": "latest"},
+  "typst-013": {
+    "version": "v0.13",
+      "allowPrerelease": true
+  }
+}
+```
+
+##### Option 2: Inline Configuration
+
+**`typst-versions-*`:** Used to specify a map of executable names to Typst version configurations.
+
+```yaml
+# Example 1
+- uses: typst-community/setup-typst@v5
+  with:
+    typst-versions-json: |
       {
         "typst-latest": {"version": "latest"},
         "typst-013": {
@@ -85,7 +110,42 @@ jobs:
           "allowPrerelease": true
         }
       }
+
+# Example 2
+- uses: typst-community/setup-typst@v5
+  with:
+    typst-versions-yaml: |
+      typst-latest:
+        version: latest
+      typst-013:
+        version: v0.13
+        allowPrerelease: true
 ```
+
+##### Supported Input Formats for `typst-versions-*`
+
+The `typst-versions-*` inputs accept a map of executable names to Typst version configuration objects. Each configuration object has a required `version` field and an optional `allowPrerelease` field.
+
+The following inline content inputs and file-path input are supported:
+
+| Input                  | Format                     | File extensions (for `-file`) |
+| ---------------------- | -------------------------- | ----------------------------- |
+| `typst-versions-json`  | [JSON]                     | `.json`                       |
+| `typst-versions-hjson` | [HJSON]                    | `.hjson`                      |
+| `typst-versions-yaml`  | [YAML]                     | `.yaml`, `.yml`               |
+| `typst-versions-toml`  | [TOML]                     | `.toml`                       |
+| `typst-versions-xml`   | [XML]                      | `.xml`                        |
+| `typst-versions-ini`   | [INI]                      | `.ini`                        |
+| `typst-versions-hcl`   | [HCL]                      | `.hcl`                        |
+| `typst-versions-file`  | auto-detected by extension | all of the above              |
+
+[JSON]: https://www.json.org/
+[HJSON]: https://hjson.github.io/
+[YAML]: https://yaml.org/
+[TOML]: https://toml.io/
+[XML]: https://www.w3.org/XML/
+[INI]: https://en.wikipedia.org/wiki/INI_file
+[HCL]: https://github.com/hashicorp/hcl
 
 #### Managing Packages with Cache
 

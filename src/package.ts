@@ -1,12 +1,13 @@
 #!/usr/bin/env node
+import fs from "fs";
+import path from "path";
+import * as os from "os";
+
 import * as cache from "@actions/cache";
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import { hashFiles } from "@actions/glob";
 import * as tc from "@actions/tool-cache";
-import fs from "fs";
-import path from "path";
-import * as os from "os";
 
 import { move } from "./move";
 
@@ -58,7 +59,10 @@ function getPackageVersion(toml: string): string {
   return "0.0.0";
 }
 
-export async function cachePackages(cachePackage: string) {
+export async function cachePackages(
+  cachePackage: string,
+  executableName: string,
+) {
   if (!fs.existsSync(cachePackage)) {
     core.warning(
       `Dependency path '${cachePackage}' not found. Skipping caching.`,
@@ -74,7 +78,7 @@ export async function cachePackages(cachePackage: string) {
     core.info(`✅ Packages restored from cache.`);
   } else {
     core.debug(`Cache miss. Compiling Typst packages.`);
-    await exec.exec(`typst compile ${cachePackage}`);
+    await exec.exec(executableName, ["compile", cachePackage]);
     try {
       let cacheId = await cache.saveCache([cacheDir], primaryKey);
       core.info(`✅ Cache saved successfully with key: ${primaryKey}.`);

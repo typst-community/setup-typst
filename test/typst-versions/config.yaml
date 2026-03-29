@@ -1,0 +1,3 @@
+typst-test-3:
+  version: latest
+  allowPrerelease: true
