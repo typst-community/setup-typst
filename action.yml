@@ -15,8 +15,32 @@ inputs:
   executable-name:
     description: "Used to specify the executable file name of Typst."
     default: typst
+  typst-versions-file:
+    description: "Used to specify a path to a configuration file (JSON, HJSON, YAML, TOML, XML, INI, or HCL) mapping executable names to Typst version configurations, for installing multiple Typst versions at once. The format is detected automatically from the file extension."
+    required: false
+  typst-versions-json:
+    description: "Used to specify a JSON map of executable names to Typst version configurations."
+    required: false
+  typst-versions-hjson:
+    description: "Used to specify a HJSON map of executable names to Typst version configurations."
+    required: false
+  typst-versions-yaml:
+    description: "Used to specify a YAML map of executable names to Typst version configurations."
+    required: false
+  typst-versions-toml:
+    description: "Used to specify a TOML map of executable names to Typst version configurations."
+    required: false
+  typst-versions-xml:
+    description: "Used to specify an XML document mapping executable names to Typst version configurations."
+    required: false
+  typst-versions-ini:
+    description: "Used to specify an INI document mapping executable names to Typst version configurations."
+    required: false
+  typst-versions-hcl:
+    description: "Used to specify an HCL document mapping executable names to Typst version configurations."
+    required: false
   typst-versions-map:
-    description: "Used to specify a JSON map of executable names to Typst version configurations, for installing multiple Typst versions at once. Each value is an object with a required 'version' field and an optional 'allowPrerelease' field."
+    description: "[Deprecated] Used to specify a JSON map of executable names to Typst version configurations, for installing multiple Typst versions at once."
     required: false
   cache-dependency-path:
     description: "Used to specify the path to a Typst file containing lines of 'import' keyword."

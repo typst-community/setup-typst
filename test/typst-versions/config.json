@@ -1,0 +1,6 @@
+{
+  "typst-test-1": {
+    "version": "latest",
+    "allowPrerelease": true
+  }
+}

@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-import { setFailed } from "@actions/core";
 import fs from "fs";
 import path from "path";
+
+import { setFailed } from "@actions/core";
 
 export function move(src: string, dest: string) {
   if (src != dest) {
