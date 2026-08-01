@@ -47,6 +47,11 @@ const INPUT_FORMATS: SupportedFormat[] = [
   "hcl",
 ];
 
+/**
+ * Joins an array of input names into a human-readable string.
+ * @param inputNames Array of input names
+ * @returns A string that lists the input names, separated by commas and "and" before the last item
+ */
 function joinInputNames(inputNames: string[]): string {
   if (inputNames.length === 0) {
     return "";
@@ -57,10 +62,12 @@ function joinInputNames(inputNames: string[]): string {
   return `${inputNames.slice(0, -1).join(", ")} and ${inputNames[inputNames.length - 1]}`;
 }
 
-function warnIgnoredInputs(
-  usedInputName: string,
-  ignoredInputNames: string[],
-) {
+/**
+ * Warns the user that certain inputs will be ignored in favor of a used input.
+ * @param usedInputName The name of the input that will be used
+ * @param ignoredInputNames Array of input names that will be ignored
+ */
+function warnIgnoredInputs(usedInputName: string, ignoredInputNames: string[]) {
   if (ignoredInputNames.length === 0) {
     return;
   }
@@ -181,7 +188,9 @@ export async function parseInputToObject(
     try {
       return parseToJsonObject(content, format);
     } catch (err) {
-      throw new Error(`Failed to parse ${inputName}: ${(err as Error).message}`);
+      throw new Error(
+        `Failed to parse ${inputName}: ${(err as Error).message}`,
+      );
     }
   }
   return undefined;

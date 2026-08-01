@@ -4,6 +4,12 @@ import path from "path";
 
 import { setFailed } from "@actions/core";
 
+/**
+ * Moves a file or directory from source to destination.
+ * If the move fails, it attempts to copy and then delete the source.
+ * @param src Source path
+ * @param dest Destination path
+ */
 export function move(src: string, dest: string) {
   if (src != dest) {
     try {

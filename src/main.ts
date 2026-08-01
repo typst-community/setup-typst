@@ -8,8 +8,8 @@ import * as tc from "@actions/tool-cache";
 
 import * as semver from "semver";
 
-import { move } from "./move";
-import { parseInputToObject } from "./config-parser";
+import { move } from "./utils/move";
+import { parseInputToObject } from "./utils/config-parser";
 import {
   cachePackages,
   downloadZipLocalPackages,
@@ -280,6 +280,7 @@ if (cachePackage) {
   await cachePackages(cachePackage, `typst-${typstMax}`);
 }
 
+// const localPackagesMap = (await parseInputToObject("zip-packages")) as any;
 const localPackages = core.getInput("zip-packages");
 const cacheLocalPackages = core.getBooleanInput("cache-local-packages");
 if (localPackages) {
