@@ -46,28 +46,28 @@ inputs:
     description: "Used to specify the path to a Typst file containing lines of 'import' keyword."
     required: false
   zip-packages-file:
-    description: "Used to specify a path to a configuration file (JSON, HJSON, YAML, TOML, XML, INI, or HCL) mapping package namespaves to required package information. The format is detected automatically from the file extension."
+    description: "Used to specify a path to a configuration file (JSON, HJSON, YAML, TOML, XML, INI, or HCL) mapping package namespaces to required package information. The format is detected automatically from the file extension."
     required: false
   zip-packages-json:
-    description: "Used to specify a JSON map of package namespaves to required package information."
+    description: "Used to specify a JSON map of package namespaces to required package information."
     required: false
   zip-packages-hjson:
-    description: "Used to specify a HJSON map of package namespaves to required package information."
+    description: "Used to specify a HJSON map of package namespaces to required package information."
     required: false
   zip-packages-yaml:
-    description: "Used to specify a YAML map of package namespaves to required package information."
+    description: "Used to specify a YAML map of package namespaces to required package information."
     required: false
   zip-packages-toml:
-    description: "Used to specify a TOML map of package namespaves to required package information."
+    description: "Used to specify a TOML map of package namespaces to required package information."
     required: false
   zip-packages-xml:
-    description: "Used to specify an XML document mapping package namespaves to required package information."
+    description: "Used to specify an XML document mapping package namespaces to required package information."
     required: false
   zip-packages-ini:
-    description: "Used to specify an INI document mapping package namespaves to required package information."
+    description: "Used to specify an INI document mapping package namespaces to required package information."
     required: false
   zip-packages-hcl:
-    description: "Used to specify an HCL document mapping package namespaves to required package information."
+    description: "Used to specify an HCL document mapping package namespaces to required package information."
     required: false
   zip-packages:
     description: "[Deprecated] Used to specify the path to a JSON file containing names and ZIP archive URLs of packages."

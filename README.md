@@ -66,7 +66,7 @@ jobs:
 
 To install multiple Typst versions, you can provide the configuration map in two ways. You may either use the `typst-versions-file` input to reference an external configuration file, or use the `typst-versions-*` inputs to define the settings inline directly within your workflow file.
 
-Both methods support the same configuration formats. Multiple input formats are supported for both methods — see the [Supported Input Formats for `typst-versions-*`](#supported-input-formats-for-typst-versions-) appendix for details.
+Both methods support the same configuration formats. Multiple input formats are supported for both methods — see the [Supported Input Formats](#supported-input-formats) appendix for details.
 
 > [!TIP]
 >
@@ -122,31 +122,6 @@ Both methods support the same configuration formats. Multiple input formats are 
         allowPrerelease: true
 ```
 
-##### Supported Input Formats for `typst-versions-*`
-
-The `typst-versions-*` inputs accept a map of executable names to Typst version configuration objects. Each configuration object has a required `version` field and an optional `allowPrerelease` field.
-
-The following inline content inputs and file-path input are supported:
-
-| Input                  | Format                     | File extensions (for `-file`) |
-| ---------------------- | -------------------------- | ----------------------------- |
-| `typst-versions-json`  | [JSON]                     | `.json`                       |
-| `typst-versions-hjson` | [HJSON]                    | `.hjson`                      |
-| `typst-versions-yaml`  | [YAML]                     | `.yaml`, `.yml`               |
-| `typst-versions-toml`  | [TOML]                     | `.toml`                       |
-| `typst-versions-xml`   | [XML]                      | `.xml`                        |
-| `typst-versions-ini`   | [INI]                      | `.ini`                        |
-| `typst-versions-hcl`   | [HCL]                      | `.hcl`                        |
-| `typst-versions-file`  | auto-detected by extension | all of the above              |
-
-[JSON]: https://www.json.org/
-[HJSON]: https://hjson.github.io/
-[YAML]: https://yaml.org/
-[TOML]: https://toml.io/
-[XML]: https://www.w3.org/XML/
-[INI]: https://en.wikipedia.org/wiki/INI_file
-[HCL]: https://github.com/hashicorp/hcl
-
 #### Managing Packages with Cache
 
 **`cache-dependency-path`:** Used to specify the path to a Typst file containing lines of `import` keyword.
@@ -165,8 +140,11 @@ The following inline content inputs and file-path input are supported:
 
 #### ZIP Archive Packages Management
 
-- **`zip-packages`:** Used to specify the path to a JSON file containing names and ZIP archive URLs of packages.
-- **`cache-local-packages`:** When `true`, local packages set by `zip-packages` will be cached independently of `@preview` packages.
+To install ZIP archive packages, you can provide the configuration map package namespaces to required package information in two ways. You may either use the `zip-packages-file` input to reference an external configuration file, or use the `zip-packages-*` inputs to define the settings inline directly within your workflow file.
+
+Both methods support the same configuration formats. Multiple input formats are supported for both methods — see the [Supported Input Formats](#supported-input-formats) appendix for details.
+
+**`cache-local-packages`:** When `true`, local packages set by `zip-packages-*` will be cached independently of `@preview` packages.
 
 ```yaml
 # Example workflow YAML file
@@ -197,6 +175,29 @@ The following inline content inputs and file-path input are supported:
 #### Token
 
 **`token`:** The token used to authenticate when fetching Typst distributions from [typst/typst]. When running this action on github.com, the default value is sufficient. When running on GHES, you can pass a personal access token for github.com if you are experiencing rate limiting.
+
+##### Supported Input Formats
+
+The `typst-versions-*` and `zip-packages-*` inputs each accept a map, supporting the following inline content inputs and file-path input:
+
+| Input            | Format                     | File extensions (for `-file`) |
+| ---------------- | -------------------------- | ----------------------------- |
+| `{prefix}-json`  | [JSON]                     | `.json`                       |
+| `{prefix}-hjson` | [HJSON]                    | `.hjson`                      |
+| `{prefix}-yaml`  | [YAML]                     | `.yaml`, `.yml`               |
+| `{prefix}-toml`  | [TOML]                     | `.toml`                       |
+| `{prefix}-xml`   | [XML]                      | `.xml`                        |
+| `{prefix}-ini`   | [INI]                      | `.ini`                        |
+| `{prefix}-hcl`   | [HCL]                      | `.hcl`                        |
+| `{prefix}-file`  | auto-detected by extension | all of the above              |
+
+[JSON]: https://www.json.org/
+[HJSON]: https://hjson.github.io/
+[YAML]: https://yaml.org/
+[TOML]: https://toml.io/
+[XML]: https://www.w3.org/XML/
+[INI]: https://en.wikipedia.org/wiki/INI_file
+[HCL]: https://github.com/hashicorp/hcl
 
 ### Integration with Other Actions
 
