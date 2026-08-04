@@ -294,7 +294,7 @@ if (zipPackages) {
   const zipPackagesStr = core.getInput("zip-packages");
   if (zipPackagesStr) {
     core.warning(
-      "The zip-packages input will be deprecated and removed. Use zip-packages-json directly as a replacement.",
+      "The zip-packages input will be deprecated and removed. Use zip-packages-file directly as a replacement.",
     );
     try {
       zipPackages = JSON.parse(zipPackagesStr);
