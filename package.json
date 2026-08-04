@@ -5,7 +5,6 @@
     "@actions/core": "^3.0.0",
     "@actions/exec": "^3.0.0",
     "@actions/github": "^9.0.0",
-    "@actions/glob": "^0.6.1",
     "@actions/tool-cache": "^4.0.0",
     "@openanime/hcl-unmarshal": "^1.0.6",
     "@types/hjson": "^2.4.6",
@@ -14,13 +13,13 @@
     "fast-xml-parser": "^5.5.8",
     "hjson": "^3.2.2",
     "ini": "^6.0.0",
-    "semver": "^7.5.4",
+    "semver": "^7.8.5",
     "smol-toml": "^1.6.1",
     "yaml": "^2.8.3"
   },
   "devDependencies": {
     "@types/node": "^24.12.0",
-    "@types/semver": "^7.5.6",
+    "@types/semver": "^7.7.1",
     "prettier": "^3.1.1",
     "typescript": "^5.9.3"
   },
