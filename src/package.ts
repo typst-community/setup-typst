@@ -165,21 +165,15 @@ async function downloadZipPackage(
 
 /**
  * Downloads and caches the specified local Typst packages.
- * @param localPackage Path to the local Typst packages
+ * @param zipPackages Object containing local package information
  * @param cacheLocalPackages Whether to cache the local packages
  */
 export async function downloadZipLocalPackages(
-  localPackage: string,
+  zipPackages: Record<string, any>,
   cacheLocalPackages: boolean,
 ) {
-  if (!fs.existsSync(localPackage)) {
-    core.warning(
-      `ZIP packages path '${localPackage}' not found. Skipping downloading.`,
-    );
-    return;
-  }
   if (cacheLocalPackages) {
-    const hash = await hashFile(localPackage);
+    const hash = await hashJsonObject(zipPackages);
     const primaryKey = `typst-local-packages-${hash}`;
     core.info(`Computed cache key: ${primaryKey}.`);
     const cacheKey = await cache.restoreCache([packagesLocalDir], primaryKey);
@@ -189,24 +183,13 @@ export async function downloadZipLocalPackages(
     }
     core.debug(`Cache miss. Downloading local packages.`);
   }
-  let packages;
-  try {
-    packages = JSON.parse(fs.readFileSync(localPackage, "utf8"));
-  } catch (error) {
-    core.warning(
-      `Failed to parse zip-packages json file: ${
-        (error as Error).message
-      }. Skipping downloading.`,
-    );
-    return;
-  }
   core.info(`Downloading ZIP @local packages.`);
   if (!fs.existsSync(packagesLocalDir)) {
     fs.mkdirSync(packagesLocalDir, { recursive: true });
     core.debug(`Created ZIP @local packages directory: '${packagesLocalDir}'.`);
   }
   await Promise.all(
-    Object.entries(packages.local).map(([key, value]) => {
+    Object.entries(zipPackages.local).map(([key, value]) => {
       if (typeof value === "string") {
         return downloadZipPackage(packagesLocalDir, key, value);
       } else {
@@ -217,7 +200,7 @@ export async function downloadZipLocalPackages(
   );
   if (cacheLocalPackages) {
     try {
-      const hash = await hashFile(localPackage);
+      const hash = await hashJsonObject(zipPackages);
       const primaryKey = `typst-local-packages-${hash}`;
       let cacheId = await cache.saveCache([packagesLocalDir], primaryKey);
       core.info(`✅ Cache saved successfully with key: ${primaryKey}.`);
@@ -231,26 +214,11 @@ export async function downloadZipLocalPackages(
 
 /**
  * Downloads and caches preview Typst packages.
- * @param previewPackages Path to the preview Typst packages
+ * @param zipPackages Object containing preview package information
  */
-export async function downloadZipPreviewPackages(previewPackages: string) {
-  if (!fs.existsSync(previewPackages)) {
-    core.warning(
-      `ZIP packages path '${previewPackages}' not found. Skipping downloading.`,
-    );
-    return;
-  }
-  let packages;
-  try {
-    packages = JSON.parse(fs.readFileSync(previewPackages, "utf8"));
-  } catch (error) {
-    core.warning(
-      `Failed to parse zip-packages json file: ${
-        (error as Error).message
-      }. Skipping downloading.`,
-    );
-    return;
-  }
+export async function downloadZipPreviewPackages(
+  zipPackages: Record<string, any>,
+) {
   core.info(`Downloading ZIP @preview packages.`);
   if (!fs.existsSync(packagesPreviewDir)) {
     fs.mkdirSync(packagesPreviewDir, { recursive: true });
@@ -259,7 +227,7 @@ export async function downloadZipPreviewPackages(previewPackages: string) {
     );
   }
   await Promise.all(
-    Object.entries(packages.preview).map(([key, value]) => {
+    Object.entries(zipPackages.preview).map(([key, value]) => {
       if (typeof value === "string") {
         return downloadZipPackage(packagesPreviewDir, key, value);
       } else {

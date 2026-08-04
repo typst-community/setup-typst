@@ -239,7 +239,10 @@ const releases = await listReleases(octokit, repoSet);
 const typstVersion = core.getInput("typst-version");
 const executableName = core.getInput("executable-name");
 
-const versionsMap = (await parseInputToObject("typst-versions")) as any;
+let versionsMap = (await parseInputToObject("typst-versions")) as Record<
+  string,
+  any
+>;
 if (versionsMap) {
   if (typstVersion !== "latest" || executableName !== "typst") {
     core.warning(
@@ -253,7 +256,6 @@ if (versionsMap) {
     core.warning(
       "The typst-versions-map input will be deprecated and removed. Use typst-versions-json directly as a replacement.",
     );
-    let versionsMap;
     try {
       versionsMap = JSON.parse(versionsMapStr);
     } catch (error) {
@@ -280,10 +282,29 @@ if (cachePackage) {
   await cachePackages(cachePackage, `typst-${typstMax}`);
 }
 
-// const localPackagesMap = (await parseInputToObject("zip-packages")) as any;
-const localPackages = core.getInput("zip-packages");
-const cacheLocalPackages = core.getBooleanInput("cache-local-packages");
-if (localPackages) {
-  await downloadZipLocalPackages(localPackages, cacheLocalPackages);
-  await downloadZipPreviewPackages(localPackages);
+let zipPackages = (await parseInputToObject("zip-packages")) as Record<
+  string,
+  any
+>;
+const cacheZipPackages = core.getBooleanInput("cache-local-packages");
+if (zipPackages) {
+  await downloadZipLocalPackages(zipPackages, cacheZipPackages);
+  await downloadZipPreviewPackages(zipPackages);
+} else {
+  const zipPackagesStr = core.getInput("zip-packages");
+  if (zipPackagesStr) {
+    core.warning(
+      "The zip-packages input will be deprecated and removed. Use zip-packages-json directly as a replacement.",
+    );
+    try {
+      zipPackages = JSON.parse(zipPackagesStr);
+    } catch (error) {
+      core.setFailed(
+        `Failed to parse zipPackages from zip-packages: ${(error as Error).message}.`,
+      );
+      process.exit(1);
+    }
+    await downloadZipLocalPackages(zipPackages, cacheZipPackages);
+    await downloadZipPreviewPackages(zipPackages);
+  }
 }

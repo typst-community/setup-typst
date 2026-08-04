@@ -137,7 +137,7 @@ jobs:
       - uses: ./
         with:
           typst-version: v0.14
-          zip-packages: test/zip-packages/requirements.json
+          zip-packages-json: test/zip-packages/requirements.json
           cache-local-packages: true
       - run: typst --version
       - run: typst compile test/zip-packages/main.typ
