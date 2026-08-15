@@ -150,7 +150,7 @@ Both methods support the same configuration formats. Multiple input formats are 
 # Example workflow YAML file
 - uses: typst-community/setup-typst@v5
   with:
-    zip-packages: requirements.json
+    zip-packages-file: requirements.json
     cache-local-packages: true
 ```
 
@@ -229,7 +229,7 @@ If you require installing fonts in GitHub Actions runner, you can use [Fontist].
 
 ### Prerequisites
 
-Setup Typst uses TypeScript for development, so you'll need Node.js 20 and npm to develop the action.
+Setup Typst uses TypeScript for development, so you'll need Node.js 24 and npm to develop the action.
 
 ### Initial Setup
 
@@ -241,7 +241,7 @@ The action uses TypeScript for development and [ncc] to compile and bundle every
 
 To build the action, run `npm run build`. This command compiles the TypeScript code from `src/main.ts` and bundles it with all dependencies into the `dist/main.js` file.
 
-You can also use `npm run lint` to run type checking and format code with `npm run format`.
+You can also use `npm run lint` to run type checking, and format code with `npm run format`.
 
 ### Testing
 
