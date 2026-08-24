@@ -7,6 +7,7 @@ import * as cache from "@actions/cache";
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import * as tc from "@actions/tool-cache";
+import * as toml from "smol-toml";
 
 import { hashJsonObject, hashFile } from "./utils/hash";
 import { move } from "./utils/move";
@@ -105,11 +106,13 @@ export async function cachePackages(
  * @param packagesDir The directory to extract the package to
  * @param name The name of the package
  * @param url The URL of the ZIP archive file
+ * @param versionOverride Optional version override for the package
  */
 async function downloadZipPackage(
   packagesDir: string,
   name: string,
   url: string,
+  versionOverride?: string,
 ) {
   const packageDir = path.join(packagesDir, name);
   if (!fs.existsSync(packageDir)) {
@@ -146,20 +149,32 @@ async function downloadZipPackage(
     });
   });
   if (dirContent.length === 1) {
-    const innerPath = path.join(packageResponse, dirContent[0]);
-    const stats = fs.statSync(innerPath);
-    if (stats.isDirectory()) {
-      const packageVersion = getPackageVersion(
-        path.join(innerPath, "typst.toml"),
+    packageResponse = path.join(packageResponse, dirContent[0]);
+    const stats = fs.statSync(packageResponse);
+    if (!stats.isDirectory()) {
+      core.warning(
+        `Expected a directory after extracting package ${name}, but found a file. Check the ZIP archive structure.`,
       );
-      move(innerPath, path.join(packageDir, packageVersion));
+      return;
     }
-  } else {
-    const packageVersion = getPackageVersion(
-      path.join(packageResponse, "typst.toml"),
-    );
-    move(packageResponse, path.join(packageDir, packageVersion));
   }
+  let tomlPath = path.join(packageResponse, "typst.toml");
+  let packageVersion = getPackageVersion(tomlPath);
+  if (versionOverride) {
+    if (versionOverride != packageVersion) {
+      const tomlContent = fs.readFileSync(tomlPath, "utf-8");
+      const parsedToml = toml.parse(tomlContent) as {
+        package: { version?: string };
+      };
+      parsedToml.package.version = versionOverride;
+      fs.writeFileSync(tomlPath, toml.stringify(parsedToml), "utf-8");
+      core.info(
+        `Overridden package version from ${packageVersion} to ${versionOverride}.`,
+      );
+      packageVersion = versionOverride;
+    }
+  }
+  move(packageResponse, path.join(packageDir, packageVersion));
   core.info(`✅ Downloaded ${name} to '${packageDir}'`);
 }
 
@@ -192,6 +207,9 @@ export async function downloadZipLocalPackages(
     Object.entries(zipPackages.local).map(([key, value]) => {
       if (typeof value === "string") {
         return downloadZipPackage(packagesLocalDir, key, value);
+      } else if (value != null && typeof value === "object") {
+        const [versionOverride, url] = Object.entries(value)[0] ?? [];
+        return downloadZipPackage(packagesLocalDir, key, url, versionOverride);
       } else {
         core.warning(`Invalid package URL for ${key}: Expected a string.`);
         return Promise.resolve();
@@ -230,6 +248,9 @@ export async function downloadZipPreviewPackages(
     Object.entries(zipPackages.preview).map(([key, value]) => {
       if (typeof value === "string") {
         return downloadZipPackage(packagesPreviewDir, key, value);
+      } else if (value != null && typeof value === "object") {
+        const [versionOverride, url] = Object.entries(value)[0] ?? [];
+        return downloadZipPackage(packagesLocalDir, key, url, versionOverride);
       } else {
         core.warning(`Invalid package URL for ${key}: Expected a string.`);
         return Promise.resolve();
