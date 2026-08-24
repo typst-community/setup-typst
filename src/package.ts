@@ -160,13 +160,17 @@ async function downloadZipPackage(
   }
   let tomlPath = path.join(packageResponse, "typst.toml");
   let packageVersion = getPackageVersion(tomlPath);
-  if (versionOverride){
+  if (versionOverride) {
     if (versionOverride != packageVersion) {
       const tomlContent = fs.readFileSync(tomlPath, "utf-8");
-      const parsedToml = toml.parse(tomlContent);
+      const parsedToml = toml.parse(tomlContent) as {
+        package: { version?: string };
+      };
       parsedToml.package.version = versionOverride;
       fs.writeFileSync(tomlPath, toml.stringify(parsedToml), "utf-8");
-      core.info(`Overridden package version from ${packageVersion} to ${versionOverride}.`);
+      core.info(
+        `Overridden package version from ${packageVersion} to ${versionOverride}.`,
+      );
       packageVersion = versionOverride;
     }
   }
@@ -203,6 +207,9 @@ export async function downloadZipLocalPackages(
     Object.entries(zipPackages.local).map(([key, value]) => {
       if (typeof value === "string") {
         return downloadZipPackage(packagesLocalDir, key, value);
+      } else if (value != null && typeof value === "object") {
+        const [versionOverride, url] = Object.entries(value)[0] ?? [];
+        return downloadZipPackage(packagesLocalDir, key, url, versionOverride);
       } else {
         core.warning(`Invalid package URL for ${key}: Expected a string.`);
         return Promise.resolve();
@@ -241,6 +248,9 @@ export async function downloadZipPreviewPackages(
     Object.entries(zipPackages.preview).map(([key, value]) => {
       if (typeof value === "string") {
         return downloadZipPackage(packagesPreviewDir, key, value);
+      } else if (value != null && typeof value === "object") {
+        const [versionOverride, url] = Object.entries(value)[0] ?? [];
+        return downloadZipPackage(packagesLocalDir, key, url, versionOverride);
       } else {
         core.warning(`Invalid package URL for ${key}: Expected a string.`);
         return Promise.resolve();

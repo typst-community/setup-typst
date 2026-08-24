@@ -161,7 +161,9 @@ Both methods support the same configuration formats. Multiple input formats are 
     "algorithmic": "https://github.com/typst-community/typst-algorithmic/archive/refs/tags/v1.0.0.zip"
   },
   "local": {
-    "glossarium": "https://github.com/typst-community/glossarium/archive/refs/tags/v0.5.7.zip"
+    "glossarium": {
+      "0.5.0": "https://github.com/typst-community/glossarium/archive/refs/heads/master.zip"
+    }
   }
 }
 ```
