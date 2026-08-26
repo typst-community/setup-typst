@@ -1,7 +1,7 @@
 name: Publish
 on:
   release:
-    types: [released, prereleased]
+    types: [published]
   workflow_dispatch:
 concurrency: ${{ github.workflow }}
 jobs:
@@ -27,7 +27,7 @@ jobs:
         env:
           TAG: ${{ github.event.release.tag_name }}
       - uses: actions/github-script@v8
-        if: ${{ github.event_name == 'release' && github.event.release.prerelease != 'true' }}
+        if: ${{ github.event_name == 'release' && !github.event.release.prerelease }}
         with:
           script: |
             const tagName = context.payload.release.tag_name;
