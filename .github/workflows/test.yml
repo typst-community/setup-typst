@@ -8,16 +8,12 @@ on:
       - .gitignore
       - "**.md"
       - LICENSE
-      - .github/**
-      - "!.github/workflows/test.yml"
   pull_request:
     paths-ignore:
       - .gitattributes
       - .gitignore
       - "**.md"
       - LICENSE
-      - .github/**
-      - "!.github/workflows/test.yml"
   workflow_dispatch:
 
 concurrency:
