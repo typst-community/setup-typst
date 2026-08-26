@@ -9,10 +9,10 @@
     "@openanime/hcl-unmarshal": "^1.0.6",
     "@types/hjson": "^2.4.6",
     "@types/ini": "^4.1.1",
-    "@vercel/ncc": "^0.38.1",
+    "@vercel/ncc": "^0.45.0",
     "fast-xml-parser": "^5.5.8",
     "hjson": "^3.2.2",
-    "ini": "^6.0.0",
+    "ini": "^7.0.0",
     "semver": "^7.8.5",
     "smol-toml": "^1.6.1",
     "yaml": "^2.8.3"
