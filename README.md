@@ -22,7 +22,7 @@ jobs:
   render-paper:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: typst-community/setup-typst@v5
       # 🎉 Now Typst is installed!
       - run: typst compile paper.typ paper.pdf
@@ -210,7 +210,7 @@ If you require storing and sharing data from a workflow, you can use [artifacts]
 ```yaml
 - uses: typst-community/setup-typst@v5
 - run: typst compile paper.typ paper.pdf
-- uses: actions/upload-artifact@v6
+- uses: actions/upload-artifact@v7
   with:
     name: paper
     path: paper.pdf
