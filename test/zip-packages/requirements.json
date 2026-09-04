@@ -1,7 +1,4 @@
 {
-  "preview": {
-    "algorithmic": "https://github.com/typst-community/typst-algorithmic/archive/refs/tags/v1.0.0.zip"
-  },
   "local": {
     "glossarium": {
       "0.5.0": "https://github.com/typst-community/glossarium/archive/refs/heads/master.zip"
