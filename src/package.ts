@@ -187,6 +187,10 @@ export async function downloadZipLocalPackages(
   zipPackages: Record<string, any>,
   cacheLocalPackages: boolean,
 ) {
+  if (!zipPackages.hasOwnProperty('local')) {
+    console.debug('No ZIP @local packages, skipping download.');
+    return;
+  }
   if (cacheLocalPackages) {
     const hash = await hashJsonObject(zipPackages);
     const primaryKey = `typst-local-packages-${hash}`;
@@ -237,6 +241,10 @@ export async function downloadZipLocalPackages(
 export async function downloadZipPreviewPackages(
   zipPackages: Record<string, any>,
 ) {
+  if (!zipPackages.hasOwnProperty('preview')) {
+    console.debug('No ZIP @preview packages, skipping download.');
+    return;
+  }
   core.info(`Downloading ZIP @preview packages.`);
   if (!fs.existsSync(packagesPreviewDir)) {
     fs.mkdirSync(packagesPreviewDir, { recursive: true });
