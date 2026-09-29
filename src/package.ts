@@ -187,8 +187,8 @@ export async function downloadZipLocalPackages(
   zipPackages: Record<string, any>,
   cacheLocalPackages: boolean,
 ) {
-  if (!zipPackages.hasOwnProperty('local')) {
-    console.debug('No ZIP @local packages, skipping download.');
+  if (!zipPackages.hasOwnProperty("local")) {
+    core.debug("No ZIP @local packages, skipping download.");
     return;
   }
   if (cacheLocalPackages) {
@@ -241,8 +241,8 @@ export async function downloadZipLocalPackages(
 export async function downloadZipPreviewPackages(
   zipPackages: Record<string, any>,
 ) {
-  if (!zipPackages.hasOwnProperty('preview')) {
-    console.debug('No ZIP @preview packages, skipping download.');
+  if (!zipPackages.hasOwnProperty("preview")) {
+    core.debug("No ZIP @preview packages, skipping download.");
     return;
   }
   core.info(`Downloading ZIP @preview packages.`);
@@ -258,7 +258,12 @@ export async function downloadZipPreviewPackages(
         return downloadZipPackage(packagesPreviewDir, key, value);
       } else if (value != null && typeof value === "object") {
         const [versionOverride, url] = Object.entries(value)[0] ?? [];
-        return downloadZipPackage(packagesLocalDir, key, url, versionOverride);
+        return downloadZipPackage(
+          packagesPreviewDir,
+          key,
+          url,
+          versionOverride,
+        );
       } else {
         core.warning(`Invalid package URL for ${key}: Expected a string.`);
         return Promise.resolve();

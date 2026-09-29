@@ -23,6 +23,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -30,6 +31,7 @@ jobs:
           node-version: "24"
           cache: npm
       - run: npm ci
+      - run: npm run lint
       - run: npm run build
       - uses: actions/upload-artifact@v7
         with:
@@ -38,6 +40,7 @@ jobs:
   test-basic:
     runs-on: ${{ matrix.os }}
     needs: build
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -53,6 +56,7 @@ jobs:
   test-executable-name:
     runs-on: ${{ matrix.os }}
     needs: [build, test-basic]
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -79,6 +83,7 @@ jobs:
   test-typst-versions:
     runs-on: ${{ matrix.os }}
     needs: [build, test-basic]
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -120,6 +125,7 @@ jobs:
   test-zip-packages:
     runs-on: ${{ matrix.os }}
     needs: [build, test-basic]
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -132,7 +138,7 @@ jobs:
           path: ./dist
       - uses: ./
         with:
-          typst-version: v0.14
+          typst-version: v0.13
           zip-packages-file: test/zip-packages/requirements.json
           cache-local-packages: true
       - run: typst --version
