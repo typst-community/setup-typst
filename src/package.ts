@@ -118,10 +118,6 @@ async function downloadZipPackage(
   if (!fs.existsSync(packageDir)) {
     fs.mkdirSync(packageDir);
     core.debug(`Created directory '${packageDir}' for package ${name}.`);
-  } else {
-    core.warning(
-      `Directory '${packageDir}' already exists. Check for duplicate package names.`,
-    );
   }
   core.info(`Downloading package ${name} from ${url}.`);
   let packageResponse = await tc.downloadTool(url);
@@ -208,12 +204,13 @@ export async function downloadZipLocalPackages(
     core.debug(`Created ZIP @local packages directory: '${packagesLocalDir}'.`);
   }
   await Promise.all(
-    Object.entries(zipPackages.local).map(([key, value]) => {
+    Object.entries(zipPackages.local).flatMap(([key, value]) => {
       if (typeof value === "string") {
         return downloadZipPackage(packagesLocalDir, key, value);
       } else if (value != null && typeof value === "object") {
-        const [versionOverride, url] = Object.entries(value)[0] ?? [];
-        return downloadZipPackage(packagesLocalDir, key, url, versionOverride);
+        return Object.entries(value).map(([versionOverride, url]) =>
+          downloadZipPackage(packagesLocalDir, key, url, versionOverride),
+        );
       } else {
         core.warning(`Invalid package URL for ${key}: Expected a string.`);
         return Promise.resolve();
@@ -253,16 +250,12 @@ export async function downloadZipPreviewPackages(
     );
   }
   await Promise.all(
-    Object.entries(zipPackages.preview).map(([key, value]) => {
+    Object.entries(zipPackages.preview).flatMap(([key, value]) => {
       if (typeof value === "string") {
         return downloadZipPackage(packagesPreviewDir, key, value);
       } else if (value != null && typeof value === "object") {
-        const [versionOverride, url] = Object.entries(value)[0] ?? [];
-        return downloadZipPackage(
-          packagesPreviewDir,
-          key,
-          url,
-          versionOverride,
+        return Object.entries(value).map(([versionOverride, url]) =>
+          downloadZipPackage(packagesPreviewDir, key, url, versionOverride),
         );
       } else {
         core.warning(`Invalid package URL for ${key}: Expected a string.`);
